@@ -1,3 +1,2 @@
-import mainConfig from './main.js'
-
-export default mainConfig
+export * from './main.js'
+export * from './typescript.js'

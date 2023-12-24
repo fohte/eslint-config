@@ -3,7 +3,7 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
 import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort'
 
-const config: Linter.FlatConfig[] = [
+export const mainConfig: Linter.FlatConfig[] = [
   {
     plugins: {
       'simple-import-sort': simpleImportSortPlugin,
@@ -20,5 +20,3 @@ const config: Linter.FlatConfig[] = [
   },
   eslintConfigPrettier,
 ]
-
-export default config
