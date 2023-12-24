@@ -1,5 +1,12 @@
-module.exports = {
-  plugins: ['simple-import-sort', 'import', '@typescript-eslint'],
+import { Linter } from 'eslint'
+import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort'
+import importPlugin from 'eslint-plugin-import'
+
+const config: Linter.FlatConfig = {
+  plugins: {
+    'simple-import-sort': simpleImportSortPlugin,
+    import: importPlugin,
+  },
   rules: {
     'no-unused-vars': 'off',
     'simple-import-sort/imports': 'error',
@@ -9,3 +16,5 @@ module.exports = {
     'import/no-duplicates': 'error',
   },
 }
+
+export default config

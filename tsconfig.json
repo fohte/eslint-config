@@ -1,12 +1,7 @@
 {
+  "extends": "@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "module": "esnext",
-    "target": "esnext",
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "outDir": "./lib",
     "composite": true,
     "strict": true,
     "downlevelIteration": true,
@@ -15,8 +10,26 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "types": [
-      "bun-types" // add Bun global
-    ]
-  }
+    "typeRoots": [
+      "./types",
+      "./node_modules/bun-types", // add Bun global
+      "./node_modules/@types"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "eslint-plugin-simple-import-sort": [
+        "./types/eslint-plugin-simple-import-sort.d.ts"
+      ],
+      "eslint-plugin-import": [
+        "./types/eslint-plugin-import.d.ts"
+      ]
+    }
+  },
+  "include": [
+    "./index.ts",
+    "./types/**/*"
+  ],
+  "exclude": [
+    "./lib/**/*"
+  ]
 }

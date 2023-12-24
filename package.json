@@ -1,17 +1,33 @@
 {
   "name": "@fohte/eslint-config",
-  "module": "index.ts",
+  "description": "ESLint config for fohte",
+  "version": "0.0.1",
   "type": "module",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fohte/eslint-config.git"
+  },
+  "author": "fohte <fohte.hk@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "6.15.0",
     "@typescript-eslint/parser": "6.15.0",
     "eslint": "8.56.0",
     "eslint-plugin-import": "2.29.1",
-    "eslint-plugin-simple-import-sort": "10.0.0",
-    "typescript": "5.3.3"
+    "eslint-plugin-simple-import-sort": "10.0.0"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "@eslint/eslintrc": "2.1.4",
+    "@tsconfig/node20": "20.1.2",
+    "@types/eslint": "8.56.0",
+    "@types/eslint__eslintrc": "2.1.1",
+    "bun-types": "latest",
+    "typescript": "5.3.3"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
