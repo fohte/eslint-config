@@ -17,7 +17,7 @@ bun run index.ts
 `eslint.config.js`:
 
 ```javascript
-import { mainConfig, typescriptConfig, nextConfig } from '@fohte/eslint-config'
+import { mainConfig, typescriptConfig } from '@fohte/eslint-config'
 
 export default [
   ...mainConfig,
