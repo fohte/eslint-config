@@ -15,13 +15,14 @@
       "./node_modules/bun-types", // add Bun global
       "./node_modules/@types"
     ],
-    "baseUrl": "./src",
+    "baseUrl": ".",
+    "rootDir": "./src",
     "paths": {
       "eslint-plugin-simple-import-sort": [
-        "./types/eslint-plugin-simple-import-sort.d.ts"
+        "./src/types/eslint-plugin-simple-import-sort.d.ts"
       ],
       "eslint-plugin-import": [
-        "./types/eslint-plugin-import.d.ts"
+        "./src/types/eslint-plugin-import.d.ts"
       ]
     }
   },
