@@ -1,4 +1,5 @@
 import type { Linter } from 'eslint'
+import eslintConfigPrettier from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
 import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort'
 
@@ -17,6 +18,7 @@ const config: Linter.FlatConfig[] = [
       'import/no-duplicates': 'error',
     },
   },
+  eslintConfigPrettier,
 ]
 
 export default config

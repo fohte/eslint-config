@@ -23,6 +23,9 @@
       ],
       "eslint-plugin-import": [
         "./src/types/eslint-plugin-import.d.ts"
+      ],
+      "eslint-config-prettier": [
+        "./src/types/eslint-config-prettier.d.ts"
       ]
     }
   },
