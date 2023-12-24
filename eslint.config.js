@@ -1,3 +1,6 @@
-import config from './lib/with-typescript.js'
+import { mainConfig, typescriptConfig } from './lib/index.js'
 
-export default config
+export default [
+  ...mainConfig,
+  ...typescriptConfig,
+]
