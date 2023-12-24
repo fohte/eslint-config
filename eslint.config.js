@@ -1,3 +1,3 @@
-import config from './lib/index.js'
+import config from './lib/with-typescript.js'
 
 export default config
