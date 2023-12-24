@@ -2,13 +2,9 @@ import { FlatCompat } from '@eslint/eslintrc'
 import typeScriptESLintParser from '@typescript-eslint/parser'
 import type { Linter } from 'eslint'
 
-import mainConfig from './main.js'
-
 const compat = new FlatCompat()
 
-const config: Linter.FlatConfig[] = [
-  ...mainConfig,
-
+export const typescriptConfig: Linter.FlatConfig[] = [
   ...compat.extends('plugin:@typescript-eslint/recommended'),
 
   {
@@ -23,5 +19,3 @@ const config: Linter.FlatConfig[] = [
     },
   },
 ]
-
-export default config
