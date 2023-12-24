@@ -22,5 +22,6 @@ import { mainConfig, typescriptConfig, nextConfig } from '@fohte/eslint-config'
 export default [
   ...mainConfig,
   ...typescriptConfig,
+  ...nextConfig,
 ]
 ```
