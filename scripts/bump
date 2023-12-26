@@ -6,6 +6,8 @@ new_version="$1"
 
 tag="$(npm version "$new_version")"
 
+git switch master
+git push origin master
 git push origin "$tag" --tags
 
 gh release create "$tag" --generate-notes
