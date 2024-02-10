@@ -24,7 +24,7 @@
     "eslint-plugin-simple-import-sort": "10.0.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "3.0.0",
+    "@eslint/eslintrc": "3.0.1",
     "@tsconfig/node20": "20.1.2",
     "@types/eslint": "8.56.2",
     "@types/eslint__eslintrc": "2.1.1",
