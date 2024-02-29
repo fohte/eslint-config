@@ -26,7 +26,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "3.0.2",
     "@tsconfig/node20": "20.1.2",
-    "@types/eslint": "8.56.4",
+    "@types/eslint": "8.56.5",
     "@types/eslint__eslintrc": "2.1.1",
     "bun-types": "latest",
     "typescript": "5.3.3"
