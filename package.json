@@ -29,7 +29,7 @@
     "@types/eslint": "8.56.7",
     "@types/eslint__eslintrc": "2.1.1",
     "bun-types": "latest",
-    "typescript": "5.4.3"
+    "typescript": "5.4.4"
   },
   "peerDependencies": {
     "typescript": "5.4.3"
