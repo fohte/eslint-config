@@ -13,7 +13,9 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "npm run build && npm run lint",
+    "bump": "./scripts/bump"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "6.15.0",
