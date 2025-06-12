@@ -3,12 +3,11 @@ name: Test
 on:
   push:
 
-permissions:
-  contents: write
-
 jobs:
-  test:
+  pre-commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/create-github-app-token@v1
@@ -43,3 +42,21 @@ jobs:
           commit_message: 'style: auto-format'
           workflow: deny
           github_token: ${{ steps.app-token.outputs.token }}
+
+  build-and-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm run lint
