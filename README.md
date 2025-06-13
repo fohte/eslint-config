@@ -61,14 +61,15 @@ This project uses [release-please](https://github.com/googleapis/release-please)
 #### 1. Create a feature branch and make changes
 
 - Create a new branch from `master`
-- Make changes and commit using [Conventional Commits](https://www.conventionalcommits.org/):
-  - `fix:` for bug fixes (patch release)
-  - `feat:` for new features (minor release)
-  - `feat!:` or `fix!:` for breaking changes (major release)
+- Make your changes (commit messages don't need to follow any specific format)
 
 #### 2. Create a PR and merge to master
 
 - Push your branch and create a PR
+- **PR title must follow [Conventional Commits](https://www.conventionalcommits.org/)**:
+  - `fix:` for bug fixes (patch release)
+  - `feat:` for new features (minor release)
+  - `feat!:` or `fix!:` for breaking changes (major release)
 - After review, merge the PR (squash merge only)
 
 #### 3. Automated release process
