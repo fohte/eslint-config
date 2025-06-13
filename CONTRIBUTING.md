@@ -140,15 +140,26 @@ Describe how you tested your changes
 
 ## Release Process
 
-Releases are managed by maintainers:
+Releases are automated using [release-please](https://github.com/googleapis/release-please):
 
-1. Update version in `package.json`
-2. Update CHANGELOG.md moving items from "Unreleased" to the new version
-3. Run the bump script:
-   ```bash
-   npm run bump
-   ```
-4. Create a release on GitHub with the changelog content
+1. **Automatic Release PR**: When commits are pushed to `master`, release-please automatically creates or updates a release PR
+2. **Version Bumping**: The version is automatically determined based on conventional commits:
+   - `fix:` commits trigger a patch release
+   - `feat:` commits trigger a minor release
+   - `feat!:` or `fix!:` (breaking changes) trigger a major release
+3. **Release**: When the release PR is merged, the following happens automatically:
+   - Version in `package.json` is updated
+   - CHANGELOG.md is updated
+   - A git tag is created
+   - A GitHub release is created
+   - The package is published to npm
+
+### Manual Release (Alternative)
+
+If you need to create a release manually, you can still use:
+```bash
+npm run bump <version>
+```
 
 ## Code Style Guidelines
 

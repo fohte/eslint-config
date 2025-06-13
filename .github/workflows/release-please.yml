@@ -1,0 +1,48 @@
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          # this assumes that you have created a personal access token
+          # (PAT) and configured it as a GitHub action secret named
+          # `RELEASE_PLEASE_TOKEN` (this secret name is not important).
+          # you can omit this if you want to use GITHUB_TOKEN, but
+          # release PRs won't trigger other workflows
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+          
+      # The logic below handles the npm publication:
+      - uses: actions/checkout@v4
+        # these if statements ensure that a publication only occurs when
+        # a new release is created:
+        if: ${{ steps.release.outputs.release_created }}
+        
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+        if: ${{ steps.release.outputs.release_created }}
+        
+      - run: npm ci
+        if: ${{ steps.release.outputs.release_created }}
+        
+      - run: npm run build
+        if: ${{ steps.release.outputs.release_created }}
+        
+      - run: npm publish
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
