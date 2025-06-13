@@ -56,20 +56,29 @@ src/
 
 ### Release Process
 
-This project uses [release-please](https://github.com/googleapis/release-please) for automated releases:
+This project uses [release-please](https://github.com/googleapis/release-please) for automated releases.
 
-1. Make changes and commit using [Conventional Commits](https://www.conventionalcommits.org/):
+#### 1. Create a feature branch and make changes
+
+- Create a new branch from `master`
+- Make changes and commit using [Conventional Commits](https://www.conventionalcommits.org/):
   - `fix:` for bug fixes (patch release)
   - `feat:` for new features (minor release)
   - `feat!:` or `fix!:` for breaking changes (major release)
 
-2. Push to `master` branch
+#### 2. Create a PR and merge to master
 
-3. release-please automatically:
-  - Creates/updates a Release PR
-  - Updates version in package.json
-  - Updates CHANGELOG.md
-  - Creates GitHub release and git tag when PR is merged
+- Push your branch and create a PR
+- After review, merge the PR (squash merge only)
+
+#### 3. Automated release process
+
+When changes are merged to `master`, release-please automatically:
+- Creates/updates a Release PR
+- Updates version in package.json
+- Updates CHANGELOG.md
+- When the Release PR is merged:
+  - Creates GitHub release and git tag
   - Publishes to npm
 
 ### Pre-commit Hooks
