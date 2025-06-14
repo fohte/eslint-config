@@ -17,6 +17,7 @@
     "copy-types": "mkdir -p lib/types && cp src/types/*.d.ts lib/types/",
     "watch": "tsc -w",
     "lint": "eslint src",
+    "test": "npm run build && npm run lint",
     "prepublishOnly": "npm run lint && npm run build",
     "postbuild": "npm run validate-build",
     "validate-build": "publint"
