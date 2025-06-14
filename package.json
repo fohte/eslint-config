@@ -11,9 +11,16 @@
   "author": "fohte <fohte.hk@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "prebuild": "npm run clean",
+    "build": "npx tsc && npm run copy-types",
+    "copy-types": "mkdir -p lib/types && cp src/types/*.d.ts lib/types/",
     "watch": "tsc -w",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "npm run build && npm run lint",
+    "prepublishOnly": "npm run lint && npm run build",
+    "postbuild": "npm run validate-build",
+    "validate-build": "publint"
   },
   "dependencies": {},
   "devDependencies": {
@@ -22,6 +29,8 @@
     "@types/eslint": "8.56.10",
     "@types/eslint__eslintrc": "2.1.1",
     "bun-types": "latest",
+    "publint": "^0.3.12",
+    "rimraf": "^6.0.1",
     "typescript": "5.4.5"
   },
   "peerDependencies": {
