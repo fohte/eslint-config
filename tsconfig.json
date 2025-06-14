@@ -14,10 +14,6 @@
     "declaration": true,
     "declarationMap": true,
     "incremental": true,
-    "typeRoots": [
-      "./node_modules/bun-types", // add Bun global
-      "./node_modules/@types"
-    ],
     "baseUrl": ".",
     "rootDir": "./src",
     "paths": {
