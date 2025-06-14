@@ -42,7 +42,6 @@ npm run watch
 - `npm run watch` - Watch mode for development
 - `npm run lint` - Run ESLint on source files
 - `npm run test` - Run build and lint
-- `npm run bump <version>` - Manual version bump (alternative to automated release)
 
 ### Project Structure
 
