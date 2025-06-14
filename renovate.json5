@@ -4,7 +4,13 @@
     'github>fohte/renovate-config:node.json5',
   ],
   // Override the global rangeStrategy: 'pin' from base.json5
-  // GitHub Actions の node-version は範囲指定のままにする
+  // Keep Node.js version ranges in GitHub Actions (e.g., '20.x' instead of '20.19.2')
+  //
+  // NOTE: Why we need regexManagers instead of packageRules:
+  // - packageRules cannot override settings for values inside the 'with' section of GitHub Actions
+  // - Renovate detects the actions/setup-node action itself, but with:node-version requires special handling
+  // - Official docs state "not all syntaxes are supported out of the box" for GitHub Actions with parameters
+  // - PR #59 shows "node uses-with" because Renovate uses a special detection method for these cases
   regexManagers: [
     {
       fileMatch: ['^.github/workflows/[^/]+\\.ya?ml$'],
