@@ -15,7 +15,6 @@
     "declarationMap": true,
     "incremental": true,
     "typeRoots": [
-      "./src/types",
       "./node_modules/bun-types", // add Bun global
       "./node_modules/@types"
     ],
