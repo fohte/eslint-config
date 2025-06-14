@@ -34,7 +34,7 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm ci
+      - run: npm install
 
       - run: npm run build
 
