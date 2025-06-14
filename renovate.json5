@@ -13,9 +13,8 @@
       ],
       datasourceTemplate: 'node-version',
       packageNameTemplate: 'node',
+      // 'node' versioning automatically handles ranges like '20.x' correctly
       versioningTemplate: 'node',
-      // Don't pin - keep ranges like '20.x'
-      rangeStrategyTemplate: 'replace',
     },
   ],
 }
