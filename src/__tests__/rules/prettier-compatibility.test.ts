@@ -3,8 +3,16 @@ import { ESLint } from 'eslint'
 import { mainConfig } from '../../index.js'
 
 describe('Prettier Compatibility', () => {
+  // Merge flat config array into a single config object for ESLint 8.x
+  const mergedConfig = mainConfig.reduce((acc, config) => ({
+    ...acc,
+    ...config,
+    plugins: { ...acc.plugins, ...config.plugins },
+    rules: { ...acc.rules, ...config.rules },
+  }), {} as any)
+
   const eslint = new ESLint({
-    overrideConfig: mainConfig as ESLint.Options['overrideConfig'],
+    overrideConfig: mergedConfig,
   })
 
   describe('Formatting rules should be disabled', () => {
@@ -16,10 +24,10 @@ const obj3 = {a:1,  b:2,    c:3}
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       // Should not have any spacing-related errors
-      expect(errors.filter(e => 
-        e.ruleId?.includes('space') || 
+      expect(errors.filter(e =>
+        e.ruleId?.includes('space') ||
         e.ruleId?.includes('object-curly')
       )).toHaveLength(0)
     })
@@ -32,9 +40,9 @@ const arr3 = [1,  2,   3,    4,     5]
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
-      expect(errors.filter(e => 
-        e.ruleId?.includes('array') || 
+
+      expect(errors.filter(e =>
+        e.ruleId?.includes('array') ||
         e.ruleId?.includes('bracket')
       )).toHaveLength(0)
     })
@@ -47,7 +55,7 @@ const template = \`template literal\`
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'quotes')).toHaveLength(0)
     })
 
@@ -59,7 +67,7 @@ function test() { return 'test' }
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'semi')).toHaveLength(0)
     })
 
@@ -75,7 +83,7 @@ return true
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'indent')).toHaveLength(0)
     })
 
@@ -107,7 +115,7 @@ const arr2 = [
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'comma-dangle')).toHaveLength(0)
     })
 
@@ -117,7 +125,7 @@ const veryLongLine = 'this is a very long line that would normally trigger max-l
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'max-len')).toHaveLength(0)
     })
 
@@ -132,9 +140,9 @@ const arrow2 = ( a, b ) => a + b
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
-      expect(errors.filter(e => 
-        e.ruleId?.includes('paren') || 
+
+      expect(errors.filter(e =>
+        e.ruleId?.includes('paren') ||
         e.ruleId?.includes('arrow-spacing')
       )).toHaveLength(0)
     })
@@ -148,7 +156,7 @@ const d=7    +    8
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'space-infix-ops')).toHaveLength(0)
     })
   })
@@ -161,7 +169,7 @@ import { a } from './a'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       // Import rules should still work
       expect(errors.some(e => e.ruleId === 'simple-import-sort/imports')).toBe(true)
     })
@@ -173,7 +181,7 @@ const alsoUnused = 42
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       // no-unused-vars is turned off in our config
       expect(errors.filter(e => e.ruleId === 'no-unused-vars')).toHaveLength(0)
     })

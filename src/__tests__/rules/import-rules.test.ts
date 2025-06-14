@@ -3,8 +3,16 @@ import { ESLint } from 'eslint'
 import { mainConfig } from '../../index.js'
 
 describe('Import Rules Behavior', () => {
+  // Merge flat config array into a single config object for ESLint 8.x
+  const mergedConfig = mainConfig.reduce((acc, config) => ({
+    ...acc,
+    ...config,
+    plugins: { ...acc.plugins, ...config.plugins },
+    rules: { ...acc.rules, ...config.rules },
+  }), {} as any)
+
   const eslint = new ESLint({
-    overrideConfig: mainConfig as ESLint.Options['overrideConfig'],
+    overrideConfig: mergedConfig,
   })
 
   describe('simple-import-sort/imports', () => {
@@ -16,7 +24,7 @@ import React from 'react'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.some(e => e.ruleId === 'simple-import-sort/imports')).toBe(true)
     })
 
@@ -29,7 +37,7 @@ import { a } from './a'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'simple-import-sort/imports')).toHaveLength(0)
     })
 
@@ -45,7 +53,7 @@ import { helper } from './utils/helper'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'simple-import-sort/imports')).toHaveLength(0)
     })
   })
@@ -58,7 +66,7 @@ import React from 'react'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.some(e => e.ruleId === 'import/first')).toBe(true)
     })
   })
@@ -71,7 +79,7 @@ const data = 'test'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.some(e => e.ruleId === 'import/newline-after-import')).toBe(true)
     })
 
@@ -83,7 +91,7 @@ const data = 'test'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'import/newline-after-import')).toHaveLength(0)
     })
   })
@@ -97,7 +105,7 @@ import { useEffect } from 'react'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.some(e => e.ruleId === 'import/no-duplicates')).toBe(true)
     })
 
@@ -107,7 +115,7 @@ import React, { useState, useEffect } from 'react'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === 'import/no-duplicates')).toHaveLength(0)
     })
   })
@@ -120,7 +128,7 @@ export { a } from './a'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const errors = results[0].messages
-      
+
       expect(errors.some(e => e.ruleId === 'simple-import-sort/exports')).toBe(true)
     })
   })
@@ -128,10 +136,10 @@ export { a } from './a'
   describe('Auto-fix behavior', () => {
     it('should fix import order automatically', async () => {
       const eslintWithFix = new ESLint({
-        overrideConfig: mainConfig as ESLint.Options['overrideConfig'],
+            overrideConfig: mergedConfig,
         fix: true,
       })
-      
+
       const code = `
 import { z } from 'zod'
 import { a } from './a'
@@ -139,7 +147,7 @@ import React from 'react'
 `
       const results = await eslintWithFix.lintText(code, { filePath: 'test.js' })
       const fixedCode = results[0].output
-      
+
       expect(fixedCode).toBeDefined()
       // React should come before zod (alphabetical)
       expect(fixedCode!.indexOf('import React')).toBeLessThan(fixedCode!.indexOf('import { z }'))
@@ -149,17 +157,17 @@ import React from 'react'
 
     it('should combine duplicate imports automatically', async () => {
       const eslintWithFix = new ESLint({
-        overrideConfig: mainConfig as ESLint.Options['overrideConfig'],
+            overrideConfig: mergedConfig,
         fix: true,
       })
-      
+
       const code = `
 import React from 'react'
 import { useState } from 'react'
 `
       const results = await eslintWithFix.lintText(code, { filePath: 'test.js' })
       const fixedCode = results[0].output
-      
+
       expect(fixedCode).toContain('import React, { useState } from \'react\'')
       expect(fixedCode).not.toMatch(/import.*react.*\n.*import.*react/)
     })

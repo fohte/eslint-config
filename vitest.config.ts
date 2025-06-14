@@ -14,6 +14,8 @@ export default defineConfig({
         '**/*.config.*',
         '**/mockData.ts',
         '**/*.type.ts',
+        '**/__tests__/**',
+        '**/__fixtures__/**',
       ],
       thresholds: {
         lines: 80,

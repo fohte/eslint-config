@@ -3,8 +3,21 @@ import { ESLint } from 'eslint'
 import { mainConfig, typescriptConfig } from '../../index.js'
 
 describe('TypeScript Rules Behavior', () => {
+  // Merge flat config arrays into a single config object for ESLint 8.x
+  const mergedConfig = [...mainConfig, ...typescriptConfig].reduce((acc, config) => ({
+    ...acc,
+    ...config,
+    plugins: { ...acc.plugins, ...config.plugins },
+    rules: { ...acc.rules, ...config.rules },
+    languageOptions: config.languageOptions ? {
+      ...acc.languageOptions,
+      ...config.languageOptions,
+      parser: config.languageOptions.parser || acc.languageOptions?.parser,
+    } : acc.languageOptions,
+  }), {} as any)
+
   const eslint = new ESLint({
-    overrideConfig: [...mainConfig, ...typescriptConfig] as ESLint.Options['overrideConfig'],
+    overrideConfig: mergedConfig,
   })
 
   describe('@typescript-eslint/no-explicit-any', () => {
@@ -16,7 +29,7 @@ function processData(data: any): any {
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
       const errors = results[0].messages
-      
+
       expect(errors.filter(e => e.ruleId === '@typescript-eslint/no-explicit-any')).toHaveLength(2)
     })
 
@@ -28,7 +41,7 @@ function handleUnknownData(data: any) {
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
       const anyError = results[0].messages.find(e => e.ruleId === '@typescript-eslint/no-explicit-any')
-      
+
       expect(anyError).toBeDefined()
       expect(anyError?.message).toContain('any')
     })
@@ -45,10 +58,10 @@ export function test() {
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
       const errors = results[0].messages
-      
+
       // Both no-unused-vars and @typescript-eslint/no-unused-vars should be off
-      expect(errors.filter(e => 
-        e.ruleId === 'no-unused-vars' || 
+      expect(errors.filter(e =>
+        e.ruleId === 'no-unused-vars' ||
         e.ruleId === '@typescript-eslint/no-unused-vars'
       )).toHaveLength(0)
     })
@@ -67,7 +80,7 @@ export function useConfig(config: Config) {
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
       const importErrors = results[0].messages.filter(e => e.ruleId?.includes('import'))
-      
+
       // Type imports should be handled properly by the sort rules
       expect(importErrors.some(e => e.ruleId === 'simple-import-sort/imports')).toBe(true)
     })
@@ -87,7 +100,7 @@ export const createUser = (data: Partial<User>): User => {
 }
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
-      
+
       // Should not have parsing errors
       expect(results[0].messages.filter(e => e.fatal)).toHaveLength(0)
     })
@@ -105,7 +118,7 @@ export function getStatus(): Status {
 }
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
-      
+
       expect(results[0].messages.filter(e => e.fatal)).toHaveLength(0)
     })
 
@@ -118,7 +131,7 @@ export function identity<T>(value: T): T {
 export const numberIdentity = identity<number>(42)
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
-      
+
       expect(results[0].messages.filter(e => e.fatal)).toHaveLength(0)
     })
   })
@@ -138,7 +151,7 @@ export const Component: React.FC<Props> = ({ name, age }) => {
 }
 `
       const results = await eslint.lintText(code, { filePath: 'test.tsx' })
-      
+
       expect(results[0].messages.filter(e => e.fatal)).toHaveLength(0)
     })
   })
@@ -154,7 +167,7 @@ export { myString, myNumber }
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
       const errors = results[0].messages
-      
+
       // The recommended config includes various rules
       expect(errors.some(e => e.ruleId?.startsWith('@typescript-eslint/'))).toBe(true)
     })

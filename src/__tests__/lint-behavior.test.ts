@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeEach, afterEach } from 'vitest'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { writeFile, rm, mkdir } from 'fs/promises'
@@ -31,11 +31,11 @@ export function test() {
   return React.createElement('div')
 }
 `)
-      
+
       const configFile = join(testDir, 'eslint.config.js')
       await writeFile(configFile, `
-import config from '${join(__dirname, '../../lib/index.js')}'
-export default config.mainConfig
+import { mainConfig } from '${join(__dirname, '../../lib/index.js')}'
+export default mainConfig
 `)
 
       try {
@@ -57,18 +57,18 @@ export function test() {
   return React.createElement('div')
 }
 `)
-      
+
       const configFile = join(testDir, 'eslint.config.js')
       await writeFile(configFile, `
-import config from '${join(__dirname, '../../lib/index.js')}'
-export default config.mainConfig
+import { mainConfig } from '${join(__dirname, '../../lib/index.js')}'
+export default mainConfig
 `)
 
       await execAsync(`npx eslint ${testFile} --fix`, { cwd: testDir })
-      
+
       const { readFile } = await import('fs/promises')
       const fixedContent = await readFile(testFile, 'utf8')
-      
+
       // Should combine React imports
       expect(fixedContent).toContain('import React, { useState } from \'react\'')
       // Should not have duplicate React imports
@@ -85,11 +85,11 @@ export function test() {
   return 'hello'
 }
 `)
-      
+
       const configFile = join(testDir, 'eslint.config.js')
       await writeFile(configFile, `
-import config from '${join(__dirname, '../../lib/index.js')}'
-export default config.mainConfig
+import { mainConfig } from '${join(__dirname, '../../lib/index.js')}'
+export default mainConfig
 `)
 
       const { stdout } = await execAsync(`npx eslint ${testFile}`, { cwd: testDir })
@@ -107,11 +107,11 @@ function processData(data: any): any {
 
 export { processData }
 `)
-      
+
       const configFile = join(testDir, 'eslint.config.js')
       await writeFile(configFile, `
-import config from '${join(__dirname, '../../lib/index.js')}'
-export default [...config.mainConfig, ...config.typescriptConfig]
+import { mainConfig, typescriptConfig } from '${join(__dirname, '../../lib/index.js')}'
+export default [...mainConfig, ...typescriptConfig]
 `)
 
       try {
@@ -134,11 +134,11 @@ export function getUser(): User {
   return { id: 1, name: 'test' }
 }
 `)
-      
+
       const configFile = join(testDir, 'eslint.config.js')
       await writeFile(configFile, `
-import config from '${join(__dirname, '../../lib/index.js')}'
-export default [...config.mainConfig, ...config.typescriptConfig]
+import { mainConfig, typescriptConfig } from '${join(__dirname, '../../lib/index.js')}'
+export default [...mainConfig, ...typescriptConfig]
 `)
 
       const { stdout } = await execAsync(`npx eslint ${testFile}`, { cwd: testDir })
@@ -162,11 +162,11 @@ const double="double"
 
 export { test }
 `)
-      
+
       const configFile = join(testDir, 'eslint.config.js')
       await writeFile(configFile, `
-import config from '${join(__dirname, '../../lib/index.js')}'
-export default config.mainConfig
+import { mainConfig } from '${join(__dirname, '../../lib/index.js')}'
+export default mainConfig
 `)
 
       const { stdout } = await execAsync(`npx eslint ${testFile}`, { cwd: testDir })

@@ -4,8 +4,16 @@ import { mainConfig, typescriptConfig } from '../../index.js'
 
 describe('Auto-fix Behavior', () => {
   describe('JavaScript auto-fix', () => {
+    // Merge flat config array into a single config object for ESLint 8.x
+    const mergedConfig = mainConfig.reduce((acc, config) => ({
+      ...acc,
+      ...config,
+      plugins: { ...acc.plugins, ...config.plugins },
+      rules: { ...acc.rules, ...config.rules },
+    }), {} as any)
+
     const eslint = new ESLint({
-      overrideConfig: mainConfig as ESLint.Options['overrideConfig'],
+      overrideConfig: mergedConfig,
       fix: true,
     })
 
@@ -20,21 +28,21 @@ import path from 'path'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
-      
+
       // Verify the order: node builtins, external packages, then local imports
       const lines = fixed!.split('\n').filter(line => line.trim())
       const importLines = lines.filter(line => line.startsWith('import'))
-      
+
       // path (node builtin) should come first
       expect(importLines[0]).toContain('path')
-      
+
       // External packages (alphabetical)
       expect(importLines[1]).toContain('axios')
       expect(importLines[2]).toContain('React')
       expect(importLines[3]).toContain('zod')
-      
+
       // Local imports should be last
       expect(importLines[4]).toContain('./api')
       expect(importLines[5]).toContain('./utils/helper')
@@ -47,7 +55,7 @@ const data = 'test'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
       expect(fixed).toMatch(/import React from 'react'\n\nconst data = 'test'/)
     })
@@ -64,7 +72,7 @@ const Component = () => {
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
       expect(fixed).toContain('import React, { useEffect, useState } from \'react\'')
       expect((fixed!.match(/from 'react'/g) || []).length).toBe(1)
@@ -78,7 +86,7 @@ export { b } from './b'
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
       const exportLines = fixed!.split('\n').filter(line => line.includes('export'))
       expect(exportLines[0]).toContain('./a')
@@ -98,7 +106,7 @@ const data = {}
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
       // Should have newline after imports
       expect(fixed).toContain('\n\nconst data')
@@ -109,8 +117,21 @@ const data = {}
   })
 
   describe('TypeScript auto-fix', () => {
+    // Merge flat config arrays into a single config object for ESLint 8.x
+    const mergedConfig = [...mainConfig, ...typescriptConfig].reduce((acc, config) => ({
+      ...acc,
+      ...config,
+      plugins: { ...acc.plugins, ...config.plugins },
+      rules: { ...acc.rules, ...config.rules },
+      languageOptions: config.languageOptions ? {
+        ...acc.languageOptions,
+        ...config.languageOptions,
+        parser: config.languageOptions.parser || acc.languageOptions?.parser,
+      } : acc.languageOptions,
+    }), {} as any)
+
     const eslint = new ESLint({
-      overrideConfig: [...mainConfig, ...typescriptConfig] as ESLint.Options['overrideConfig'],
+      overrideConfig: mergedConfig,
       fix: true,
     })
 
@@ -127,7 +148,7 @@ export function test(config: Config, user: User) {
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
       // External imports should come before local imports
       expect(fixed!.indexOf('React')).toBeLessThan(fixed!.indexOf('./helper'))
@@ -144,7 +165,7 @@ const data: User = { name: 'test' }
 `
       const results = await eslint.lintText(code, { filePath: 'test.ts' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
       // Should maintain the interface declaration
       expect(fixed).toContain('interface User')
@@ -156,8 +177,16 @@ const data: User = { name: 'test' }
   })
 
   describe('Fix all issues in a file', () => {
+    // Merge flat config array into a single config object for ESLint 8.x
+    const mergedConfig = mainConfig.reduce((acc, config) => ({
+      ...acc,
+      ...config,
+      plugins: { ...acc.plugins, ...config.plugins },
+      rules: { ...acc.rules, ...config.rules },
+    }), {} as any)
+
     const eslint = new ESLint({
-      overrideConfig: mainConfig as ESLint.Options['overrideConfig'],
+      overrideConfig: mergedConfig,
       fix: true,
     })
 
@@ -172,19 +201,19 @@ const y = 2
 `
       const results = await eslint.lintText(code, { filePath: 'test.js' })
       const fixed = results[0].output
-      
+
       expect(fixed).toBeDefined()
-      
+
       // All imports should be at the top
       const lines = fixed!.split('\n').filter(line => line.trim())
       expect(lines[0]).toContain('import')
-      
+
       // Imports should be combined and sorted
       expect(fixed).toContain('import React, { useState }')
-      
+
       // Should have newline after imports
       expect(fixed).toMatch(/from ['"]\.\/api['"]\n\nconst x = 1/)
-      
+
       // Non-import code should maintain order
       expect(fixed!.indexOf('const x = 1')).toBeLessThan(fixed!.indexOf('const y = 2'))
     })
