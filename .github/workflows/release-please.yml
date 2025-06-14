@@ -21,7 +21,6 @@ jobs:
         id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
-          config-file: release-please-config.json
 
   publish:
     needs: release-please
