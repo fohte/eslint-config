@@ -176,3 +176,6 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# E2E test temporary directories
+eslint-config-e2e-test-*
