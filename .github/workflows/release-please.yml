@@ -8,6 +8,8 @@ name: release-please
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
       - uses: actions/create-github-app-token@v2
         id: app-token
@@ -21,25 +23,22 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           release-type: node
 
-      # The logic below handles the npm publication:
+  publish:
+    needs: release-please
+    runs-on: ubuntu-latest
+    if: ${{ needs.release-please.outputs.release_created }}
+    steps:
       - uses: actions/checkout@v4
-        # these if statements ensure that a publication only occurs when
-        # a new release is created:
-        if: ${{ steps.release.outputs.release_created }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
-        if: ${{ steps.release.outputs.release_created }}
 
       - run: npm ci
-        if: ${{ steps.release.outputs.release_created }}
 
       - run: npm run build
-        if: ${{ steps.release.outputs.release_created }}
 
       - run: npm publish
-        if: ${{ steps.release.outputs.release_created }}
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
