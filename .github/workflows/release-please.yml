@@ -21,11 +21,7 @@ jobs:
         id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
-          release-type: node
-          # For 0.x versions: breaking changes bump minor, features bump patch
-          # This prevents jumping to 1.0.0 until we're ready for stable release
-          bump-minor-pre-major: true
-          bump-patch-for-minor-pre-major: true
+          config-file: release-please-config.json
 
   publish:
     needs: release-please
