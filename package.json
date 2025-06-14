@@ -19,7 +19,7 @@
     "lint": "eslint src",
     "prepublishOnly": "npm run lint && npm run build",
     "postbuild": "npm run validate-build",
-    "validate-build": "node scripts/validate-build.js"
+    "validate-build": "publint"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "6.15.0",
@@ -35,6 +35,7 @@
     "@types/eslint": "8.56.10",
     "@types/eslint__eslintrc": "2.1.1",
     "bun-types": "latest",
+    "publint": "^0.3.12",
     "rimraf": "^6.0.1",
     "typescript": "5.4.5"
   },
