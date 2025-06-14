@@ -43,6 +43,17 @@ docs/src/
 .gitlab-ci.yml
 .travis.yml
 
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Editor config
+.editorconfig
+
 # Keep only the compiled lib directory and essential files
 !lib/
 !lib/**/*.js
