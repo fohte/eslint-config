@@ -3,14 +3,19 @@
     'github>fohte/renovate-config:base.json5',
     'github>fohte/renovate-config:node.json5',
   ],
-  packageRules: [
+  // Override the global rangeStrategy: 'pin' from base.json5
+  // GitHub Actions の node-version は範囲指定のままにする
+  regexManagers: [
     {
-      // Keep Node.js version ranges in GitHub Actions (e.g., '20.x') instead of pinning to specific versions
-      // This ensures the ESLint config is tested against all patch versions within the major.minor range,
-      // improving compatibility for users with different Node.js patch versions
-      matchManagers: ['github-actions'],
-      matchPackageNames: ['node'],
-      rangeStrategy: 'replace',
+      fileMatch: ['^.github/workflows/[^/]+\\.ya?ml$'],
+      matchStrings: [
+        'uses: actions/setup-node@.+\\s+with:\\s+node-version:\\s*[\'"](?<currentValue>.+?)[\'"]',
+      ],
+      datasourceTemplate: 'node-version',
+      packageNameTemplate: 'node',
+      versioningTemplate: 'node',
+      // Don't pin - keep ranges like '20.x'
+      rangeStrategyTemplate: 'replace',
     },
   ],
 }
