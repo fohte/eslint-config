@@ -3,14 +3,24 @@
     'github>fohte/renovate-config:base.json5',
     'github>fohte/renovate-config:node.json5',
   ],
-  packageRules: [
+  // Override the global rangeStrategy: 'pin' from base.json5
+  // Keep Node.js version ranges in GitHub Actions (e.g., '20.x' instead of '20.19.2')
+  //
+  // NOTE: Why we need regexManagers instead of packageRules:
+  // - packageRules cannot override settings for values inside the 'with' section of GitHub Actions
+  // - Renovate detects the actions/setup-node action itself, but with:node-version requires special handling
+  // - Official docs state "not all syntaxes are supported out of the box" for GitHub Actions with parameters
+  // - PR #59 shows "node uses-with" because Renovate uses a special detection method for these cases
+  regexManagers: [
     {
-      // Keep Node.js version ranges in GitHub Actions (e.g., '20.x') instead of pinning to specific versions
-      // This ensures the ESLint config is tested against all patch versions within the major.minor range,
-      // improving compatibility for users with different Node.js patch versions
-      matchManagers: ['github-actions'],
-      matchPackageNames: ['node'],
-      rangeStrategy: 'replace',
+      fileMatch: ['^.github/workflows/[^/]+\\.ya?ml$'],
+      matchStrings: [
+        'uses: actions/setup-node@.+\\s+with:\\s+node-version:\\s*[\'"](?<currentValue>.+?)[\'"]',
+      ],
+      datasourceTemplate: 'node-version',
+      packageNameTemplate: 'node',
+      // 'node' versioning automatically handles ranges like '20.x' correctly
+      versioningTemplate: 'node',
     },
   ],
 }
