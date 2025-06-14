@@ -4,12 +4,40 @@
   "version": "0.0.4",
   "type": "module",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    },
+    "./typescript": {
+      "types": "./lib/typescript.d.ts",
+      "import": "./lib/typescript.js"
+    }
+  },
+  "files": [
+    "lib",
+    "!lib/**/*.map",
+    "!lib/**/*.test.*"
+  ],
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/fohte/eslint-config.git"
   },
   "author": "fohte <fohte.hk@gmail.com>",
   "license": "MIT",
+  "keywords": [
+    "eslint",
+    "eslint-config"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "clean": "rimraf lib tsconfig.tsbuildinfo",
     "prebuild": "npm run clean",
