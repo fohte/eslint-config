@@ -25,9 +25,9 @@
   "dependencies": {},
   "devDependencies": {
     "@eslint/eslintrc": "3.0.2",
-    "@tsconfig/node20": "20.1.4",
-    "@types/eslint": "8.56.10",
-    "@types/eslint__eslintrc": "2.1.1",
+    "@tsconfig/node20": "20.1.6",
+    "@types/eslint": "8.56.12",
+    "@types/eslint__eslintrc": "2.1.2",
     "bun-types": "latest",
     "publint": "^0.3.12",
     "rimraf": "^6.0.1",
