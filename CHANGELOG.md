@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [1.0.0](https://github.com/fohte/eslint-config/compare/v0.0.4...v1.0.0) (2025-06-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* move ESLint packages to peerDependencies ([#53](https://github.com/fohte/eslint-config/issues/53))
+
+### Features
+
+* move ESLint packages to peerDependencies ([#53](https://github.com/fohte/eslint-config/issues/53)) ([dbd3468](https://github.com/fohte/eslint-config/commit/dbd3468ec2e81981b4510298396864ff7b0b400d))
+
 ## [Unreleased]
 
 ### Added
