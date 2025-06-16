@@ -46,8 +46,7 @@
     "watch": "tsc -w",
     "lint": "eslint src",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:ci": "npm run build && npm run lint && npm run test:coverage",
+    "test:ci": "npm run build && npm run lint && npm run test",
     "prepublishOnly": "npm run lint && npm run build",
     "postbuild": "npm run validate-build",
     "validate-build": "publint"
@@ -59,7 +58,6 @@
     "@tsconfig/node20": "20.1.6",
     "@types/eslint": "8.56.12",
     "@types/eslint__eslintrc": "2.1.2",
-    "@vitest/coverage-v8": "^3.2.3",
     "bun-types": "latest",
     "publint": "0.3.12",
     "rimraf": "6.0.1",
