@@ -13,6 +13,7 @@
       // Use feat: prefix for peer dependency updates to trigger releases
       matchDepTypes: ['peerDependencies'],
       commitMessagePrefix: 'feat(peerDeps): ',
+      rangeStrategy: 'replace',
     },
   ],
 }
