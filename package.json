@@ -46,7 +46,6 @@
     "watch": "tsc -w",
     "lint": "eslint src",
     "test": "vitest",
-    "test:ci": "npm run build && npm run lint && npm run test",
     "prepublishOnly": "npm run lint && npm run build",
     "postbuild": "npm run validate-build",
     "validate-build": "publint"
