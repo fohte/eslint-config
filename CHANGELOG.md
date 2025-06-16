@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.1.0](https://github.com/fohte/eslint-config/compare/v0.0.4...v0.1.0) (2025-06-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* move ESLint packages to peerDependencies ([#53](https://github.com/fohte/eslint-config/issues/53))
+
+### Features
+
+* improve package.json for NPM best practices ([#52](https://github.com/fohte/eslint-config/issues/52)) ([f7c8143](https://github.com/fohte/eslint-config/commit/f7c814338b84c8fa9b27ed2d32776bc8c7114633))
+* move ESLint packages to peerDependencies ([#53](https://github.com/fohte/eslint-config/issues/53)) ([dbd3468](https://github.com/fohte/eslint-config/commit/dbd3468ec2e81981b4510298396864ff7b0b400d))
+
+
+### Bug Fixes
+
+* remove manifest mode configuration to fix release PR creation ([#72](https://github.com/fohte/eslint-config/issues/72)) ([08a4edc](https://github.com/fohte/eslint-config/commit/08a4edcef3072d2efb1be840bde8fc1d1f3d2d4f))
+* use regexManagers to preserve Node.js version ranges in GitHub Actions ([#69](https://github.com/fohte/eslint-config/issues/69)) ([8c82368](https://github.com/fohte/eslint-config/commit/8c82368c445e01da97c6bad34606e62350b6392d))
+
 ## [Unreleased]
 
 ### Added
