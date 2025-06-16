@@ -13,6 +13,10 @@
       // Use feat: prefix for peer dependency updates to trigger releases
       matchDepTypes: ['peerDependencies'],
       commitMessagePrefix: 'feat(peerDeps): ',
+      // Replace the entire version range instead of widening with || operators
+      // - default (widen): ^6.0.0 → ^6.0.0 || ^7.0.0 → ^6.0.0 || ^7.0.0 || ^8.0.0
+      // - replace: ^6.0.0 || ^7.0.0 → ^8.0.0
+      rangeStrategy: 'replace',
     },
   ],
 }
