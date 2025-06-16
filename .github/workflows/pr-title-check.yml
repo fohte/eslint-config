@@ -1,0 +1,80 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  check-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files_yaml: |
+            package:
+              - src/**
+              - package.json
+              - README.md
+              - CHANGELOG.md
+            meta:
+              - .github/**
+              - renovate.json5
+              - release-please-config.json
+              - .release-please-manifest.json
+              - CLAUDE.md
+              - eslint.config.js
+              - tsconfig.json
+              - vitest.config.ts
+              - .gitignore
+              - .npmignore
+              - LICENSE
+
+      - name: Validate PR title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const hasPackageChanges = ${{ steps.changed-files.outputs.package_any_changed }};
+            const hasOnlyMetaChanges = ${{ steps.changed-files.outputs.meta_all_changed }} && !hasPackageChanges;
+
+            // Conventional commit regex
+            const conventionalCommitRegex = /^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.+\))?: .+/;
+            const versionBumpingPrefixes = ['feat', 'fix', 'perf'];
+            const nonVersionBumpingPrefixes = ['chore', 'ci', 'docs', 'build', 'style', 'test', 'refactor'];
+
+            if (!conventionalCommitRegex.test(title)) {
+              core.setFailed(`PR title "${title}" does not follow conventional commit format`);
+              return;
+            }
+
+            const prefix = title.split(/[:(]/)[0];
+            const isVersionBumping = versionBumpingPrefixes.includes(prefix);
+            const isNonVersionBumping = nonVersionBumpingPrefixes.includes(prefix);
+
+            console.log(`PR title: "${title}"`);
+            console.log(`Prefix: "${prefix}"`);
+            console.log(`Has package changes: ${hasPackageChanges}`);
+            console.log(`Has only meta changes: ${hasOnlyMetaChanges}`);
+
+            if (hasPackageChanges === 'true' && isNonVersionBumping) {
+              core.setFailed(
+                `PR title uses "${prefix}:" but contains changes to package files.\n` +
+                `Package changes should use version-bumping prefixes: ${versionBumpingPrefixes.join(', ')}\n` +
+                `Changed package files detected.`
+              );
+            } else if (hasOnlyMetaChanges === 'true' && isVersionBumping) {
+              core.warning(
+                `PR title uses "${prefix}:" but only contains meta/config changes.\n` +
+                `Consider using "chore:" to avoid unnecessary version bumps.\n` +
+                `Only meta/config files were changed.`
+              );
+            } else {
+              console.log('✅ PR title is appropriate for the changed files');
+            }
