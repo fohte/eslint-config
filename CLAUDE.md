@@ -25,6 +25,7 @@ npx release-please release-pr --repo-url=https://github.com/fohte/eslint-config 
 ## PR titles
 - Use `chore:` prefix for configuration changes that shouldn't trigger releases
 - Avoid `fix:` or `feat:` prefixes unless you intend to create a release
+- **IMPORTANT**: Changes that don't affect the package itself (e.g., CI config, renovate.json5, documentation) should use `chore:` to avoid unnecessary version bumps
 - release-please uses conventional commits to determine version bumps:
   - `fix:` → patch version bump
   - `feat:` → minor version bump (or patch if v0.x.x with bump-patch-for-minor-pre-major)
