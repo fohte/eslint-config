@@ -1,5 +1,11 @@
 import { execSync } from 'node:child_process'
-import { existsSync,mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -46,7 +52,9 @@ const TEST_PROJECT_PREFIX = 'eslint-config-e2e-test-'
 /**
  * Creates a temporary test project with the specified files
  */
-export async function createTestProject(options: E2ETestOptions): Promise<string> {
+export async function createTestProject(
+  options: E2ETestOptions,
+): Promise<string> {
   const tempDir = mkdtempSync(join(tmpdir(), TEST_PROJECT_PREFIX))
 
   // Get the library directory path (built files)
@@ -60,16 +68,18 @@ export async function createTestProject(options: E2ETestOptions): Promise<string
   // Create package.json
   const packageJson = {
     name: 'test-project',
-    type: 'module'
+    type: 'module',
   }
 
   writeFileSync(
     join(tempDir, 'package.json'),
-    JSON.stringify(packageJson, null, 2) + '\n'
+    JSON.stringify(packageJson, null, 2) + '\n',
   )
 
   // Copy node_modules from the main project to avoid reinstalling
-  execSync(`cp -r ${join(process.cwd(), 'node_modules')} ${tempDir}/`, { stdio: 'pipe' })
+  execSync(`cp -r ${join(process.cwd(), 'node_modules')} ${tempDir}/`, {
+    stdio: 'pipe',
+  })
 
   // Create eslint.config.js that directly imports from the built library
   const eslintConfig = `import { mainConfig, typescriptConfig } from '${libPath}/index.js'
@@ -79,10 +89,7 @@ export default [
   ...typescriptConfig,
 ]`
 
-  writeFileSync(
-    join(tempDir, 'eslint.config.js'),
-    eslintConfig + '\n'
-  )
+  writeFileSync(join(tempDir, 'eslint.config.js'), eslintConfig + '\n')
 
   // Create test files
   for (const file of options.files) {
@@ -103,26 +110,26 @@ export default [
  */
 export async function runESLint(
   projectDir: string,
-  args: string[] = []
+  args: string[] = [],
 ): Promise<ESLintOutput> {
-  const eslintArgs = [
-    'npx', 'eslint',
-    '--format=json',
-    ...args,
-    '.'
-  ].join(' ')
+  const eslintArgs = ['npx', 'eslint', '--format=json', ...args, '.'].join(' ')
 
   try {
     const output = execSync(eslintArgs, {
       cwd: projectDir,
       encoding: 'utf-8',
-      stdio: 'pipe'
+      stdio: 'pipe',
     })
 
     return JSON.parse(output) as ESLintOutput
   } catch (error: unknown) {
     // ESLint exits with code 1 when there are linting errors
-    if (error && typeof error === 'object' && 'stdout' in error && typeof error.stdout === 'string') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'stdout' in error &&
+      typeof error.stdout === 'string'
+    ) {
       return JSON.parse(error.stdout) as ESLintOutput
     }
     throw error
@@ -140,12 +147,14 @@ export function cleanupTestProject(projectDir: string): void {
  * Assertion helper to check if a specific rule was triggered
  */
 export function expectRule(output: ESLintOutput, ruleId: string): void {
-  const hasRule = output.some(result =>
-    result.messages.some(message => message.ruleId === ruleId)
+  const hasRule = output.some((result) =>
+    result.messages.some((message) => message.ruleId === ruleId),
   )
 
   if (!hasRule) {
-    throw new Error(`Expected rule "${ruleId}" to be triggered, but it was not found`)
+    throw new Error(
+      `Expected rule "${ruleId}" to be triggered, but it was not found`,
+    )
   }
 }
 
@@ -156,13 +165,17 @@ export function expectNoErrors(output: ESLintOutput): void {
   const totalErrors = output.reduce((sum, result) => sum + result.errorCount, 0)
 
   if (totalErrors > 0) {
-    const errorMessages = output.flatMap(result =>
-      result.messages
-        .filter(msg => msg.severity === 2)
-        .map(msg => `  ${result.filePath}: ${msg.message} (${msg.ruleId})`)
-    ).join('\n')
+    const errorMessages = output
+      .flatMap((result) =>
+        result.messages
+          .filter((msg) => msg.severity === 2)
+          .map((msg) => `  ${result.filePath}: ${msg.message} (${msg.ruleId})`),
+      )
+      .join('\n')
 
-    throw new Error(`Expected no errors, but found ${totalErrors}:\n${errorMessages}`)
+    throw new Error(
+      `Expected no errors, but found ${totalErrors}:\n${errorMessages}`,
+    )
   }
 }
 
@@ -172,7 +185,7 @@ export function expectNoErrors(output: ESLintOutput): void {
 export function expectFixed(
   projectDir: string,
   filePath: string,
-  expected: string
+  expected: string,
 ): void {
   const fullPath = join(projectDir, filePath)
   const actual = readFileSync(fullPath, 'utf-8')
@@ -180,8 +193,8 @@ export function expectFixed(
   if (actual !== expected) {
     throw new Error(
       `File "${filePath}" was not fixed as expected.\n` +
-      `Expected:\n${expected}\n` +
-      `Actual:\n${actual}`
+        `Expected:\n${expected}\n` +
+        `Actual:\n${actual}`,
     )
   }
 }
@@ -191,10 +204,10 @@ export function expectFixed(
  */
 export function getMessagesForRule(
   output: ESLintOutput,
-  ruleId: string
+  ruleId: string,
 ): ESLintMessage[] {
-  return output.flatMap(result =>
-    result.messages.filter(message => message.ruleId === ruleId)
+  return output.flatMap((result) =>
+    result.messages.filter((message) => message.ruleId === ruleId),
   )
 }
 
@@ -203,7 +216,7 @@ export function getMessagesForRule(
  */
 export async function withTestProject<T>(
   options: E2ETestOptions,
-  testFn: (projectDir: string) => Promise<T>
+  testFn: (projectDir: string) => Promise<T>,
 ): Promise<T> {
   const projectDir = await createTestProject(options)
 
