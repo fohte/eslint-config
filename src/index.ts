@@ -1,2 +1,2 @@
-export * from './main.js'
-export * from './typescript.js'
+export * from "./main.js";
+export * from "./typescript.js";

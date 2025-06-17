@@ -1,31 +1,31 @@
 {
   extends: [
-    'github>fohte/renovate-config:base.json5',
-    'github>fohte/renovate-config:node.json5',
+    "github>fohte/renovate-config:base.json5",
+    "github>fohte/renovate-config:node.json5",
   ],
   packageRules: [
     {
       // don't pin node.js version on setup-node
-      matchDepTypes: ['uses-with'],
-      rangeStrategy: 'auto',
+      matchDepTypes: ["uses-with"],
+      rangeStrategy: "auto",
     },
     {
       // Use feat: prefix for peer dependency updates to trigger releases
-      matchDepTypes: ['peerDependencies'],
-      commitMessagePrefix: 'feat(peerDeps): ',
+      matchDepTypes: ["peerDependencies"],
+      commitMessagePrefix: "feat(peerDeps): ",
       // Replace the entire version range instead of widening with || operators
       // - default (widen): ^6.0.0 → ^6.0.0 || ^7.0.0 → ^6.0.0 || ^7.0.0 || ^8.0.0
       // - replace: ^6.0.0 || ^7.0.0 → ^8.0.0
-      rangeStrategy: 'replace',
+      rangeStrategy: "replace",
     },
     {
       // Don't pin Node.js version in engines field
       // Keep range specification and only update to supported versions
-      matchDepNames: ['node'],
-      matchDepTypes: ['engines'],
-      rangeStrategy: 'replace',
+      matchDepNames: ["node"],
+      matchDepTypes: ["engines"],
+      rangeStrategy: "replace",
       // treat as a breaking change since it changes the supported Node.js version
-      commitMessagePrefix: 'feat!: ',
+      commitMessagePrefix: "feat!: ",
     },
   ],
 }
