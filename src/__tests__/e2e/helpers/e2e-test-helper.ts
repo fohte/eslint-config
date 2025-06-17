@@ -68,8 +68,8 @@ export async function createTestProject(options: E2ETestOptions): Promise<string
     JSON.stringify(packageJson, null, 2) + '\n'
   )
 
-  // Copy node_modules from the main project to avoid reinstalling
-  execSync(`cp -r ${join(process.cwd(), 'node_modules')} ${tempDir}/`, { stdio: 'pipe' })
+  // Create symlink to node_modules from the main project to avoid copying
+  execSync(`ln -s ${join(process.cwd(), 'node_modules')} ${tempDir}/node_modules`, { stdio: 'pipe' })
 
   // Create eslint.config.js that directly imports from the built library
   const eslintConfig = `import { mainConfig, typescriptConfig } from '${libPath}/index.js'
