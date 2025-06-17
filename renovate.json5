@@ -24,9 +24,8 @@
       matchDepNames: ['node'],
       matchDepTypes: ['engines'],
       rangeStrategy: 'replace',
-      supportPolicy: ['active'], // Only update to Active LTS or Current versions
-      // Avoid updating to odd-numbered non-LTS versions
-      allowedVersions: '/^(\\d*[02468])\\./',
+      // treat as a breaking change since it changes the supported Node.js version
+      commitMessagePrefix: 'feat!: ',
     },
   ],
 }
