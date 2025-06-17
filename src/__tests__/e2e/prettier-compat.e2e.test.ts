@@ -2,7 +2,7 @@ import { describe, expect,it } from 'vitest'
 
 import {
   runESLint,
-  withTestProject} from './helpers/e2e-test-helper.js'
+  withTestProject} from './helpers/e2e-test-helper-optimized.js'
 
 describe('Prettier Compatibility E2E', { timeout: 30000 }, () => {
   it('allows Prettier-compatible formatting', async () => {
