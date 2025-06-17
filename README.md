@@ -27,10 +27,7 @@ npm install --save-dev typescript
 ```javascript
 import { mainConfig, typescriptConfig } from '@fohte/eslint-config'
 
-export default [
-  ...mainConfig,
-  ...typescriptConfig,
-]
+export default [...mainConfig, ...typescriptConfig]
 ```
 
 ## Development
@@ -86,6 +83,7 @@ This project uses [release-please](https://github.com/googleapis/release-please)
 #### 3. Automated release process
 
 When changes are merged to `master`, release-please automatically:
+
 - Creates/updates a Release PR
 - Updates version in package.json
 - Updates CHANGELOG.md

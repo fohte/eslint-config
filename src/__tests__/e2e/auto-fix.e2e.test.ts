@@ -3,15 +3,17 @@ import { describe, it } from 'vitest'
 import {
   expectFixed,
   runESLint,
-  withTestProject} from './helpers/e2e-test-helper.js'
+  withTestProject,
+} from './helpers/e2e-test-helper.js'
 
 describe('Auto-fix E2E', { timeout: 30000 }, () => {
   it('fixes import ordering issues', async () => {
-    await withTestProject({
-      files: [
-        {
-          path: 'test.js',
-          content: `import { z } from 'zod'
+    await withTestProject(
+      {
+        files: [
+          {
+            path: 'test.js',
+            content: `import { z } from 'zod'
 import React from 'react'
 import { helper } from './helper'
 
@@ -23,13 +25,17 @@ function test() {
 }
 
 export { test }
-`
-        }
-      ]
-    }, async (projectDir) => {
-      await runESLint(projectDir, ['--fix'])
+`,
+          },
+        ],
+      },
+      async (projectDir) => {
+        await runESLint(projectDir, ['--fix'])
 
-      expectFixed(projectDir, 'test.js', `import React from 'react'
+        expectFixed(
+          projectDir,
+          'test.js',
+          `import React from 'react'
 import { z } from 'zod'
 
 import { helper } from './helper'
@@ -42,16 +48,19 @@ function test() {
 }
 
 export { test }
-`)
-    })
+`
+        )
+      }
+    )
   })
 
   it('fixes TypeScript import ordering', async () => {
-    await withTestProject({
-      files: [
-        {
-          path: 'test.ts',
-          content: `import { helper } from './helper'
+    await withTestProject(
+      {
+        files: [
+          {
+            path: 'test.ts',
+            content: `import { helper } from './helper'
 import React from 'react'
 
 interface User {
@@ -61,13 +70,17 @@ interface User {
 const data: User = { id: '1' }
 
 console.log(React.version, helper, data)
-`
-        }
-      ]
-    }, async (projectDir) => {
-      await runESLint(projectDir, ['--fix'])
+`,
+          },
+        ],
+      },
+      async (projectDir) => {
+        await runESLint(projectDir, ['--fix'])
 
-      expectFixed(projectDir, 'test.ts', `import React from 'react'
+        expectFixed(
+          projectDir,
+          'test.ts',
+          `import React from 'react'
 
 import { helper } from './helper'
 
@@ -78,16 +91,19 @@ interface User {
 const data: User = { id: '1' }
 
 console.log(React.version, helper, data)
-`)
-    })
+`
+        )
+      }
+    )
   })
 
   it('handles JSX/TSX files correctly', async () => {
-    await withTestProject({
-      files: [
-        {
-          path: 'Component.tsx',
-          content: `import React from 'react'
+    await withTestProject(
+      {
+        files: [
+          {
+            path: 'Component.tsx',
+            content: `import React from 'react'
 import { useState } from 'react'
 
 interface Props {
@@ -106,13 +122,17 @@ export const MyComponent = ({ title }: Props) => {
     </div>
   )
 }
-`
-        }
-      ]
-    }, async (projectDir) => {
-      await runESLint(projectDir, ['--fix'])
+`,
+          },
+        ],
+      },
+      async (projectDir) => {
+        await runESLint(projectDir, ['--fix'])
 
-      expectFixed(projectDir, 'Component.tsx', `import React, { useState } from 'react'
+        expectFixed(
+          projectDir,
+          'Component.tsx',
+          `import React, { useState } from 'react'
 
 interface Props {
   title: string
@@ -130,7 +150,9 @@ export const MyComponent = ({ title }: Props) => {
     </div>
   )
 }
-`)
-    })
+`
+        )
+      }
+    )
   })
 })

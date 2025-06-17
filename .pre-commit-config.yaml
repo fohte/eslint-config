@@ -10,3 +10,19 @@ repos:
     rev: 3.2.1
     hooks:
       - id: editorconfig-checker
+
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: npx eslint --fix
+        language: system
+        files: \.(m?jsx?|tsx?)$
+        pass_filenames: true
+
+      - id: prettier
+        name: Prettier
+        entry: npx prettier --write --ignore-unknown
+        language: system
+        types: [file]
+        pass_filenames: true

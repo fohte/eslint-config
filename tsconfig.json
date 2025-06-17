@@ -20,19 +20,10 @@
       "eslint-plugin-simple-import-sort": [
         "./src/types/eslint-plugin-simple-import-sort.d.ts"
       ],
-      "eslint-plugin-import": [
-        "./src/types/eslint-plugin-import.d.ts"
-      ],
-      "eslint-config-prettier": [
-        "./src/types/eslint-config-prettier.d.ts"
-      ]
+      "eslint-plugin-import": ["./src/types/eslint-plugin-import.d.ts"],
+      "eslint-config-prettier": ["./src/types/eslint-config-prettier.d.ts"]
     }
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "lib"
-  ]
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "lib"]
 }
