@@ -1,79 +1,127 @@
 name: PR Title Check
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, edited, synchronize]
 
 jobs:
   check-title:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
+      # Semantic PR title validation
+      - name: Validate PR title format
+        uses: amannn/action-semantic-pull-request@v5
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Don't require scope for this project
+          requireScope: false
+          # Allow only conventional commit types
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            revert
+            style
+            test
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@v45
-        with:
-          files_yaml: |
-            package:
-              - src/**
-              - package.json
-              - README.md
-              - CHANGELOG.md
-            meta:
-              - .github/**
-              - renovate.json5
-              - release-please-config.json
-              - .release-please-manifest.json
-              - CLAUDE.md
-              - eslint.config.js
-              - tsconfig.json
-              - vitest.config.ts
-              - .gitignore
-              - .npmignore
-              - LICENSE
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} || git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
 
-      - name: Validate PR title
+          # Save for later use
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check if changes affect npm package
+        id: package-check
+        run: |
+          # Get files that would be included in npm package
+          # Using npm pack --dry-run to get the actual list
+          echo "Files that would be published:"
+          NPM_FILES=$(npm pack --dry-run 2>/dev/null | grep -E "^npm notice" | grep -E "📦" | cut -d' ' -f4- || true)
+
+          # Check if any changed files would be in the npm package
+          AFFECTS_PACKAGE=false
+          while IFS= read -r changed_file; do
+            # Skip empty lines
+            [ -z "$changed_file" ] && continue
+
+            # Check if this file affects the package
+            # Special cases that always affect the package
+            if [[ "$changed_file" == "package.json" ]] || [[ "$changed_file" == "README.md" ]] || [[ "$changed_file" == "CHANGELOG.md" ]]; then
+              AFFECTS_PACKAGE=true
+              echo "✓ $changed_file affects the package"
+              break
+            fi
+
+            # Check if file is in src/ (which gets built to lib/)
+            if [[ "$changed_file" == src/* ]]; then
+              AFFECTS_PACKAGE=true
+              echo "✓ $changed_file affects the package (source file)"
+              break
+            fi
+          done <<< "${{ steps.changed-files.outputs.files }}"
+
+          echo "affects_package=$AFFECTS_PACKAGE" >> $GITHUB_OUTPUT
+
+      - name: Validate PR title matches changes
         uses: actions/github-script@v7
         with:
           script: |
-            const title = context.payload.pull_request.title;
-            const hasPackageChanges = ${{ steps.changed-files.outputs.package_any_changed }};
-            const hasOnlyMetaChanges = ${{ steps.changed-files.outputs.meta_all_changed }} && !hasPackageChanges;
+            const prTitle = context.payload.pull_request.title;
+            const affectsPackage = '${{ steps.package-check.outputs.affects_package }}' === 'true';
 
-            // Conventional commit regex
-            const conventionalCommitRegex = /^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.+\))?: .+/;
-            const versionBumpingPrefixes = ['feat', 'fix', 'perf'];
-            const nonVersionBumpingPrefixes = ['chore', 'ci', 'docs', 'build', 'style', 'test', 'refactor'];
-
-            if (!conventionalCommitRegex.test(title)) {
-              core.setFailed(`PR title "${title}" does not follow conventional commit format`);
+            // Extract prefix from PR title
+            const prefix = prTitle.match(/^(\w+)(?:\(.+\))?:/)?.[1];
+            if (!prefix) {
+              // This shouldn't happen as semantic-pull-request already validated
               return;
             }
 
-            const prefix = title.split(/[:(]/)[0];
+            const versionBumpingPrefixes = ['feat', 'fix', 'perf'];
+            const nonVersionBumpingPrefixes = ['chore', 'ci', 'docs', 'build', 'style', 'test', 'refactor'];
+
             const isVersionBumping = versionBumpingPrefixes.includes(prefix);
-            const isNonVersionBumping = nonVersionBumpingPrefixes.includes(prefix);
 
-            console.log(`PR title: "${title}"`);
+            console.log(`PR title: "${prTitle}"`);
             console.log(`Prefix: "${prefix}"`);
-            console.log(`Has package changes: ${hasPackageChanges}`);
-            console.log(`Has only meta changes: ${hasOnlyMetaChanges}`);
+            console.log(`Affects package: ${affectsPackage}`);
 
-            if (hasPackageChanges === 'true' && isNonVersionBumping) {
+            if (affectsPackage && !isVersionBumping) {
               core.setFailed(
-                `PR title uses "${prefix}:" but contains changes to package files.\n` +
-                `Package changes should use version-bumping prefixes: ${versionBumpingPrefixes.join(', ')}\n` +
-                `Changed package files detected.`
+                `❌ PR title uses "${prefix}:" but contains changes that affect the published package.\n\n` +
+                `Package changes should use version-bumping prefixes: ${versionBumpingPrefixes.join(', ')}\n\n` +
+                `If these changes shouldn't trigger a version bump, consider moving them to a separate PR.`
               );
-            } else if (hasOnlyMetaChanges === 'true' && isVersionBumping) {
+            } else if (!affectsPackage && isVersionBumping) {
               core.warning(
-                `PR title uses "${prefix}:" but only contains meta/config changes.\n` +
-                `Consider using "chore:" to avoid unnecessary version bumps.\n` +
-                `Only meta/config files were changed.`
+                `⚠️ PR title uses "${prefix}:" but only contains changes that don't affect the published package.\n\n` +
+                `Consider using "chore:" or another non-versioning prefix to avoid unnecessary version bumps.\n\n` +
+                `Non-versioning prefixes: ${nonVersionBumpingPrefixes.join(', ')}`
               );
             } else {
               console.log('✅ PR title is appropriate for the changed files');
