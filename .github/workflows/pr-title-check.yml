@@ -10,23 +10,4 @@ jobs:
     permissions:
       pull-requests: read
     steps:
-      - name: Validate PR title
-        uses: amannn/action-semantic-pull-request@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          # Don't require scope for this project
-          requireScope: false
-          # Allow only conventional commit types
-          types: |
-            build
-            chore
-            ci
-            docs
-            feat
-            fix
-            perf
-            refactor
-            revert
-            style
-            test
+      - uses: amannn/action-semantic-pull-request@v5
