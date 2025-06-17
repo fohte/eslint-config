@@ -13,7 +13,8 @@ jobs:
       - uses: amannn/action-semantic-pull-request@v5
         with:
           # Custom pattern to support breaking changes with exclamation mark
-          headerPattern: '^(\w*)(?:\(([\w$.\-*/ ]*)\))?!?: (.*)$'
+          # Matches: type, type!, type(scope), type(scope)!, type!:, type(scope)!:
+          headerPattern: '^(\w+)!?(?:\(([\w$.\-*/ ]*)\))?!?:\s*(.*)$'
           headerPatternCorrespondence: type, scope, subject
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
