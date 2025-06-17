@@ -48,7 +48,8 @@
     "test": "vitest",
     "prepublishOnly": "npm run lint && npm run build",
     "postbuild": "npm run validate-build",
-    "validate-build": "publint"
+    "validate-build": "publint",
+    "validate-package": "node scripts/validate-package.js"
   },
   "dependencies": {},
   "devDependencies": {
