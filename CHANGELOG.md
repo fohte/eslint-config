@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.1.1](https://github.com/fohte/eslint-config/compare/v0.1.0...v0.1.1) (2025-06-17)
+
+
+### Features
+
+* **peerDeps:** Update dependency eslint-config-prettier to v10 ([#82](https://github.com/fohte/eslint-config/issues/82)) ([71a02d2](https://github.com/fohte/eslint-config/commit/71a02d25f4a1858786a1db2b6be19d358c6bdebf))
+* **peerDeps:** update eslint and eslint-plugin-simple-import-sort to latest major versions only ([#84](https://github.com/fohte/eslint-config/issues/84)) ([afebfcf](https://github.com/fohte/eslint-config/commit/afebfcfc775abc5f2e1dd64543c16a338c8d1b4c))
+* **peerDeps:** Update typescript-eslint monorepo to v8 ([#25](https://github.com/fohte/eslint-config/issues/25)) ([0fe0d1a](https://github.com/fohte/eslint-config/commit/0fe0d1ac46f99070608c7b2aa1e82917d642153c))
+
 ## [0.1.0](https://github.com/fohte/eslint-config/compare/v0.0.4...v0.1.0) (2025-06-15)
 
 
