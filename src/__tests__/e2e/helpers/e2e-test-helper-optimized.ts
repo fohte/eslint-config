@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -43,56 +43,69 @@ export type ESLintOutput = ESLintResult[]
 
 const TEST_PROJECT_PREFIX = 'eslint-config-e2e-test-'
 
-// Cached values for performance
-let isBuilt = false
-let baseTestDir: string | null = null
-let nodeModulesPath: string | null = null
+// Shared resources across all tests
+let sharedBaseDir: string | null = null
+let nodeModulesSymlink: string | null = null
+let sharedEslintConfigPath: string | null = null
 
 /**
- * Ensures the package is built (one-time check)
+ * Initialize shared resources for all tests
  */
-function ensureBuilt(): void {
-  if (isBuilt) return
-
+export function initializeSharedResources(): void {
+  // Check if lib is built once
   const libPath = join(process.cwd(), 'lib')
   if (!existsSync(libPath)) {
     execSync('npm run build', { cwd: process.cwd(), stdio: 'pipe' })
   }
 
-  isBuilt = true
+  // Create shared base directory
+  const baseDir = process.platform === 'linux' && existsSync('/dev/shm')
+    ? '/dev/shm' // Use RAM disk on Linux for better performance
+    : tmpdir()
+
+  sharedBaseDir = mkdtempSync(join(baseDir, TEST_PROJECT_PREFIX + 'shared-'))
+
+  // Create single node_modules symlink
+  nodeModulesSymlink = join(sharedBaseDir, 'node_modules')
+  execSync(`ln -s ${join(process.cwd(), 'node_modules')} ${nodeModulesSymlink}`, { stdio: 'pipe' })
+
+  // Create shared eslint config
+  const eslintConfig = `import { mainConfig, typescriptConfig } from '${libPath}/index.js'
+
+export default [
+  ...mainConfig,
+  ...typescriptConfig,
+]`
+
+  sharedEslintConfigPath = join(sharedBaseDir, 'eslint.config.js')
+  writeFileSync(sharedEslintConfigPath, eslintConfig + '\n')
 }
 
 /**
- * Creates a base test directory with common setup (one-time)
+ * Clean up shared resources
  */
-function createBaseTestDir(): string {
-  if (baseTestDir && existsSync(baseTestDir)) {
-    return baseTestDir
+export function cleanupSharedResources(): void {
+  if (sharedBaseDir && existsSync(sharedBaseDir)) {
+    rmSync(sharedBaseDir, { recursive: true, force: true })
   }
-
-  baseTestDir = mkdtempSync(join(tmpdir(), `${TEST_PROJECT_PREFIX}base-`))
-
-  // Create symlink to node_modules once
-  nodeModulesPath = join(process.cwd(), 'node_modules')
-  execSync(`ln -s ${nodeModulesPath} ${baseTestDir}/node_modules`, { stdio: 'pipe' })
-
-  return baseTestDir
+  sharedBaseDir = null
+  nodeModulesSymlink = null
+  sharedEslintConfigPath = null
 }
 
 /**
- * Creates a test project subdirectory with the specified files
+ * Creates a temporary test project with the specified files
  */
 export async function createTestProject(options: E2ETestOptions): Promise<string> {
-  ensureBuilt()
-  const baseDir = createBaseTestDir()
+  // Ensure shared resources are initialized
+  if (!sharedBaseDir) {
+    initializeSharedResources()
+  }
 
-  // Create a unique subdirectory for this test
+  // Create test-specific subdirectory
   const testId = Math.random().toString(36).substring(7)
-  const projectDir = join(baseDir, `test-${testId}`)
-  execSync(`mkdir -p "${projectDir}"`)
-
-  // Get the library directory path (built files)
-  const libPath = join(process.cwd(), 'lib')
+  const tempDir = join(sharedBaseDir!, `test-${testId}`)
+  mkdirSync(tempDir)
 
   // Create package.json
   const packageJson = {
@@ -101,64 +114,53 @@ export async function createTestProject(options: E2ETestOptions): Promise<string
   }
 
   writeFileSync(
-    join(projectDir, 'package.json'),
+    join(tempDir, 'package.json'),
     JSON.stringify(packageJson, null, 2) + '\n'
   )
 
-  // Create symlink to node_modules from base directory
-  execSync(`ln -s ${baseDir}/node_modules ${projectDir}/node_modules`, { stdio: 'pipe' })
+  // Link to shared node_modules
+  execSync(`ln -s ${nodeModulesSymlink} ${join(tempDir, 'node_modules')}`, { stdio: 'pipe' })
 
-  // Create eslint.config.js
-  const eslintConfig = `import { mainConfig, typescriptConfig } from '${libPath}/index.js'
-
-export default [
-  ...mainConfig,
-  ...typescriptConfig,
-]`
-
-  writeFileSync(
-    join(projectDir, 'eslint.config.js'),
-    eslintConfig + '\n'
-  )
+  // Link to shared eslint config
+  execSync(`ln -s ${sharedEslintConfigPath} ${join(tempDir, 'eslint.config.js')}`, { stdio: 'pipe' })
 
   // Create test files
   for (const file of options.files) {
-    const filePath = join(projectDir, file.path)
+    const filePath = join(tempDir, file.path)
     const dir = join(filePath, '..')
 
     // Ensure directory exists
-    execSync(`mkdir -p "${dir}"`)
+    mkdirSync(dir, { recursive: true })
 
     writeFileSync(filePath, file.content)
   }
 
-  return projectDir
+  return tempDir
 }
 
 /**
- * Runs ESLint using optimized subprocess execution
- * Note: ESLint v8 API doesn't support flat config properly when set via environment variable
+ * Runs ESLint in the test project and returns parsed output
  */
 export async function runESLint(
   projectDir: string,
   args: string[] = []
 ): Promise<ESLintOutput> {
-  // For ESLint v8, we need to use execSync with ESLINT_USE_FLAT_CONFIG
-  // but we can optimize by avoiding npx overhead
-  const eslintPath = join(process.cwd(), 'node_modules', '.bin', 'eslint')
+  // Use direct binary path instead of npx
+  const eslintBinary = join(process.cwd(), 'node_modules', '.bin', 'eslint')
   const eslintArgs = [
-    eslintPath,
+    eslintBinary,
     '--format=json',
+    '--cache',
+    '--cache-location', join(projectDir, '.eslintcache'),
     ...args,
     '.'
-  ]
+  ].join(' ')
 
   try {
-    const output = execSync(eslintArgs.join(' '), {
+    const output = execSync(eslintArgs, {
       cwd: projectDir,
       encoding: 'utf-8',
-      stdio: 'pipe',
-      env: { ...process.env, ESLINT_USE_FLAT_CONFIG: 'true' }
+      stdio: 'pipe'
     })
 
     return JSON.parse(output) as ESLintOutput
@@ -175,21 +177,7 @@ export async function runESLint(
  * Cleans up a test project directory
  */
 export function cleanupTestProject(projectDir: string): void {
-  // Only remove the test subdirectory, not the base directory
-  if (projectDir.includes('/test-')) {
-    rmSync(projectDir, { recursive: true, force: true })
-  }
-}
-
-/**
- * Cleans up all test resources (call this in global teardown)
- */
-export function cleanupAllTests(): void {
-  // Remove base test directory
-  if (baseTestDir && existsSync(baseTestDir)) {
-    rmSync(baseTestDir, { recursive: true, force: true })
-    baseTestDir = null
-  }
+  rmSync(projectDir, { recursive: true, force: true })
 }
 
 /**
