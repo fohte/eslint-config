@@ -1,6 +1,6 @@
-import type { ESLint } from "eslint";
+import type { ESLint } from 'eslint'
 
-declare module "eslint-config-prettier" {
-  const config: ESLint.Linter.Config;
-  export default config;
+declare module 'eslint-config-prettier' {
+  const config: ESLint.Linter.Config
+  export default config
 }

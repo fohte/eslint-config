@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest'
 
 import {
   expectNoErrors,
@@ -6,15 +6,15 @@ import {
   getMessagesForRule,
   runESLint,
   withTestProject,
-} from "./helpers/e2e-test-helper.js";
+} from './helpers/e2e-test-helper.js'
 
-describe("TypeScript Rules E2E", { timeout: 30000 }, () => {
-  it("detects unused variables in TypeScript", async () => {
+describe('TypeScript Rules E2E', { timeout: 30000 }, () => {
+  it('detects unused variables in TypeScript', async () => {
     await withTestProject(
       {
         files: [
           {
-            path: "test.ts",
+            path: 'test.ts',
             content: `const unusedVar = 'hello'
 
 export function doSomething() {
@@ -25,26 +25,26 @@ export function doSomething() {
         ],
       },
       async (projectDir) => {
-        const output = await runESLint(projectDir);
-        expectRule(output, "@typescript-eslint/no-unused-vars");
+        const output = await runESLint(projectDir)
+        expectRule(output, '@typescript-eslint/no-unused-vars')
 
         const messages = getMessagesForRule(
           output,
-          "@typescript-eslint/no-unused-vars",
-        );
+          '@typescript-eslint/no-unused-vars',
+        )
         expect(messages[0].message).toContain(
-          "is assigned a value but never used",
-        );
+          'is assigned a value but never used',
+        )
       },
-    );
-  });
+    )
+  })
 
-  it("detects no-explicit-any violations", async () => {
+  it('detects no-explicit-any violations', async () => {
     await withTestProject(
       {
         files: [
           {
-            path: "test.ts",
+            path: 'test.ts',
             content: `function processData(data: any) {
   return data
 }
@@ -53,18 +53,18 @@ export function doSomething() {
         ],
       },
       async (projectDir) => {
-        const output = await runESLint(projectDir);
-        expectRule(output, "@typescript-eslint/no-explicit-any");
+        const output = await runESLint(projectDir)
+        expectRule(output, '@typescript-eslint/no-explicit-any')
       },
-    );
-  });
+    )
+  })
 
-  it("allows valid TypeScript code", async () => {
+  it('allows valid TypeScript code', async () => {
     await withTestProject(
       {
         files: [
           {
-            path: "test.ts",
+            path: 'test.ts',
             content: `export interface User {
   id: string
   name: string
@@ -84,9 +84,9 @@ export const processUsers = (users: User[]): string[] => {
         ],
       },
       async (projectDir) => {
-        const output = await runESLint(projectDir);
-        expectNoErrors(output);
+        const output = await runESLint(projectDir)
+        expectNoErrors(output)
       },
-    );
-  });
-});
+    )
+  })
+})

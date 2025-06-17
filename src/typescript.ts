@@ -1,14 +1,14 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import typeScriptESLintParser from "@typescript-eslint/parser";
-import type { Linter } from "eslint";
+import { FlatCompat } from '@eslint/eslintrc'
+import typeScriptESLintParser from '@typescript-eslint/parser'
+import type { Linter } from 'eslint'
 
-const compat = new FlatCompat();
+const compat = new FlatCompat()
 
 export const typescriptConfig: Linter.FlatConfig[] = [
-  ...compat.extends("plugin:@typescript-eslint/recommended"),
+  ...compat.extends('plugin:@typescript-eslint/recommended'),
 
   {
-    files: ["**/*.ts{,x}"],
+    files: ['**/*.ts{,x}'],
     languageOptions: {
       // FIXME: This is a workaround for a possible bug in @typescript-eslint/parser.
       // The types of 'parseForESLint(...).ast.fomments' are incompatible between these types.
@@ -18,4 +18,4 @@ export const typescriptConfig: Linter.FlatConfig[] = [
       parser: typeScriptESLintParser as any,
     },
   },
-];
+]

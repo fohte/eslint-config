@@ -25,9 +25,9 @@ npm install --save-dev typescript
 `eslint.config.js`:
 
 ```javascript
-import { mainConfig, typescriptConfig } from "@fohte/eslint-config";
+import { mainConfig, typescriptConfig } from '@fohte/eslint-config'
 
-export default [...mainConfig, ...typescriptConfig];
+export default [...mainConfig, ...typescriptConfig]
 ```
 
 ## Development
