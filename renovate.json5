@@ -18,5 +18,15 @@
       // - replace: ^6.0.0 || ^7.0.0 → ^8.0.0
       rangeStrategy: 'replace',
     },
+    {
+      // Don't pin Node.js version in engines field
+      // Keep range specification and only update to supported versions
+      matchDepNames: ['node'],
+      matchDepTypes: ['engines'],
+      rangeStrategy: 'replace',
+      supportPolicy: ['active'], // Only update to Active LTS or Current versions
+      // Avoid updating to odd-numbered non-LTS versions
+      allowedVersions: '/^(\\d*[02468])\\./',
+    },
   ],
 }
