@@ -6,7 +6,7 @@ import {
   expectRule,
   getMessagesForRule,
   runESLint,
-  withTestProject} from './helpers/e2e-test-helper.js'
+  withTestProject} from './helpers/e2e-test-helper-optimized.js'
 
 describe('Import Rules E2E', { timeout: 30000 }, () => {
   it('detects unordered imports', async () => {

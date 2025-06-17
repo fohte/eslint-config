@@ -3,7 +3,7 @@ import { describe, it } from 'vitest'
 import {
   expectFixed,
   runESLint,
-  withTestProject} from './helpers/e2e-test-helper.js'
+  withTestProject} from './helpers/e2e-test-helper-optimized.js'
 
 describe('Auto-fix E2E', { timeout: 30000 }, () => {
   it('fixes import ordering issues', async () => {
