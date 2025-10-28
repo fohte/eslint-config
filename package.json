@@ -60,7 +60,7 @@
     "bun-types": "latest",
     "publint": "0.3.15",
     "rimraf": "6.0.1",
-    "typescript": "5.8.3",
+    "typescript": "5.9.3",
     "vitest": "3.2.4"
   },
   "peerDependencies": {
