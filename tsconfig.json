@@ -2,20 +2,12 @@
   "extends": "@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "strict": true,
-    "downlevelIteration": true,
-    "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
-    "noEmit": false,
-    "sourceMap": true,
+    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
+    "sourceMap": true,
     "incremental": true,
     "baseUrl": ".",
-    "rootDir": "./src",
     "paths": {
       "eslint-plugin-simple-import-sort": [
         "./src/types/eslint-plugin-simple-import-sort.d.ts"
