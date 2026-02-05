@@ -84,7 +84,7 @@ jobs:
         if: steps.lefthook.outcome == 'failure'
         run: exit 1
 
-  unit-test:
+  unit-test-matrix:
     runs-on: ubuntu-latest
 
     strategy:
@@ -119,3 +119,13 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+  # This job is used for branch protection rule.
+  # When all matrix jobs succeed, this job is skipped (treated as success).
+  # When any matrix job fails, this job runs and fails.
+  unit-test:
+    runs-on: ubuntu-latest
+    needs: unit-test-matrix
+    if: failure()
+    steps:
+      - run: exit 1
