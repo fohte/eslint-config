@@ -59,6 +59,48 @@ export function doSomething() {
     )
   })
 
+  it('allows require() in .cjs files', async () => {
+    await withTestProject(
+      {
+        files: [
+          {
+            path: 'config.cjs',
+            content: `const path = require('path')
+module.exports = { root: path.resolve(__dirname) }
+`,
+          },
+        ],
+      },
+      async (projectDir) => {
+        const output = await runESLint(projectDir)
+        const requireMessages = getMessagesForRule(
+          output,
+          '@typescript-eslint/no-require-imports',
+        )
+        expect(requireMessages).toHaveLength(0)
+      },
+    )
+  })
+
+  it('still detects require() in .ts files', async () => {
+    await withTestProject(
+      {
+        files: [
+          {
+            path: 'test.ts',
+            content: `const fs = require('fs')
+export default fs
+`,
+          },
+        ],
+      },
+      async (projectDir) => {
+        const output = await runESLint(projectDir)
+        expectRule(output, '@typescript-eslint/no-require-imports')
+      },
+    )
+  })
+
   it('allows valid TypeScript code', async () => {
     await withTestProject(
       {

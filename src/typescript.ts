@@ -18,4 +18,12 @@ export const typescriptConfig: Linter.FlatConfig[] = [
       parser: typeScriptESLintParser as any,
     },
   },
+
+  // CommonJS files legitimately use require()
+  {
+    files: ['**/*.cjs'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
 ]
