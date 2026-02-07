@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.1.2](https://github.com/fohte/eslint-config/compare/v0.1.1...v0.1.2) (2026-02-07)
+
+
+### Bug Fixes
+
+* allow `require()` in `.cjs` files ([#99](https://github.com/fohte/eslint-config/issues/99)) ([ed5d757](https://github.com/fohte/eslint-config/commit/ed5d7573095df1a6abc7d25eddfd62030917f212))
+
 ## [0.1.1](https://github.com/fohte/eslint-config/compare/v0.1.0...v0.1.1) (2025-06-17)
 
 
