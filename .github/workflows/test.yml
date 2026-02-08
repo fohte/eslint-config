@@ -17,7 +17,7 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 2
@@ -37,8 +37,9 @@ jobs:
             echo "skip_commit=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@v3
 
+<<<<<<< before updating
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -46,6 +47,10 @@ jobs:
 
       - name: Cache npm dependencies
         uses: actions/cache@v4
+=======
+      - name: Cache bun dependencies
+        uses: actions/cache@v5
+>>>>>>> after updating
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-20.x-${{ hashFiles('package.json') }}
@@ -74,7 +79,7 @@ jobs:
 
       - name: Commit formatted files
         if: ${{ !cancelled() && steps.check-prev.outputs.skip_commit != 'true' }}
-        uses: suzuki-shunsuke/commit-action@v0.0.14
+        uses: suzuki-shunsuke/commit-action@v0.1.0
         with:
           commit_message: 'style: auto-format'
           workflow: deny
@@ -92,8 +97,9 @@ jobs:
         node-version: [20.x, 22.x]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
+<<<<<<< before updating
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -101,6 +107,12 @@ jobs:
 
       - name: Cache npm dependencies
         uses: actions/cache@v4
+=======
+      - uses: jdx/mise-action@v3
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v5
+>>>>>>> after updating
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('package.json') }}
