@@ -1,12 +1,7 @@
 {
-<<<<<<< before updating
   "name": "@fohte/eslint-config",
   "description": "ESLint config for fohte",
   "version": "0.1.2",
-=======
-  "name": "eslint-config",
-  "private": true,
->>>>>>> after updating
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -57,7 +52,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-<<<<<<< before updating
     "@commitlint/cli": "20.2.0",
     "@eslint/eslintrc": "3.0.2",
     "@tsconfig/node20": "20.1.6",
@@ -83,16 +77,5 @@
     "typescript": {
       "optional": true
     }
-=======
-    "@commitlint/cli": "20.4.0",
-    "@fohte/eslint-config": "0.1.2",
-    "@tsconfig/bun": "1.0.10",
-    "@types/bun": "1.3.8",
-    "concurrently": "9.2.1",
-    "eslint": "9.39.2",
-    "prettier": "3.8.1",
-    "typescript": "5.9.3",
-    "vitest": "4.0.18"
->>>>>>> after updating
   }
 }

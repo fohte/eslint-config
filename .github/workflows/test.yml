@@ -39,18 +39,8 @@ jobs:
 
       - uses: jdx/mise-action@v3
 
-<<<<<<< before updating
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-=======
       - name: Cache bun dependencies
         uses: actions/cache@v5
->>>>>>> after updating
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-20.x-${{ hashFiles('package.json') }}
@@ -99,20 +89,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-<<<<<<< before updating
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-=======
       - uses: jdx/mise-action@v3
 
       - name: Cache bun dependencies
         uses: actions/cache@v5
->>>>>>> after updating
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('package.json') }}
