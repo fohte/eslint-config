@@ -136,6 +136,8 @@ lib/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+bun.lock
+bun.lockb
 
 # IntelliJ based IDEs
 .idea

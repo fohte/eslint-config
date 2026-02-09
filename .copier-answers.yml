@@ -1,8 +1,9 @@
 # Changes here will be overwritten by Copier
-_commit: v0.1.22
+_commit: v0.3.0
 _src_path: https://github.com/fohte/generic-boilerplate
 description: ESLint config for fohte
 is_public: true
+project_name: eslint-config
 release_type: node
 type: node
 use_release_please: true
