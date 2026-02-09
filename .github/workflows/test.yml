@@ -39,7 +39,7 @@ jobs:
 
       - uses: jdx/mise-action@v3
 
-      - name: Cache bun dependencies
+      - name: Cache npm dependencies
         uses: actions/cache@v5
         with:
           path: ~/.npm
@@ -89,9 +89,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
       - uses: jdx/mise-action@v3
 
-      - name: Cache bun dependencies
+      - name: Cache npm dependencies
         uses: actions/cache@v5
         with:
           path: ~/.npm
