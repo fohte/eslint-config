@@ -1,4 +1,5 @@
 [tools]
+pnpm = "10.29.3"
 lefthook = "2.0.16"
 
 # lefthook hooks

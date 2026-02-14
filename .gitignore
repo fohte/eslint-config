@@ -132,10 +132,9 @@ dist
 # TypeScript build dir
 lib/
 
-# Lock files (not needed for libraries)
+# Lock files (unused package managers)
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
 bun.lock
 bun.lockb
 

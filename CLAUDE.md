@@ -3,16 +3,16 @@
 ## Build and test
 
 ```bash
-npm run build    # Build TypeScript files
-npm run lint     # Run ESLint
-npm test         # Run build and lint
+pnpm run build    # Build TypeScript files
+pnpm run lint     # Run ESLint
+pnpm test         # Run build and lint
 ```
 
 ## Release management
 
 ```bash
 # Test release-please locally (dry-run)
-npx release-please release-pr --repo-url=https://github.com/fohte/eslint-config --token=$GH_TOKEN --dry-run
+pnpm exec release-please release-pr --repo-url=https://github.com/fohte/eslint-config --token=$GH_TOKEN --dry-run
 ```
 
 # Core files
