@@ -41,7 +41,7 @@
   "scripts": {
     "clean": "rimraf lib tsconfig.tsbuildinfo",
     "prebuild": "pnpm run clean",
-    "build": "pnpm exec tsc && pnpm run copy-types",
+    "build": "tsc && pnpm run copy-types",
     "copy-types": "mkdir -p lib/types && cp src/types/*.d.ts lib/types/",
     "watch": "tsc -w",
     "lint": "eslint src",
