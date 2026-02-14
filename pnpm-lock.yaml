@@ -33,8 +33,8 @@ importers:
         specifier: 3.3.3
         version: 3.3.3
       '@tsconfig/node20':
-        specifier: 20.1.8
-        version: 20.1.8
+        specifier: 20.1.9
+        version: 20.1.9
       bun-types:
         specifier: latest
         version: 1.3.9
@@ -748,10 +748,10 @@ packages:
         integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==,
       }
 
-  '@tsconfig/node20@20.1.8':
+  '@tsconfig/node20@20.1.9':
     resolution:
       {
-        integrity: sha512-Em+IdPfByIzWRRpqWL4Z7ArLHZGxmc36BxE3jCz9nBFSm+5aLaPMZyjwu4yetvyKXeogWcxik4L1jB5JTWfw7A==,
+        integrity: sha512-IjlTv1RsvnPtUcjTqtVsZExKVq+KQx4g5pCP5tI7rAs6Xesl2qFwSz/tPDBC4JajkL/MlezBu3gPUwqRHl+RIg==,
       }
 
   '@types/chai@5.2.3':
@@ -3389,7 +3389,7 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@tsconfig/node20@20.1.8': {}
+  '@tsconfig/node20@20.1.9': {}
 
   '@types/chai@5.2.3':
     dependencies:
