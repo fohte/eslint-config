@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "20.2.0",
-    "@eslint/eslintrc": "3.0.2",
+    "@eslint/eslintrc": "3.3.3",
     "@tsconfig/node20": "20.1.8",
     "bun-types": "latest",
     "prettier": "3.7.4",
