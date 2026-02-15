@@ -53,7 +53,7 @@
   "devDependencies": {
     "@commitlint/cli": "20.2.0",
     "@eslint/eslintrc": "3.3.3",
-    "@tsconfig/node20": "20.1.9",
+    "@tsconfig/node22": "22.0.0",
     "bun-types": "latest",
     "prettier": "3.7.4",
     "publint": "0.3.17",
