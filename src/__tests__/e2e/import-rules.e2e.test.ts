@@ -32,7 +32,7 @@ import React from 'react'
           'simple-import-sort/imports',
         )
         expect(messages).toHaveLength(1)
-        expect(messages[0].message).toContain(
+        expect(messages[0]!.message).toContain(
           'Run autofix to sort these imports',
         )
       },
