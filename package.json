@@ -51,15 +51,16 @@
     "validate-build": "publint"
   },
   "devDependencies": {
-    "@commitlint/cli": "20.2.0",
+    "@commitlint/cli": "20.4.1",
     "@eslint/eslintrc": "3.3.3",
-    "@tsconfig/node20": "20.1.9",
-    "bun-types": "latest",
-    "prettier": "3.7.4",
+    "@tsconfig/node-lts": "22.0.1",
+    "@tsconfig/strictest": "2.0.8",
+    "@types/node": "22.13.4",
+    "prettier": "3.8.1",
     "publint": "0.3.17",
     "rimraf": "6.0.1",
-    "typescript": "5.8.3",
-    "vitest": "3.2.4"
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
   },
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",

@@ -32,7 +32,7 @@ export function doSomething() {
           output,
           '@typescript-eslint/no-unused-vars',
         )
-        expect(messages[0].message).toContain(
+        expect(messages[0]!.message).toContain(
           'is assigned a value but never used',
         )
       },
