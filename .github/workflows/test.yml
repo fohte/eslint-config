@@ -107,8 +107,8 @@ jobs:
           path: |
             ${{ steps.pnpm-store.outputs.path }}
             node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-
+          key: ${{ runner.os }}-pnpm-node${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-node${{ matrix.node-version }}-
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
