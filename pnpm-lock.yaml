@@ -45,8 +45,8 @@ importers:
         specifier: 3.8.1
         version: 3.8.1
       publint:
-        specifier: 0.3.17
-        version: 0.3.17
+        specifier: 0.3.18
+        version: 0.3.18
       rimraf:
         specifier: 6.0.1
         version: 6.0.1
@@ -2452,10 +2452,10 @@ packages:
     engines: { node: '>=14' }
     hasBin: true
 
-  publint@0.3.17:
+  publint@0.3.18:
     resolution:
       {
-        integrity: sha512-Q3NLegA9XM6usW+dYQRG1g9uEHiYUzcCVBJDJ7yMcWRqVU9LYZUWdqbwMZfmTCFC5PZLQpLAmhvRcQRl3exqkw==,
+        integrity: sha512-JRJFeBTrfx4qLwEuGFPk+haJOJN97KnPuK01yj+4k/Wj5BgoOK5uNsivporiqBjk2JDaslg7qJOhGRnpltGeog==,
       }
     engines: { node: '>=18' }
     hasBin: true
@@ -4472,7 +4472,7 @@ snapshots:
 
   prettier@3.8.1: {}
 
-  publint@0.3.17:
+  publint@0.3.18:
     dependencies:
       '@publint/pack': 0.1.4
       package-manager-detector: 1.6.0
