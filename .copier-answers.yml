@@ -9,3 +9,5 @@ project_name: eslint-config
 release_type: node
 type: node
 use_release_please: true
+
+#copier updated
