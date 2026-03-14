@@ -82,7 +82,7 @@ import { useState } from 'react'
       },
       async (projectDir) => {
         const output = await runESLint(projectDir)
-        expectRule(output, 'import/no-duplicates')
+        expectRule(output, 'import-x/no-duplicates')
       },
     )
   })
