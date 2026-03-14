@@ -25,7 +25,7 @@ export interface ESLintMessage {
   message: string
   line: number
   column: number
-  nodeType: string
+  nodeType?: string
   endLine?: number
   endColumn?: number
   fix?: {

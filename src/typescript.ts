@@ -4,7 +4,7 @@ import type { Linter } from 'eslint'
 
 const compat = new FlatCompat()
 
-export const typescriptConfig: Linter.FlatConfig[] = [
+export const typescriptConfig: Linter.Config[] = [
   ...compat.extends('plugin:@typescript-eslint/recommended'),
 
   {
