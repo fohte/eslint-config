@@ -17,6 +17,7 @@ export interface TestFile {
 export interface E2ETestOptions {
   files: TestFile[]
   eslintArgs?: string[]
+  typeChecked?: boolean
 }
 
 export interface ESLintMessage {
@@ -82,14 +83,54 @@ export async function createTestProject(
   })
 
   // Create eslint.config.js that directly imports from the built library
-  const eslintConfig = `import { mainConfig, typescriptConfig } from '${libPath}/index.js'
+  const imports: string[] = []
+  const configExports = ['mainConfig', 'typescriptConfig']
+  const configItems = ['...mainConfig', '...typescriptConfig']
+
+  if (options.typeChecked) {
+    imports.push("import tsParser from '@typescript-eslint/parser'")
+    configExports.push('typescriptTypeCheckedConfig')
+    configItems.push('...typescriptTypeCheckedConfig')
+    configItems.push(`{
+    files: ['**/*.ts{,x}'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  }`)
+  }
+
+  imports.push(
+    `import { ${configExports.join(', ')} } from '${libPath}/index.js'`,
+  )
+
+  const eslintConfig = `${imports.join('\n')}
 
 export default [
-  ...mainConfig,
-  ...typescriptConfig,
+  ${configItems.join(',\n  ')},
 ]`
 
   writeFileSync(join(tempDir, 'eslint.config.js'), eslintConfig + '\n')
+
+  // Create tsconfig.json for type-checked rules
+  if (options.typeChecked) {
+    const tsconfig = {
+      compilerOptions: {
+        strict: true,
+        target: 'ES2022',
+        module: 'ES2022',
+        moduleResolution: 'bundler',
+      },
+      include: ['**/*.ts', '**/*.tsx'],
+    }
+    writeFileSync(
+      join(tempDir, 'tsconfig.json'),
+      JSON.stringify(tsconfig, null, 2) + '\n',
+    )
+  }
 
   // Create test files
   for (const file of options.files) {
