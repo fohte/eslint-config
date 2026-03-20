@@ -131,4 +131,122 @@ export const processUsers = (users: User[]): string[] => {
       },
     )
   })
+
+  describe(
+    'strict-boolean-expressions (type-checked)',
+    { timeout: 60000 },
+    () => {
+      it('detects nullable string in conditionals', async () => {
+        await withTestProject(
+          {
+            typeChecked: true,
+            files: [
+              {
+                path: 'test.ts',
+                content: `export function check(str: string | undefined) {
+  if (str) {
+    return 'truthy'
+  }
+  return 'falsy'
+}
+`,
+              },
+            ],
+          },
+          async (projectDir) => {
+            const output = await runESLint(projectDir)
+            expectRule(output, '@typescript-eslint/strict-boolean-expressions')
+          },
+        )
+      })
+
+      it('allows nullable boolean in conditionals', async () => {
+        await withTestProject(
+          {
+            typeChecked: true,
+            files: [
+              {
+                path: 'test.ts',
+                content: `export function check(flag: boolean | null) {
+  if (flag) {
+    return 'truthy'
+  }
+  return 'falsy'
+}
+`,
+              },
+            ],
+          },
+          async (projectDir) => {
+            const output = await runESLint(projectDir)
+            const messages = getMessagesForRule(
+              output,
+              '@typescript-eslint/strict-boolean-expressions',
+            )
+            expect(messages).toHaveLength(0)
+          },
+        )
+      })
+
+      it('allows nullable object in conditionals', async () => {
+        await withTestProject(
+          {
+            typeChecked: true,
+            files: [
+              {
+                path: 'test.ts',
+                content: `interface User {
+  name: string
+}
+
+export function check(user: User | null) {
+  if (user) {
+    return user.name
+  }
+  return 'anonymous'
+}
+`,
+              },
+            ],
+          },
+          async (projectDir) => {
+            const output = await runESLint(projectDir)
+            const messages = getMessagesForRule(
+              output,
+              '@typescript-eslint/strict-boolean-expressions',
+            )
+            expect(messages).toHaveLength(0)
+          },
+        )
+      })
+
+      it('allows explicit boolean in conditionals', async () => {
+        await withTestProject(
+          {
+            typeChecked: true,
+            files: [
+              {
+                path: 'test.ts',
+                content: `export function check(flag: boolean) {
+  if (flag) {
+    return 'yes'
+  }
+  return 'no'
+}
+`,
+              },
+            ],
+          },
+          async (projectDir) => {
+            const output = await runESLint(projectDir)
+            const messages = getMessagesForRule(
+              output,
+              '@typescript-eslint/strict-boolean-expressions',
+            )
+            expect(messages).toHaveLength(0)
+          },
+        )
+      })
+    },
+  )
 })
