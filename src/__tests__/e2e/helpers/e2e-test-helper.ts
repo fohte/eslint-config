@@ -83,14 +83,15 @@ export async function createTestProject(
   })
 
   // Create eslint.config.js that directly imports from the built library
-  const typeCheckedImport = options.typeChecked
-    ? ', typescriptTypeCheckedConfig'
-    : ''
-  const typeCheckedSpread = options.typeChecked
-    ? '\n  ...typescriptTypeCheckedConfig,'
-    : ''
-  const typeCheckedParserOptions = options.typeChecked
-    ? `\n  {
+  const imports: string[] = []
+  const configExports = ['mainConfig', 'typescriptConfig']
+  const configItems = ['...mainConfig', '...typescriptConfig']
+
+  if (options.typeChecked) {
+    imports.push("import tsParser from '@typescript-eslint/parser'")
+    configExports.push('typescriptTypeCheckedConfig')
+    configItems.push('...typescriptTypeCheckedConfig')
+    configItems.push(`{
     files: ['**/*.ts{,x}'],
     languageOptions: {
       parser: tsParser,
@@ -99,18 +100,17 @@ export async function createTestProject(
         tsconfigRootDir: import.meta.dirname,
       },
     },
-  },`
-    : ''
+  }`)
+  }
 
-  const typeCheckedParserImport = options.typeChecked
-    ? "import tsParser from '@typescript-eslint/parser'\n"
-    : ''
+  imports.push(
+    `import { ${configExports.join(', ')} } from '${libPath}/index.js'`,
+  )
 
-  const eslintConfig = `${typeCheckedParserImport}import { mainConfig, typescriptConfig${typeCheckedImport} } from '${libPath}/index.js'
+  const eslintConfig = `${imports.join('\n')}
 
 export default [
-  ...mainConfig,
-  ...typescriptConfig,${typeCheckedSpread}${typeCheckedParserOptions}
+  ${configItems.join(',\n  ')},
 ]`
 
   writeFileSync(join(tempDir, 'eslint.config.js'), eslintConfig + '\n')
