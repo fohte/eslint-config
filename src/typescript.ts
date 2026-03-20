@@ -39,13 +39,7 @@ export const typescriptTypeCheckedConfig: Linter.Config[] = [
   {
     files: ['**/*.ts{,x}'],
     rules: {
-      '@typescript-eslint/strict-boolean-expressions': [
-        'error',
-        {
-          allowNullableBoolean: true,
-          allowNullableObject: true,
-        },
-      ],
+      '@typescript-eslint/strict-boolean-expressions': 'error',
     },
   },
 ]

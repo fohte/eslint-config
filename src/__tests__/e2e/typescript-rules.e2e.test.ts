@@ -160,7 +160,7 @@ export const processUsers = (users: User[]): string[] => {
         )
       })
 
-      it('allows nullable boolean in conditionals', async () => {
+      it('detects nullable boolean in conditionals', async () => {
         await withTestProject(
           {
             typeChecked: true,
@@ -179,11 +179,7 @@ export const processUsers = (users: User[]): string[] => {
           },
           async (projectDir) => {
             const output = await runESLint(projectDir)
-            const messages = getMessagesForRule(
-              output,
-              '@typescript-eslint/strict-boolean-expressions',
-            )
-            expect(messages).toHaveLength(0)
+            expectRule(output, '@typescript-eslint/strict-boolean-expressions')
           },
         )
       })
