@@ -27,3 +27,25 @@ export const typescriptConfig: Linter.Config[] = [
     },
   },
 ]
+
+/**
+ * Type-checked TypeScript rules that require parserOptions.projectService.
+ *
+ * Usage: consumers must enable type-aware linting in their own config by
+ * setting `languageOptions.parserOptions.projectService: true` (or
+ * `parserOptions.project: true`) so the parser can resolve type information.
+ */
+export const typescriptTypeCheckedConfig: Linter.Config[] = [
+  {
+    files: ['**/*.ts{,x}'],
+    rules: {
+      '@typescript-eslint/strict-boolean-expressions': [
+        'error',
+        {
+          allowNullableBoolean: true,
+          allowNullableObject: true,
+        },
+      ],
+    },
+  },
+]
