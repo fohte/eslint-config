@@ -17,10 +17,6 @@ export const typescriptConfig: Linter.Config[] = [
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       parser: typeScriptESLintParser as any,
     },
-  },
-
-  {
-    files: ['**/*.ts{,x}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
     },
