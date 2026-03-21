@@ -19,6 +19,13 @@ export const typescriptConfig: Linter.Config[] = [
     },
   },
 
+  {
+    files: ['**/*.ts{,x}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+
   // CommonJS files legitimately use require()
   {
     files: ['**/*.cjs'],
@@ -40,6 +47,7 @@ export const typescriptTypeCheckedConfig: Linter.Config[] = [
     files: ['**/*.ts{,x}'],
     rules: {
       '@typescript-eslint/strict-boolean-expressions': 'error',
+      '@typescript-eslint/no-unsafe-type-assertion': 'error',
     },
   },
 ]
