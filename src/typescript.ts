@@ -5,7 +5,7 @@ import type { Linter } from 'eslint'
 const compat = new FlatCompat()
 
 export const typescriptConfig: Linter.Config[] = [
-  ...compat.extends('plugin:@typescript-eslint/recommended'),
+  ...compat.extends('plugin:@typescript-eslint/strict'),
 
   {
     files: ['**/*.ts{,x}'],
@@ -16,9 +16,6 @@ export const typescriptConfig: Linter.Config[] = [
       //     Type 'undefined' is not assignable to type 'Comment[]'.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       parser: typeScriptESLintParser as any,
-    },
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'error',
     },
   },
 
@@ -39,10 +36,19 @@ export const typescriptConfig: Linter.Config[] = [
  * `parserOptions.project: true`) so the parser can resolve type information.
  */
 export const typescriptTypeCheckedConfig: Linter.Config[] = [
+  ...compat
+    .extends('plugin:@typescript-eslint/strict-type-checked')
+    .map((config) => ({
+      ...config,
+      files: ['**/*.ts{,x}'],
+    })),
+
   {
     files: ['**/*.ts{,x}'],
     rules: {
+      // Not included in strict-type-checked; requires explicit opt-in
       '@typescript-eslint/strict-boolean-expressions': 'error',
+      // Only included in 'all' config; requires explicit opt-in
       '@typescript-eslint/no-unsafe-type-assertion': 'error',
     },
   },
