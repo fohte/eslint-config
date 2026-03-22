@@ -30,6 +30,31 @@ import { mainConfig, typescriptConfig } from '@fohte/eslint-config'
 export default [...mainConfig, ...typescriptConfig]
 ```
 
+### Type-checked rules
+
+To enable type-checked rules (e.g. `strict-boolean-expressions`, `no-unsafe-type-assertion`), add `typescriptTypeCheckedConfig` and enable `parserOptions.projectService`:
+
+```javascript
+import {
+  mainConfig,
+  typescriptConfig,
+  typescriptTypeCheckedConfig,
+} from '@fohte/eslint-config'
+
+export default [
+  ...mainConfig,
+  ...typescriptConfig,
+  ...typescriptTypeCheckedConfig,
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+  },
+]
+```
+
 ## Development
 
 ### Setup
