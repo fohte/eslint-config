@@ -38,10 +38,14 @@ export const typescriptConfig: Linter.Config[] = [
 export const typescriptTypeCheckedConfig: Linter.Config[] = [
   ...compat
     .extends('plugin:@typescript-eslint/strict-type-checked')
-    .map((config) => ({
-      ...config,
-      files: ['**/*.ts{,x}'],
-    })),
+    .map((config) =>
+      config.files
+        ? config
+        : {
+            ...config,
+            files: ['**/*.ts{,x}'],
+          },
+    ),
 
   {
     files: ['**/*.ts{,x}'],
