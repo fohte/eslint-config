@@ -17,6 +17,9 @@ export const typescriptConfig: Linter.Config[] = [
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       parser: typeScriptESLintParser as any,
     },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
   },
 
   // CommonJS files legitimately use require()
@@ -40,6 +43,7 @@ export const typescriptTypeCheckedConfig: Linter.Config[] = [
     files: ['**/*.ts{,x}'],
     rules: {
       '@typescript-eslint/strict-boolean-expressions': 'error',
+      '@typescript-eslint/no-unsafe-type-assertion': 'error',
     },
   },
 ]
