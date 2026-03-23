@@ -82,36 +82,14 @@ export async function createTestProject(
     stdio: 'pipe',
   })
 
-  // Create eslint.config.js that directly imports from the built library
-  const imports: string[] = []
-  const configExports = ['mainConfig', 'typescriptConfig']
-  const configItems = ['...mainConfig', '...typescriptConfig']
+  // Create eslint.config.js that uses the config() factory function
+  const configOptions = options.typeChecked
+    ? '{ typescript: { typeChecked: true } }'
+    : ''
 
-  if (options.typeChecked) {
-    imports.push("import tsParser from '@typescript-eslint/parser'")
-    configExports.push('typescriptTypeCheckedConfig')
-    configItems.push('...typescriptTypeCheckedConfig')
-    configItems.push(`{
-    files: ['**/*.ts{,x}'],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  }`)
-  }
+  const eslintConfig = `import { config } from '${libPath}/index.js'
 
-  imports.push(
-    `import { ${configExports.join(', ')} } from '${libPath}/index.js'`,
-  )
-
-  const eslintConfig = `${imports.join('\n')}
-
-export default [
-  ${configItems.join(',\n  ')},
-]`
+export default config(${configOptions})`
 
   writeFileSync(join(tempDir, 'eslint.config.js'), eslintConfig + '\n')
 

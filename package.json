@@ -9,10 +9,6 @@
     ".": {
       "types": "./lib/index.d.ts",
       "import": "./lib/index.js"
-    },
-    "./typescript": {
-      "types": "./lib/typescript.d.ts",
-      "import": "./lib/typescript.js"
     }
   },
   "files": [

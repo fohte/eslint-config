@@ -5,16 +5,10 @@ Personal ESLint configuration package with TypeScript support.
 ## Installation
 
 ```bash
-npm install @fohte/eslint-config
-```
-
-## Installation
-
-```bash
 npm install --save-dev @fohte/eslint-config
 
 # Install peer dependencies
-npm install --save-dev eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-plugin-import eslint-plugin-simple-import-sort
+npm install --save-dev eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-plugin-import-x eslint-plugin-simple-import-sort
 
 # Optional: If using TypeScript
 npm install --save-dev typescript
@@ -25,9 +19,14 @@ npm install --save-dev typescript
 `eslint.config.js`:
 
 ```javascript
-import { mainConfig, typescriptConfig } from '@fohte/eslint-config'
+import { config } from '@fohte/eslint-config'
 
-export default [...mainConfig, ...typescriptConfig]
+// Basic (JS + TypeScript strict rules)
+export default config()
+
+// Alternatively, enable type-checked rules
+// (strict-type-checked + strict-boolean-expressions):
+// export default config({ typescript: { typeChecked: true } })
 ```
 
 ## Development
