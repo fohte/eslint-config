@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.0](https://github.com/fohte/eslint-config/compare/v0.2.0...v0.3.0) (2026-03-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* replace named config exports with `config()` factory function ([#328](https://github.com/fohte/eslint-config/issues/328))
+
+### Features
+
+* add `typescriptTypeCheckedConfig` with `strict-boolean-expressions` rule ([#322](https://github.com/fohte/eslint-config/issues/322)) ([2070283](https://github.com/fohte/eslint-config/commit/2070283ff32a01edfc14ce57624a798bd2a4558b))
+* ban unsafe type assertions with ESLint rules ([#325](https://github.com/fohte/eslint-config/issues/325)) ([66d88dd](https://github.com/fohte/eslint-config/commit/66d88ddb997daeafa07c5073c2a447b6ca8760df))
+* migrate TypeScript ESLint configs to strict/strict-type-checked ([#326](https://github.com/fohte/eslint-config/issues/326)) ([6f1f8a9](https://github.com/fohte/eslint-config/commit/6f1f8a956edb6efe1f2cc91e33415362afc1329b))
+* replace named config exports with `config()` factory function ([#328](https://github.com/fohte/eslint-config/issues/328)) ([6b91e88](https://github.com/fohte/eslint-config/commit/6b91e884579b5fab41989c646450dc9e1f8d506d))
+
 ## [0.2.0](https://github.com/fohte/eslint-config/compare/v0.1.2...v0.2.0) (2026-03-14)
 
 
