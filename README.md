@@ -29,8 +29,6 @@ export default config()
 // export default config({ typescript: { typeChecked: true } })
 ```
 
-Individual config arrays (`mainConfig`, `typescriptConfig`, `typescriptTypeCheckedConfig`) are also exported for advanced use cases.
-
 ## Development
 
 ### Setup

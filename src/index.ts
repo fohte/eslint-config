@@ -1,3 +1,2 @@
-export * from './config.js'
-export * from './main.js'
-export * from './typescript.js'
+export type { ConfigOptions, TypeScriptOptions } from './config.js'
+export { config } from './config.js'
