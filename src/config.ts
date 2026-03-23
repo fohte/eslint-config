@@ -1,7 +1,11 @@
 import type { Linter } from 'eslint'
 
 import { mainConfig } from './main.js'
-import { typescriptConfig, typescriptTypeCheckedConfig } from './typescript.js'
+import {
+  typescriptBaseConfig,
+  typescriptConfig,
+  typescriptTypeCheckedConfig,
+} from './typescript.js'
 
 export interface TypeScriptOptions {
   /**
@@ -22,9 +26,9 @@ export function config(options: ConfigOptions = {}): Linter.Config[] {
   const configs: Linter.Config[] = [...mainConfig]
 
   if (typeChecked) {
-    // type-checked includes strict rules as a superset, but we still need
-    // the parser and .cjs exception from typescriptConfig
-    configs.push(...typescriptConfig, ...typescriptTypeCheckedConfig, {
+    // strict-type-checked is a superset of strict, so only include the
+    // base config (parser + .cjs exception) alongside it
+    configs.push(...typescriptBaseConfig, ...typescriptTypeCheckedConfig, {
       files: ['**/*.ts{,x}'],
       languageOptions: {
         parserOptions: {

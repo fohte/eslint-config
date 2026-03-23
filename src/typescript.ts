@@ -4,9 +4,10 @@ import type { Linter } from 'eslint'
 
 const compat = new FlatCompat()
 
-export const typescriptConfig: Linter.Config[] = [
-  ...compat.extends('plugin:@typescript-eslint/strict'),
-
+// Parser and .cjs exception shared by both typescriptConfig and the
+// typeChecked branch of config(). Extracted to avoid duplicating strict
+// rules when strict-type-checked (a superset) is already included.
+export const typescriptBaseConfig: Linter.Config[] = [
   {
     files: ['**/*.ts{,x}'],
     languageOptions: {
@@ -26,6 +27,11 @@ export const typescriptConfig: Linter.Config[] = [
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
+]
+
+export const typescriptConfig: Linter.Config[] = [
+  ...compat.extends('plugin:@typescript-eslint/strict'),
+  ...typescriptBaseConfig,
 ]
 
 /**

@@ -24,8 +24,9 @@ import { config } from '@fohte/eslint-config'
 // Basic (JS + TypeScript strict rules)
 export default config()
 
-// With type-checked rules (strict-type-checked + strict-boolean-expressions)
-export default config({ typescript: { typeChecked: true } })
+// Alternatively, enable type-checked rules
+// (strict-type-checked + strict-boolean-expressions):
+// export default config({ typescript: { typeChecked: true } })
 ```
 
 Individual config arrays (`mainConfig`, `typescriptConfig`, `typescriptTypeCheckedConfig`) are also exported for advanced use cases.
