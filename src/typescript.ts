@@ -42,16 +42,29 @@ export const typescriptConfig: Linter.Config[] = [
  * `parserOptions.project: true`) so the parser can resolve type information.
  */
 export const typescriptTypeCheckedConfig: Linter.Config[] = [
+  // Scope rules to .ts{,x} only, but keep plugin registration global so
+  // that other file types (e.g. .cjs) can reference @typescript-eslint
+  // rule names in eslint-disable comments without "unknown rule" errors.
   ...compat
     .extends('plugin:@typescript-eslint/strict-type-checked')
-    .map((config) =>
-      config.files
-        ? config
-        : {
-            ...config,
-            files: ['**/*.ts{,x}'],
-          },
-    ),
+    .map((config) => {
+      if (config.files) return config
+
+      // Plugin-only entries (no rules) stay global
+      if (!config.rules || Object.keys(config.rules).length === 0) {
+        return config
+      }
+
+      // Entries with rules get scoped to TypeScript files
+      const { plugins, ...rest } = config
+      const scoped: Linter.Config[] = [{ ...rest, files: ['**/*.ts{,x}'] }]
+      // Re-export plugin registration without file restriction
+      if (plugins && Object.keys(plugins).length > 0) {
+        scoped.unshift({ plugins })
+      }
+      return scoped
+    })
+    .flat(),
 
   {
     files: ['**/*.ts{,x}'],
