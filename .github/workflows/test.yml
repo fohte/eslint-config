@@ -42,6 +42,8 @@ jobs:
 
       - uses: jdx/mise-action@v3
 
+      - run: corepack enable
+
       - name: Get pnpm store directory
         id: pnpm-store
         run: echo "path=$(pnpm store path)" >> "$GITHUB_OUTPUT"
@@ -97,6 +99,13 @@ jobs:
 
       - uses: jdx/mise-action@v3
 
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: corepack enable
+
       - name: Get pnpm store directory
         id: pnpm-store
         run: echo "path=$(pnpm store path)" >> "$GITHUB_OUTPUT"
@@ -109,11 +118,6 @@ jobs:
             node_modules
           key: ${{ runner.os }}-pnpm-node${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-pnpm-node${{ matrix.node-version }}-
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
         run: pnpm install
