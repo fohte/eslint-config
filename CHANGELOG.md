@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.1](https://github.com/fohte/eslint-config/compare/v0.3.0...v0.3.1) (2026-03-26)
+
+
+### Features
+
+* support additional flat configs via rest params in `config()` ([#329](https://github.com/fohte/eslint-config/issues/329)) ([0512c80](https://github.com/fohte/eslint-config/commit/0512c80e6b26f365658f509ff1bf55a84335e3e0))
+
+
+### Bug Fixes
+
+* keep `[@typescript-eslint](https://github.com/typescript-eslint)` plugin global in type-checked mode for `.cjs` files ([#330](https://github.com/fohte/eslint-config/issues/330)) ([13d2074](https://github.com/fohte/eslint-config/commit/13d20746ccdb18f7ce178caa5762bad4338e9ba2))
+
 ## [0.3.0](https://github.com/fohte/eslint-config/compare/v0.2.0...v0.3.0) (2026-03-23)
 
 
