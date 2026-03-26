@@ -245,4 +245,52 @@ export function check(user: User | null) {
       })
     },
   )
+
+  describe('.cjs files with type-checked mode', { timeout: 60000 }, () => {
+    it('allows require() in .cjs files', async () => {
+      await withTestProject(
+        {
+          typeChecked: true,
+          files: [
+            {
+              path: 'config.cjs',
+              content: `const path = require('path')
+module.exports = { root: path.resolve(__dirname) }
+`,
+            },
+          ],
+        },
+        async (projectDir) => {
+          const output = await runESLint(projectDir)
+          const requireMessages = getMessagesForRule(
+            output,
+            '@typescript-eslint/no-require-imports',
+          )
+          expect(requireMessages).toHaveLength(0)
+        },
+      )
+    })
+
+    it('allows eslint-disable comment for no-require-imports in .cjs files', async () => {
+      await withTestProject(
+        {
+          typeChecked: true,
+          files: [
+            {
+              path: 'config.cjs',
+              content: `// eslint-disable-next-line @typescript-eslint/no-require-imports
+const path = require('path')
+
+module.exports = { root: path.resolve(__dirname) }
+`,
+            },
+          ],
+        },
+        async (projectDir) => {
+          const output = await runESLint(projectDir)
+          expectNoErrors(output)
+        },
+      )
+    })
+  })
 })
