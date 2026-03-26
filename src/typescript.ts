@@ -42,27 +42,32 @@ export const typescriptConfig: Linter.Config[] = [
  * `parserOptions.project: true`) so the parser can resolve type information.
  */
 export const typescriptTypeCheckedConfig: Linter.Config[] = [
-  // Scope rules to .ts{,x} only, but keep plugin registration global so
-  // that other file types (e.g. .cjs) can reference @typescript-eslint
-  // rule names in eslint-disable comments without "unknown rule" errors.
+  // Scope rules and languageOptions to .ts{,x} only, but keep plugin
+  // registration global so that other file types (e.g. .cjs) can reference
+  // @typescript-eslint rule names in eslint-disable comments.
   ...compat
     .extends('plugin:@typescript-eslint/strict-type-checked')
     .map((config) => {
       if (config.files) return config
 
-      // Plugin-only entries (no rules) stay global
-      if (!config.rules || Object.keys(config.rules).length === 0) {
-        return config
-      }
-
-      // Entries with rules get scoped to TypeScript files
       const { plugins, ...rest } = config
-      const scoped: Linter.Config[] = [{ ...rest, files: ['**/*.ts{,x}'] }]
-      // Re-export plugin registration without file restriction
-      if (plugins && Object.keys(plugins).length > 0) {
-        scoped.unshift({ plugins })
+      const hasPlugins = plugins && Object.keys(plugins).length > 0
+      const hasOtherProps =
+        Object.keys(rest).length > 0 &&
+        Object.values(rest).some(
+          (v) => v != null && (!Array.isArray(v) || v.length > 0),
+        )
+
+      if (hasPlugins && hasOtherProps) {
+        // Split: plugins stay global, everything else scoped to .ts{,x}
+        return [{ plugins }, { ...rest, files: ['**/*.ts{,x}'] }]
       }
-      return scoped
+      if (hasPlugins) {
+        // Plugin-only entry stays global
+        return { plugins }
+      }
+      // Scope everything else (rules, languageOptions, etc.) to .ts{,x}
+      return { ...rest, files: ['**/*.ts{,x}'] }
     })
     .flat(),
 
