@@ -19,7 +19,10 @@ export interface ConfigOptions {
   typescript?: TypeScriptOptions
 }
 
-export function config(options: ConfigOptions = {}): Linter.Config[] {
+export function config(
+  options: ConfigOptions = {},
+  ...userConfigs: Linter.Config[]
+): Linter.Config[] {
   const { typescript } = options
   const typeChecked = typescript?.typeChecked ?? false
 
@@ -39,6 +42,8 @@ export function config(options: ConfigOptions = {}): Linter.Config[] {
   } else {
     configs.push(...typescriptConfig)
   }
+
+  configs.push(...userConfigs)
 
   return configs
 }
