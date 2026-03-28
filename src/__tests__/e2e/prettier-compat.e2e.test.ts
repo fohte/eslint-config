@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { runESLint, withTestProject } from './helpers/e2e-test-helper.js'
 
 describe('Prettier Compatibility E2E', { timeout: 30000 }, () => {
-  it('allows Prettier-compatible formatting', async () => {
-    await withTestProject(
+  it('allows Prettier-compatible formatting', () => {
+    withTestProject(
       {
         files: [
           {
@@ -35,8 +35,8 @@ function longFunction(
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
 
         // Should not have formatting-related errors since Prettier is disabled
         const formattingRules = [
@@ -51,7 +51,7 @@ function longFunction(
 
         const messages = output.flatMap((r) => r.messages)
         const formattingErrors = messages.filter(
-          (m) => m.ruleId && formattingRules.includes(m.ruleId),
+          (m) => m.ruleId !== null && formattingRules.includes(m.ruleId),
         )
 
         expect(formattingErrors).toHaveLength(0)
@@ -59,8 +59,8 @@ function longFunction(
     )
   })
 
-  it('does not conflict with trailing commas', async () => {
-    await withTestProject(
+  it('does not conflict with trailing commas', () => {
+    withTestProject(
       {
         files: [
           {
@@ -86,8 +86,8 @@ function fn(
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
 
         // Should not report errors for trailing commas
         const messages = output.flatMap((r) => r.messages)
@@ -98,8 +98,8 @@ function fn(
     )
   })
 
-  it('does not conflict with arrow function parentheses', async () => {
-    await withTestProject(
+  it('does not conflict with arrow function parentheses', () => {
+    withTestProject(
       {
         files: [
           {
@@ -112,8 +112,8 @@ const fn3 = (x, y) => x + y
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
 
         const messages = output.flatMap((r) => r.messages)
         const arrowParenErrors = messages.filter(
@@ -125,8 +125,8 @@ const fn3 = (x, y) => x + y
     )
   })
 
-  it('does not conflict with quote styles', async () => {
-    await withTestProject(
+  it('does not conflict with quote styles', () => {
+    withTestProject(
       {
         files: [
           {
@@ -139,8 +139,8 @@ const mixed = "it's okay"
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
 
         const messages = output.flatMap((r) => r.messages)
         const quoteErrors = messages.filter((m) => m.ruleId === 'quotes')
@@ -150,8 +150,8 @@ const mixed = "it's okay"
     )
   })
 
-  it('does not enforce semicolons', async () => {
-    await withTestProject(
+  it('does not enforce semicolons', () => {
+    withTestProject(
       {
         files: [
           {
@@ -172,8 +172,8 @@ class MyClass {
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
 
         const messages = output.flatMap((r) => r.messages)
         const semiErrors = messages.filter((m) => m.ruleId === 'semi')
@@ -183,8 +183,8 @@ class MyClass {
     )
   })
 
-  it('allows various indentation styles', async () => {
-    await withTestProject(
+  it('allows various indentation styles', () => {
+    withTestProject(
       {
         files: [
           {
@@ -207,8 +207,8 @@ class MyClass {
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
 
         const messages = output.flatMap((r) => r.messages)
         const indentErrors = messages.filter(

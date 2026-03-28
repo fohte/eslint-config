@@ -10,8 +10,8 @@ import {
 } from './helpers/e2e-test-helper.js'
 
 describe('Import Rules E2E', { timeout: 30000 }, () => {
-  it('detects unordered imports', async () => {
-    await withTestProject(
+  it('detects unordered imports', () => {
+    withTestProject(
       {
         files: [
           {
@@ -23,8 +23,8 @@ import React from 'react'
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         expectRule(output, 'simple-import-sort/imports')
 
         const messages = getMessagesForRule(
@@ -39,8 +39,8 @@ import React from 'react'
     )
   })
 
-  it('sorts imports correctly with autofix', async () => {
-    await withTestProject(
+  it('sorts imports correctly with autofix', () => {
+    withTestProject(
       {
         files: [
           {
@@ -52,8 +52,8 @@ import React from 'react'
           },
         ],
       },
-      async (projectDir) => {
-        await runESLint(projectDir, ['--fix'])
+      (projectDir) => {
+        runESLint(projectDir, ['--fix'])
 
         expectFixed(
           projectDir,
@@ -68,8 +68,8 @@ import { a } from './a'
     )
   })
 
-  it('detects no-duplicates violations', async () => {
-    await withTestProject(
+  it('detects no-duplicates violations', () => {
+    withTestProject(
       {
         files: [
           {
@@ -80,15 +80,15 @@ import { useState } from 'react'
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         expectRule(output, 'import-x/no-duplicates')
       },
     )
   })
 
-  it('fixes duplicate imports', async () => {
-    await withTestProject(
+  it('fixes duplicate imports', () => {
+    withTestProject(
       {
         files: [
           {
@@ -99,8 +99,8 @@ import { useState } from 'react'
           },
         ],
       },
-      async (projectDir) => {
-        await runESLint(projectDir, ['--fix'])
+      (projectDir) => {
+        runESLint(projectDir, ['--fix'])
 
         expectFixed(
           projectDir,
@@ -112,8 +112,8 @@ import { useState } from 'react'
     )
   })
 
-  it('allows valid imports', async () => {
-    await withTestProject(
+  it('allows valid imports', () => {
+    withTestProject(
       {
         files: [
           {
@@ -130,8 +130,8 @@ console.log(helper, schema, Component)
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         expectNoErrors(output)
       },
     )

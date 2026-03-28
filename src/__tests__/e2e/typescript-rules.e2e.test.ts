@@ -9,8 +9,8 @@ import {
 } from './helpers/e2e-test-helper.js'
 
 describe('TypeScript Rules E2E', { timeout: 30000 }, () => {
-  it('detects unused variables in TypeScript', async () => {
-    await withTestProject(
+  it('detects unused variables in TypeScript', () => {
+    withTestProject(
       {
         files: [
           {
@@ -24,8 +24,8 @@ export function doSomething() {
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         expectRule(output, '@typescript-eslint/no-unused-vars')
 
         const messages = getMessagesForRule(
@@ -39,8 +39,8 @@ export function doSomething() {
     )
   })
 
-  it('detects no-explicit-any violations', async () => {
-    await withTestProject(
+  it('detects no-explicit-any violations', () => {
+    withTestProject(
       {
         files: [
           {
@@ -52,15 +52,15 @@ export function doSomething() {
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         expectRule(output, '@typescript-eslint/no-explicit-any')
       },
     )
   })
 
-  it('allows require() in .cjs files', async () => {
-    await withTestProject(
+  it('allows require() in .cjs files', () => {
+    withTestProject(
       {
         files: [
           {
@@ -71,8 +71,8 @@ module.exports = { root: path.resolve(__dirname) }
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         const requireMessages = getMessagesForRule(
           output,
           '@typescript-eslint/no-require-imports',
@@ -82,8 +82,8 @@ module.exports = { root: path.resolve(__dirname) }
     )
   })
 
-  it('still detects require() in .ts files', async () => {
-    await withTestProject(
+  it('still detects require() in .ts files', () => {
+    withTestProject(
       {
         files: [
           {
@@ -94,15 +94,15 @@ export default fs
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         expectRule(output, '@typescript-eslint/no-require-imports')
       },
     )
   })
 
-  it('allows valid TypeScript code', async () => {
-    await withTestProject(
+  it('allows valid TypeScript code', () => {
+    withTestProject(
       {
         files: [
           {
@@ -125,8 +125,8 @@ export const processUsers = (users: User[]): string[] => {
           },
         ],
       },
-      async (projectDir) => {
-        const output = await runESLint(projectDir)
+      (projectDir) => {
+        const output = runESLint(projectDir)
         expectNoErrors(output)
       },
     )
@@ -136,8 +136,8 @@ export const processUsers = (users: User[]): string[] => {
     'strict-boolean-expressions (type-checked)',
     { timeout: 60000 },
     () => {
-      it('detects nullable string in conditionals', async () => {
-        await withTestProject(
+      it('detects nullable string in conditionals', () => {
+        withTestProject(
           {
             typeChecked: true,
             files: [
@@ -153,15 +153,15 @@ export const processUsers = (users: User[]): string[] => {
               },
             ],
           },
-          async (projectDir) => {
-            const output = await runESLint(projectDir)
+          (projectDir) => {
+            const output = runESLint(projectDir)
             expectRule(output, '@typescript-eslint/strict-boolean-expressions')
           },
         )
       })
 
-      it('detects nullable boolean in conditionals', async () => {
-        await withTestProject(
+      it('detects nullable boolean in conditionals', () => {
+        withTestProject(
           {
             typeChecked: true,
             files: [
@@ -177,15 +177,15 @@ export const processUsers = (users: User[]): string[] => {
               },
             ],
           },
-          async (projectDir) => {
-            const output = await runESLint(projectDir)
+          (projectDir) => {
+            const output = runESLint(projectDir)
             expectRule(output, '@typescript-eslint/strict-boolean-expressions')
           },
         )
       })
 
-      it('allows nullable object in conditionals', async () => {
-        await withTestProject(
+      it('allows nullable object in conditionals', () => {
+        withTestProject(
           {
             typeChecked: true,
             files: [
@@ -205,8 +205,8 @@ export function check(user: User | null) {
               },
             ],
           },
-          async (projectDir) => {
-            const output = await runESLint(projectDir)
+          (projectDir) => {
+            const output = runESLint(projectDir)
             const messages = getMessagesForRule(
               output,
               '@typescript-eslint/strict-boolean-expressions',
@@ -216,8 +216,8 @@ export function check(user: User | null) {
         )
       })
 
-      it('allows explicit boolean in conditionals', async () => {
-        await withTestProject(
+      it('allows explicit boolean in conditionals', () => {
+        withTestProject(
           {
             typeChecked: true,
             files: [
@@ -233,8 +233,8 @@ export function check(user: User | null) {
               },
             ],
           },
-          async (projectDir) => {
-            const output = await runESLint(projectDir)
+          (projectDir) => {
+            const output = runESLint(projectDir)
             const messages = getMessagesForRule(
               output,
               '@typescript-eslint/strict-boolean-expressions',
@@ -247,8 +247,8 @@ export function check(user: User | null) {
   )
 
   describe('.cjs files with type-checked mode', { timeout: 60000 }, () => {
-    it('allows require() in .cjs files', async () => {
-      await withTestProject(
+    it('allows require() in .cjs files', () => {
+      withTestProject(
         {
           typeChecked: true,
           files: [
@@ -260,8 +260,8 @@ module.exports = { root: path.resolve(__dirname) }
             },
           ],
         },
-        async (projectDir) => {
-          const output = await runESLint(projectDir)
+        (projectDir) => {
+          const output = runESLint(projectDir)
           const requireMessages = getMessagesForRule(
             output,
             '@typescript-eslint/no-require-imports',
@@ -271,8 +271,8 @@ module.exports = { root: path.resolve(__dirname) }
       )
     })
 
-    it('allows eslint-disable comment for no-require-imports in .cjs files', async () => {
-      await withTestProject(
+    it('allows eslint-disable comment for no-require-imports in .cjs files', () => {
+      withTestProject(
         {
           typeChecked: true,
           files: [
@@ -286,8 +286,8 @@ module.exports = { root: path.resolve(__dirname) }
             },
           ],
         },
-        async (projectDir) => {
-          const output = await runESLint(projectDir)
+        (projectDir) => {
+          const output = runESLint(projectDir)
           expectNoErrors(output)
         },
       )

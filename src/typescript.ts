@@ -15,7 +15,7 @@ export const typescriptBaseConfig: Linter.Config[] = [
       // The types of 'parseForESLint(...).ast.fomments' are incompatible between these types.
       //   Type 'Comment[] | undefined' is not assignable to type 'Comment[]'.
       //     Type 'undefined' is not assignable to type 'Comment[]'.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-type-assertion
       parser: typeScriptESLintParser as any,
     },
   },
@@ -51,12 +51,11 @@ export const typescriptTypeCheckedConfig: Linter.Config[] = [
       if (config.files) return config
 
       const { plugins, ...rest } = config
-      const hasPlugins = plugins && Object.keys(plugins).length > 0
+      const hasPlugins =
+        plugins !== undefined && Object.keys(plugins).length > 0
       const hasOtherProps =
         Object.keys(rest).length > 0 &&
-        Object.values(rest).some(
-          (v) => v != null && (!Array.isArray(v) || v.length > 0),
-        )
+        Object.values(rest).some((v) => !Array.isArray(v) || v.length > 0)
 
       if (hasPlugins && hasOtherProps) {
         // Split: plugins stay global, everything else scoped to .ts{,x}
