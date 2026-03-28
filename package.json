@@ -1,8 +1,14 @@
 {
+<<<<<<< before updating
   "name": "@fohte/eslint-config",
   "description": "ESLint config for fohte",
   "version": "0.3.1",
   "packageManager": "pnpm@10.30.3",
+=======
+  "name": "eslint-config",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+>>>>>>> after updating
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -48,7 +54,7 @@
     "validate-build": "publint"
   },
   "devDependencies": {
-    "@commitlint/cli": "20.4.4",
+    "@commitlint/cli": "20.5.0",
     "@eslint/eslintrc": "3.3.5",
     "@fohte/eslint-config": "0.3.1",
     "@tsconfig/node-lts": "24.0.0",
@@ -57,10 +63,14 @@
     "@typescript-eslint/eslint-plugin": "8.57.1",
     "@typescript-eslint/parser": "8.57.1",
     "concurrently": "9.2.1",
+<<<<<<< before updating
     "eslint": "10.0.3",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import-x": "4.16.2",
     "eslint-plugin-simple-import-sort": "12.1.1",
+=======
+    "eslint": "10.1.0",
+>>>>>>> after updating
     "prettier": "3.8.1",
     "publint": "0.3.18",
     "rimraf": "6.0.1",
