@@ -7,8 +7,8 @@ import {
 } from './helpers/e2e-test-helper.js'
 
 describe('Auto-fix E2E', { timeout: 30000 }, () => {
-  it('fixes import ordering issues', async () => {
-    await withTestProject(
+  it('fixes import ordering issues', () => {
+    withTestProject(
       {
         files: [
           {
@@ -29,8 +29,8 @@ export { test }
           },
         ],
       },
-      async (projectDir) => {
-        await runESLint(projectDir, ['--fix'])
+      (projectDir) => {
+        runESLint(projectDir, ['--fix'])
 
         expectFixed(
           projectDir,
@@ -54,8 +54,8 @@ export { test }
     )
   })
 
-  it('fixes TypeScript import ordering', async () => {
-    await withTestProject(
+  it('fixes TypeScript import ordering', () => {
+    withTestProject(
       {
         files: [
           {
@@ -74,8 +74,8 @@ console.log(React.version, helper, data)
           },
         ],
       },
-      async (projectDir) => {
-        await runESLint(projectDir, ['--fix'])
+      (projectDir) => {
+        runESLint(projectDir, ['--fix'])
 
         expectFixed(
           projectDir,
@@ -97,8 +97,8 @@ console.log(React.version, helper, data)
     )
   })
 
-  it('handles JSX/TSX files correctly', async () => {
-    await withTestProject(
+  it('handles JSX/TSX files correctly', () => {
+    withTestProject(
       {
         files: [
           {
@@ -126,8 +126,8 @@ export const MyComponent = ({ title }: Props) => {
           },
         ],
       },
-      async (projectDir) => {
-        await runESLint(projectDir, ['--fix'])
+      (projectDir) => {
+        runESLint(projectDir, ['--fix'])
 
         expectFixed(
           projectDir,

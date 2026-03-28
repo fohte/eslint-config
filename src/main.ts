@@ -3,6 +3,7 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 import importXPlugin from 'eslint-plugin-import-x'
 import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort'
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const mainConfig: Linter.Config[] = [
   {
     plugins: {

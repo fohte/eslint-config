@@ -53,9 +53,7 @@ const TEST_PROJECT_PREFIX = 'eslint-config-e2e-test-'
 /**
  * Creates a temporary test project with the specified files
  */
-export async function createTestProject(
-  options: E2ETestOptions,
-): Promise<string> {
+export function createTestProject(options: E2ETestOptions): string {
   const tempDir = mkdtempSync(join(tmpdir(), TEST_PROJECT_PREFIX))
 
   // Get the library directory path (built files)
@@ -83,9 +81,8 @@ export async function createTestProject(
   })
 
   // Create eslint.config.js that uses the config() factory function
-  const configOptions = options.typeChecked
-    ? '{ typescript: { typeChecked: true } }'
-    : ''
+  const configOptions =
+    options.typeChecked === true ? '{ typescript: { typeChecked: true } }' : ''
 
   const eslintConfig = `import { config } from '${libPath}/index.js'
 
@@ -94,7 +91,7 @@ export default config(${configOptions})`
   writeFileSync(join(tempDir, 'eslint.config.js'), eslintConfig + '\n')
 
   // Create tsconfig.json for type-checked rules
-  if (options.typeChecked) {
+  if (options.typeChecked === true) {
     const tsconfig = {
       compilerOptions: {
         strict: true,
@@ -127,10 +124,10 @@ export default config(${configOptions})`
 /**
  * Runs ESLint in the test project and returns parsed output
  */
-export async function runESLint(
+export function runESLint(
   projectDir: string,
   args: string[] = [],
-): Promise<ESLintOutput> {
+): ESLintOutput {
   const eslintArgs = ['npx', 'eslint', '--format=json', ...args, '.'].join(' ')
 
   try {
@@ -140,16 +137,20 @@ export async function runESLint(
       stdio: 'pipe',
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     return JSON.parse(output) as ESLintOutput
   } catch (error: unknown) {
     // ESLint exits with code 1 when there are linting errors
-    if (
-      error &&
-      typeof error === 'object' &&
+    const stdout =
+      error instanceof Error &&
       'stdout' in error &&
-      typeof error.stdout === 'string'
-    ) {
-      return JSON.parse(error.stdout) as ESLintOutput
+      typeof (error as { stdout: unknown }).stdout === 'string'
+        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+          (error as { stdout: string }).stdout
+        : undefined
+    if (stdout !== undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+      return JSON.parse(stdout) as ESLintOutput
     }
     throw error
   }
@@ -188,12 +189,15 @@ export function expectNoErrors(output: ESLintOutput): void {
       .flatMap((result) =>
         result.messages
           .filter((msg) => msg.severity === 2)
-          .map((msg) => `  ${result.filePath}: ${msg.message} (${msg.ruleId})`),
+          .map(
+            (msg) =>
+              `  ${result.filePath}: ${msg.message} (${msg.ruleId ?? 'unknown'})`,
+          ),
       )
       .join('\n')
 
     throw new Error(
-      `Expected no errors, but found ${totalErrors}:\n${errorMessages}`,
+      `Expected no errors, but found ${String(totalErrors)}:\n${errorMessages}`,
     )
   }
 }
@@ -233,14 +237,14 @@ export function getMessagesForRule(
 /**
  * Test wrapper that automatically cleans up the test project
  */
-export async function withTestProject<T>(
+export function withTestProject<T>(
   options: E2ETestOptions,
-  testFn: (projectDir: string) => Promise<T>,
-): Promise<T> {
-  const projectDir = await createTestProject(options)
+  testFn: (projectDir: string) => T,
+): T {
+  const projectDir = createTestProject(options)
 
   try {
-    return await testFn(projectDir)
+    return testFn(projectDir)
   } finally {
     cleanupTestProject(projectDir)
   }
