@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  check-title:
+  pr-title-check:
     runs-on: ubuntu-slim
 
     steps:
