@@ -1,29 +1,9 @@
-<<<<<<< before updating
-name: PR Title Check
-=======
 name: PR title check
->>>>>>> after updating
 
 on:
   pull_request:
     types: [opened, edited, synchronize]
 
-<<<<<<< before updating
-jobs:
-  check-title:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    steps:
-      - uses: amannn/action-semantic-pull-request@v6
-        with:
-          # Custom pattern to support breaking changes with exclamation mark
-          # Matches: type, type!, type(scope), type!(scope) only
-          headerPattern: '^(\w+)(!)?(?:\(([\w$.\-*/ ]*)\))?:\s*(.*)$'
-          headerPatternCorrespondence: type, _, scope, subject
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-=======
 permissions:
   contents: read
 
@@ -60,4 +40,3 @@ jobs:
             echo "Got: ${PR_TITLE}"
             exit 1
           fi
->>>>>>> after updating
