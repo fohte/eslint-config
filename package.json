@@ -1,14 +1,8 @@
 {
-<<<<<<< before updating
   "name": "@fohte/eslint-config",
   "description": "ESLint config for fohte",
   "version": "0.3.1",
-  "packageManager": "pnpm@10.32.1",
-=======
-  "name": "eslint-config",
-  "private": true,
   "packageManager": "pnpm@10.33.0",
->>>>>>> after updating
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -71,8 +65,7 @@
     "publint": "0.3.18",
     "rimraf": "6.0.1",
     "typescript": "5.9.3",
-<<<<<<< before updating
-    "vitest": "4.1.0"
+    "vitest": "4.1.2"
   },
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.57.0",
@@ -87,8 +80,5 @@
     "typescript": {
       "optional": true
     }
-=======
-    "vitest": "4.1.2"
->>>>>>> after updating
   }
 }
