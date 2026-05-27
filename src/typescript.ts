@@ -11,12 +11,7 @@ export const typescriptBaseConfig: Linter.Config[] = [
   {
     files: ['**/*.ts{,x}'],
     languageOptions: {
-      // FIXME: This is a workaround for a possible bug in @typescript-eslint/parser.
-      // The types of 'parseForESLint(...).ast.fomments' are incompatible between these types.
-      //   Type 'Comment[] | undefined' is not assignable to type 'Comment[]'.
-      //     Type 'undefined' is not assignable to type 'Comment[]'.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-type-assertion
-      parser: typeScriptESLintParser as any,
+      parser: typeScriptESLintParser,
     },
   },
 

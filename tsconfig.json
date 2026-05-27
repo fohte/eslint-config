@@ -10,8 +10,9 @@
     "declarationMap": true,
     "sourceMap": true,
     "incremental": true,
-    "baseUrl": ".",
+    "types": ["node"],
     "paths": {
+      "@/*": ["./src/*"],
       "eslint-plugin-simple-import-sort": [
         "./src/types/eslint-plugin-simple-import-sort.d.ts"
       ],
