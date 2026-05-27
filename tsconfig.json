@@ -4,27 +4,20 @@
     "@tsconfig/strictest/tsconfig.json"
   ],
   "compilerOptions": {
-<<<<<<< before updating
     "outDir": "./lib",
     "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "incremental": true,
-    "baseUrl": ".",
+    "types": ["node"],
     "paths": {
+      "@/*": ["./src/*"],
       "eslint-plugin-simple-import-sort": [
         "./src/types/eslint-plugin-simple-import-sort.d.ts"
       ],
       "eslint-plugin-import-x": ["./src/types/eslint-plugin-import.d.ts"],
       "eslint-config-prettier": ["./src/types/eslint-config-prettier.d.ts"]
-=======
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "paths": {
-      "@/*": ["./src/*"]
->>>>>>> after updating
     }
   },
   "include": ["./src/**/*"],
