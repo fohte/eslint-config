@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.2](https://github.com/fohte/eslint-config/compare/v0.3.1...v0.3.2) (2026-05-27)
+
+
+### Bug Fixes
+
+* **deps:** raise `@typescript-eslint/*` peer range to ^8.60.0 ([#349](https://github.com/fohte/eslint-config/issues/349)) ([0311a19](https://github.com/fohte/eslint-config/commit/0311a19e0f2e3f9e4d57434d70217e22617163a5))
+
 ## [0.3.1](https://github.com/fohte/eslint-config/compare/v0.3.0...v0.3.1) (2026-03-26)
 
 
