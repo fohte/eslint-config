@@ -6,6 +6,7 @@ import {
   typescriptConfig,
   typescriptTypeCheckedConfig,
 } from './typescript.js'
+import { vitestConfig } from './vitest.js'
 
 export interface TypeScriptOptions {
   /**
@@ -42,6 +43,8 @@ export function config(
   } else {
     configs.push(...typescriptConfig)
   }
+
+  configs.push(...vitestConfig)
 
   configs.push(...userConfigs)
 
