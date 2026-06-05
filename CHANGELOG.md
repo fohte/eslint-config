@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.3](https://github.com/fohte/eslint-config/compare/v0.3.2...v0.3.3) (2026-06-05)
+
+
+### Features
+
+* integrate @vitest/eslint-plugin recommended rules ([#357](https://github.com/fohte/eslint-config/issues/357)) ([a07d811](https://github.com/fohte/eslint-config/commit/a07d811dbf984d4c0f230251e2ad9260195887a5))
+
 ## [0.3.2](https://github.com/fohte/eslint-config/compare/v0.3.1...v0.3.2) (2026-05-27)
 
 
