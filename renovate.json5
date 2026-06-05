@@ -11,6 +11,14 @@
       rangeStrategy: 'auto',
     },
     {
+      // Published as a library: a major bump of a runtime dependency (eslint
+      // plugin/parser/core) can break downstream lint configs via added/removed/
+      // renamed rules, so surface it as a breaking change to release-please.
+      matchDepTypes: ['dependencies'],
+      matchUpdateTypes: ['major'],
+      commitMessagePrefix: 'deps!: ',
+    },
+    {
       // Use feat: prefix for peer dependency updates to trigger releases
       matchDepTypes: ['peerDependencies'],
       commitMessagePrefix: 'feat(peerDeps): ',
