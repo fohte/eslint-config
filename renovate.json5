@@ -11,9 +11,7 @@
       rangeStrategy: 'auto',
     },
     {
-      // Published as a library: a major bump of a runtime dependency (eslint
-      // plugin/parser/core) can break downstream lint configs via added/removed/
-      // renamed rules, so surface it as a breaking change to release-please.
+      // Use deps!: so release-please treats runtime dep major bumps as breaking
       matchDepTypes: ['dependencies'],
       matchUpdateTypes: ['major'],
       commitMessagePrefix: 'deps!: ',
