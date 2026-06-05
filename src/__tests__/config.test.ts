@@ -30,4 +30,16 @@ describe('config', () => {
 
     expect(withoutUser).toEqual(withEmptySpread)
   })
+
+  it('includes vitest rules scoped to test files', () => {
+    const result = config()
+    const vitestEntry = result.find(
+      (c) =>
+        c.plugins !== undefined && Object.keys(c.plugins).includes('vitest'),
+    )
+
+    expect(vitestEntry).toBeDefined()
+    expect(vitestEntry?.files).toBeDefined()
+    expect(vitestEntry?.rules?.['vitest/expect-expect']).toBeDefined()
+  })
 })
