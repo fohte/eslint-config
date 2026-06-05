@@ -11,19 +11,20 @@
       rangeStrategy: 'auto',
     },
     {
-      // Use deps!: so release-please treats runtime dep major bumps as breaking
-      matchDepTypes: ['dependencies'],
-      matchUpdateTypes: ['major'],
-      commitMessagePrefix: 'deps!: ',
-    },
-    {
-      // Use feat: prefix for peer dependency updates to trigger releases
+      // Use feat: prefix for non-major peer dependency updates to trigger
+      // releases. Major bumps are overridden to deps!: by the rule below.
       matchDepTypes: ['peerDependencies'],
       commitMessagePrefix: 'feat(peerDeps): ',
       // Replace the entire version range instead of widening with || operators
       // - default (widen): ^6.0.0 → ^6.0.0 || ^7.0.0 → ^6.0.0 || ^7.0.0 || ^8.0.0
       // - replace: ^6.0.0 || ^7.0.0 → ^8.0.0
       rangeStrategy: 'replace',
+    },
+    {
+      // Use deps!: so release-please treats peer/runtime dep major bumps as breaking
+      matchDepTypes: ['peerDependencies', 'dependencies'],
+      matchUpdateTypes: ['major'],
+      commitMessagePrefix: 'deps!: ',
     },
     {
       // Don't pin Node.js version in engines field
