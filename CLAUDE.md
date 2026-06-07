@@ -1,4 +1,5 @@
-<<<<<<< before updating
+# CLAUDE.md
+
 # Bash commands
 
 ## Build and test
@@ -47,12 +48,10 @@ pnpm exec release-please release-pr --repo-url=https://github.com/fohte/eslint-c
 - The config uses manifest mode with an empty component for single-package repos
 - `include-component-in-tag: false` maintains existing tag format (v0.0.4, not eslint-config-v0.0.4)
 - release-please reads config from GitHub, not local files - push changes before testing
-=======
-# CLAUDE.md
 
-## Test code rules
+# Test code rules
 
-### Assert on the whole output with a single equality check
+## Assert on the whole output with a single equality check
 
 Treat each test as a spec: build the expected output as one literal value (object, struct, JSON, array, etc.) and compare it to the actual output with a single equality assertion. Do not split the assertion into per-field checks, and do not use partial matchers (substring contains, `toContain`, `toMatchObject`, prefix/suffix checks, regex-on-substring, etc.). Partial matches silently ignore unexpected fields and extra elements, so the test stops working as a spec the moment the shape of the output changes.
 
@@ -72,4 +71,3 @@ expect(run()).toEqual({
 ```
 
 For dynamic fields (timestamps, UUIDs, random IDs), normalize them in a helper before the comparison (e.g. replace with a fixed placeholder) so the full output can still be asserted in one equality check. Do not weaken the assertion to dodge the dynamic value.
->>>>>>> after updating
