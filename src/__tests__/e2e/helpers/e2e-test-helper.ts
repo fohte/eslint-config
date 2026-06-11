@@ -137,19 +137,18 @@ export function runESLint(
       stdio: 'pipe',
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- JSON.parse returns any
     return JSON.parse(output) as ESLintOutput
   } catch (error: unknown) {
     // ESLint exits with code 1 when there are linting errors
     const stdout =
       error instanceof Error &&
       'stdout' in error &&
-      typeof (error as { stdout: unknown }).stdout === 'string'
-        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-          (error as { stdout: string }).stdout
+      typeof error.stdout === 'string'
+        ? error.stdout
         : undefined
     if (stdout !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- JSON.parse returns any
       return JSON.parse(stdout) as ESLintOutput
     }
     throw error

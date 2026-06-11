@@ -17,7 +17,10 @@
         "./src/types/eslint-plugin-simple-import-sort.d.ts"
       ],
       "eslint-plugin-import-x": ["./src/types/eslint-plugin-import.d.ts"],
-      "eslint-config-prettier": ["./src/types/eslint-config-prettier.d.ts"]
+      "eslint-config-prettier": ["./src/types/eslint-config-prettier.d.ts"],
+      "@eslint-community/eslint-plugin-eslint-comments": [
+        "./src/types/eslint-plugin-eslint-comments.d.ts"
+      ]
     }
   },
   "include": ["./src/**/*"],
