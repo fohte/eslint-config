@@ -137,7 +137,7 @@ export function runESLint(
       stdio: 'pipe',
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- JSON.parse returns any
     return JSON.parse(output) as ESLintOutput
   } catch (error: unknown) {
     // ESLint exits with code 1 when there are linting errors
@@ -145,11 +145,11 @@ export function runESLint(
       error instanceof Error &&
       'stdout' in error &&
       typeof (error as { stdout: unknown }).stdout === 'string'
-        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- TS doesn't narrow `error as { stdout: unknown }` to `{ stdout: string }` from the typeof guard
           (error as { stdout: string }).stdout
         : undefined
     if (stdout !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint --format=json output shape is stable
       return JSON.parse(stdout) as ESLintOutput
     }
     throw error

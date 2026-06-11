@@ -270,27 +270,5 @@ module.exports = { root: path.resolve(__dirname) }
         },
       )
     })
-
-    it('allows eslint-disable comment for no-require-imports in .cjs files', () => {
-      withTestProject(
-        {
-          typeChecked: true,
-          files: [
-            {
-              path: 'config.cjs',
-              content: `// eslint-disable-next-line @typescript-eslint/no-require-imports
-const path = require('path')
-
-module.exports = { root: path.resolve(__dirname) }
-`,
-            },
-          ],
-        },
-        (projectDir) => {
-          const output = runESLint(projectDir)
-          expectNoErrors(output)
-        },
-      )
-    })
   })
 })
