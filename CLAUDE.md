@@ -43,6 +43,14 @@ pnpm exec release-please release-pr --repo-url=https://github.com/fohte/eslint-c
 
 # Warnings
 
+## Adding a plugin to `mainConfig`
+
+When wiring a new ESLint plugin into `src/main.ts` (or any exported config), update all three:
+
+- `package.json` `peerDependencies`: declare the plugin so consumers install a compatible version
+- `README.md` Installation section: append the plugin to the `npm install --save-dev` peer deps command
+- `package.json` `devDependencies`: pin the version used for local development
+
 ## release-please configuration
 
 - The config uses manifest mode with an empty component for single-package repos
