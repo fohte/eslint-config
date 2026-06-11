@@ -144,12 +144,11 @@ export function runESLint(
     const stdout =
       error instanceof Error &&
       'stdout' in error &&
-      typeof (error as { stdout: unknown }).stdout === 'string'
-        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- TS doesn't narrow `error as { stdout: unknown }` to `{ stdout: string }` from the typeof guard
-          (error as { stdout: string }).stdout
+      typeof error.stdout === 'string'
+        ? error.stdout
         : undefined
     if (stdout !== undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint --format=json output shape is stable
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- JSON.parse returns any
       return JSON.parse(stdout) as ESLintOutput
     }
     throw error
