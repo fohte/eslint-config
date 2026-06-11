@@ -8,7 +8,7 @@ Personal ESLint configuration package with TypeScript support.
 npm install --save-dev @fohte/eslint-config
 
 # Install peer dependencies
-npm install --save-dev eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-plugin-import-x eslint-plugin-simple-import-sort @vitest/eslint-plugin @eslint-community/eslint-plugin-eslint-comments
+npm install --save-dev @eslint-community/eslint-plugin-eslint-comments @typescript-eslint/eslint-plugin @typescript-eslint/parser @vitest/eslint-plugin eslint eslint-config-prettier eslint-plugin-import-x eslint-plugin-simple-import-sort
 
 # Optional: If using TypeScript
 npm install --save-dev typescript
