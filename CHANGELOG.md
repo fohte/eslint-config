@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.4](https://github.com/fohte/eslint-config/compare/v0.3.3...v0.3.4) (2026-06-12)
+
+
+### Features
+
+* add eslint-plugin-eslint-comments rules ([#368](https://github.com/fohte/eslint-config/issues/368)) ([345026a](https://github.com/fohte/eslint-config/commit/345026a4f44b8c572b0970c906b151f54edfa18c))
+* **peerDeps:** Update dependency eslint-plugin-simple-import-sort to v13 ([d19be21](https://github.com/fohte/eslint-config/commit/d19be21816f2a48022c5d10e9aa0e09d08b9c33b))
+
+
+### Bug Fixes
+
+* declare @eslint-community/eslint-plugin-eslint-comments as peer dep ([#369](https://github.com/fohte/eslint-config/issues/369)) ([2afbfd5](https://github.com/fohte/eslint-config/commit/2afbfd52714776485884d3b06d18aeb1c7f41cde))
+
 ## [0.3.3](https://github.com/fohte/eslint-config/compare/v0.3.2...v0.3.3) (2026-06-05)
 
 
