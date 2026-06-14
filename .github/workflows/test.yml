@@ -121,14 +121,8 @@ jobs:
         with:
           path: |
             ${{ steps.pnpm-store.outputs.path }}
-<<<<<<< before updating
-            node_modules
-          key: ${{ runner.os }}-pnpm-node${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-node${{ matrix.node-version }}-
-=======
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-pnpm-store-
->>>>>>> after updating
 
       - name: Install dependencies
         run: pnpm install
