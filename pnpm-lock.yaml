@@ -19,7 +19,7 @@ importers:
         version: 3.3.5
       '@fohte/eslint-config':
         specifier: 0.3.4
-        version: 0.3.4(@eslint-community/eslint-plugin-eslint-comments@4.7.2(eslint@10.4.1(jiti@2.6.1)))(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@vitest/eslint-plugin@1.6.19(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1))))(eslint-config-prettier@10.1.8(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-simple-import-sort@13.0.0(eslint@10.4.1(jiti@2.6.1)))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)
+        version: 0.3.4(@eslint-community/eslint-plugin-eslint-comments@4.7.2(eslint@10.4.1(jiti@2.6.1)))(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@vitest/eslint-plugin@1.6.20(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1))))(eslint-config-prettier@10.1.8(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-simple-import-sort@13.0.0(eslint@10.4.1(jiti@2.6.1)))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)
       '@tsconfig/node-lts':
         specifier: 24.0.0
         version: 24.0.0
@@ -36,8 +36,8 @@ importers:
         specifier: 8.60.1
         version: 8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)
       '@vitest/eslint-plugin':
-        specifier: 1.6.19
-        version: 1.6.19(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1)))
+        specifier: 1.6.20
+        version: 1.6.20(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1)))
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -576,8 +576,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@vitest/eslint-plugin@1.6.19':
-    resolution: {integrity: sha512-zodmXRsVKFsuHxHJILuTFaaKsrsxm0YsiOX65clk+LpCW9JrVXaf6ERXr0caDs+NEk0S62Jyk0K7XYQ7gWXheA==}
+  '@vitest/eslint-plugin@1.6.20':
+    resolution: {integrity: sha512-xRwWHFG0Utp6hXtbGiWk4VdKXCGdExD8kbWrrmFEiG5dk8anOJ+vbWbeOa8EbkocKQRTsx7JAWETccZiBgFp/Q==}
     engines: {node: '>=18'}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': '*'
@@ -1645,12 +1645,12 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@fohte/eslint-config@0.3.4(@eslint-community/eslint-plugin-eslint-comments@4.7.2(eslint@10.4.1(jiti@2.6.1)))(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@vitest/eslint-plugin@1.6.19(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1))))(eslint-config-prettier@10.1.8(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-simple-import-sort@13.0.0(eslint@10.4.1(jiti@2.6.1)))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)':
+  '@fohte/eslint-config@0.3.4(@eslint-community/eslint-plugin-eslint-comments@4.7.2(eslint@10.4.1(jiti@2.6.1)))(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(@vitest/eslint-plugin@1.6.20(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1))))(eslint-config-prettier@10.1.8(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1)))(eslint-plugin-simple-import-sort@13.0.0(eslint@10.4.1(jiti@2.6.1)))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/eslint-plugin-eslint-comments': 4.7.2(eslint@10.4.1(jiti@2.6.1))
       '@typescript-eslint/eslint-plugin': 8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)
       '@typescript-eslint/parser': 8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)
-      '@vitest/eslint-plugin': 1.6.19(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1)))
+      '@vitest/eslint-plugin': 1.6.20(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1)))
       eslint: 10.4.1(jiti@2.6.1)
       eslint-config-prettier: 10.1.8(eslint@10.4.1(jiti@2.6.1))
       eslint-plugin-import-x: 4.16.2(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))
@@ -1935,7 +1935,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
-  '@vitest/eslint-plugin@1.6.19(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1)))':
+  '@vitest/eslint-plugin@1.6.20(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3))(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)(vitest@4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(jiti@2.6.1)))':
     dependencies:
       '@typescript-eslint/scope-manager': 8.60.1
       '@typescript-eslint/utils': 8.60.1(eslint@10.4.1(jiti@2.6.1))(typescript@6.0.3)
