@@ -32,9 +32,6 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           token: ${{ steps.octo-sts.outputs.token }}
-          # mergiraf reconstructs the pre-update revision from history; a
-          # shallow clone leaves it unreachable.
-          fetch-depth: 0
 
       - name: Resolve target version
         id: target
@@ -50,14 +47,6 @@ jobs:
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "branch=copier-update/$tag" >> "$GITHUB_OUTPUT"
-
-      - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: '3.12'
-
-      - name: Install copier
-        run: pipx install copier
 
       - name: Install mergiraf
         env:
@@ -79,18 +68,14 @@ jobs:
           chmod +x "$HOME/.local/bin/mergiraf"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Configure git
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          # diff3 markers let mergiraf split each conflict into smaller hunks.
-          # copier's default diff2 markers leave mergiraf unable to solve.
-          git config merge.conflictStyle diff3
+      - name: Configure merge conflict style
+        # diff3 markers let mergiraf split each conflict into smaller hunks.
+        # copier's default diff2 markers leave mergiraf unable to solve.
+        run: git config merge.conflictStyle diff3
 
       - name: Prepare branch
         env:
           BRANCH: ${{ steps.target.outputs.branch }}
-          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
         run: |
           set -euo pipefail
           git fetch origin "$BRANCH" || true
@@ -105,7 +90,7 @@ jobs:
           TAG: ${{ steps.target.outputs.tag }}
         run: |
           set -euo pipefail
-          copier update --trust --defaults --vcs-ref "$TAG"
+          pipx run copier update --trust --defaults --vcs-ref "$TAG"
 
       - name: Restore executable bit on scripts/bootstrap
         run: |
@@ -116,9 +101,8 @@ jobs:
       - name: Detect copier conflicts
         id: detect
         run: |
-          # copier-specific marker (not git's `<<<<<<< HEAD`).
-          # The pattern is split (`'before '` + `updating`) so this workflow
-          # does not self-match when checked into the repo.
+          set -euo pipefail
+          # copier conflict marker. Pattern is split to avoid self-match.
           if git grep --untracked -l '<<<<<<< before '"updating" > /tmp/copier-conflicts.txt && [ -s /tmp/copier-conflicts.txt ]; then
             echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
           else
@@ -129,7 +113,7 @@ jobs:
         if: steps.detect.outputs.has_conflicts == 'true'
         continue-on-error: true
         run: |
-          set -uo pipefail
+          set -euo pipefail
           while IFS= read -r f; do
             echo "mergiraf solve: $f"
             if ! mergiraf solve --keep-backup=false "$f"; then
@@ -137,29 +121,36 @@ jobs:
             fi
           done < /tmp/copier-conflicts.txt
 
-      - name: Commit changes
-        id: commit
-        env:
-          TAG: ${{ steps.target.outputs.tag }}
+      - name: Detect changes
+        id: changes
         run: |
           set -euo pipefail
-          git add -A
-          if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            git commit -m "chore(deps): Update generic-boilerplate to $TAG"
+          if [ -n "$(git status --porcelain)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Push branch
-        if: steps.commit.outputs.changed == 'true'
+      - name: Ensure branch exists on remote
+        if: steps.changes.outputs.changed == 'true'
         env:
           BRANCH: ${{ steps.target.outputs.branch }}
         run: |
-          git push --force-with-lease origin "HEAD:$BRANCH"
+          set -euo pipefail
+          # commit-action commits via GraphQL createCommitOnBranch, which
+          # requires the target branch ref to exist on the remote.
+          git push --force-with-lease origin "HEAD:refs/heads/$BRANCH"
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        uses: suzuki-shunsuke/commit-action@06e3b49d4706498d325d29bd85adc82ecf2f5d8f # v1.0.0
+        with:
+          commit_message: 'chore(deps): Update generic-boilerplate to ${{ steps.target.outputs.tag }}'
+          workflow: deny
+          github_token: ${{ steps.octo-sts.outputs.token }}
 
       - name: Create or update PR
-        if: steps.commit.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true'
         env:
           BRANCH: ${{ steps.target.outputs.branch }}
           TAG: ${{ steps.target.outputs.tag }}
