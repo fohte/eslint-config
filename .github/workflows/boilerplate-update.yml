@@ -131,20 +131,13 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Ensure branch exists on remote
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          BRANCH: ${{ steps.target.outputs.branch }}
-        run: |
-          set -euo pipefail
-          # commit-action commits via GraphQL createCommitOnBranch, which
-          # requires the target branch ref to exist on the remote.
-          git push --force-with-lease origin "HEAD:refs/heads/$BRANCH"
-
       - name: Commit and push changes
         if: steps.changes.outputs.changed == 'true'
         uses: suzuki-shunsuke/commit-action@06e3b49d4706498d325d29bd85adc82ecf2f5d8f # v1.0.0
         with:
+          # commit-action defaults branch to the invoking ref, which would
+          # push back into the workflow's own branch and trip fail_on_self_push.
+          branch: ${{ steps.target.outputs.branch }}
           commit_message: 'chore(deps): Update generic-boilerplate to ${{ steps.target.outputs.tag }}'
           workflow: deny
           github_token: ${{ steps.octo-sts.outputs.token }}
