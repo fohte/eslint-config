@@ -112,14 +112,80 @@ jobs:
       - name: Resolve copier conflicts with mergiraf
         if: steps.detect.outputs.has_conflicts == 'true'
         continue-on-error: true
+        # mergiraf falls back to line-based for the whole file when even one
+        # conflict block isn't structurally resolvable, so we run it once per
+        # block: for each block, mask all OTHER blocks with their "before
+        # updating" (left) section, solve, then splice the resolved region
+        # back into the original file. Blocks mergiraf still cannot solve in
+        # isolation are kept intact.
+        shell: node {0}
         run: |
-          set -euo pipefail
-          while IFS= read -r f; do
-            echo "mergiraf solve: $f"
-            if ! mergiraf solve --keep-backup=false "$f"; then
-              echo "  -> mergiraf left conflicts in $f"
-            fi
-          done < /tmp/copier-conflicts.txt
+          const fs = require('node:fs');
+          const { spawnSync } = require('node:child_process');
+          const { tmpdir } = require('node:os');
+          const path = require('node:path');
+
+          const RE = /<<<<<<< before updating\n(?<before>[\s\S]*?)\|\|\|\|\|\|\| last update\n(?<base>[\s\S]*?)=======\n(?<after>[\s\S]*?)>>>>>>> after updating\n/g;
+
+          const files = fs.readFileSync('/tmp/copier-conflicts.txt', 'utf8')
+            .split('\n').filter(Boolean);
+
+          for (const file of files) {
+            const text = fs.readFileSync(file, 'utf8');
+            const blocks = [...text.matchAll(RE)];
+            console.log(`${file}: ${blocks.length} block(s)`);
+            if (blocks.length === 0) continue;
+
+            const tmp = fs.mkdtempSync(path.join(tmpdir(), 'pb-'));
+            const ext = path.extname(file);
+            const resolved = new Map();
+
+            for (let i = 0; i < blocks.length; i++) {
+              let masked = '';
+              let iStart = -1, iEnd = -1;
+              let pos = 0;
+              for (let j = 0; j < blocks.length; j++) {
+                masked += text.slice(pos, blocks[j].index);
+                if (j === i) {
+                  iStart = masked.length;
+                  masked += blocks[j][0];
+                  iEnd = masked.length;
+                } else {
+                  masked += blocks[j].groups.before;
+                }
+                pos = blocks[j].index + blocks[j][0].length;
+              }
+              masked += text.slice(pos);
+
+              const tmpFile = path.join(tmp, `block-${i}${ext}`);
+              fs.writeFileSync(tmpFile, masked);
+              spawnSync('mergiraf', ['solve', '--keep-backup=false', tmpFile], { stdio: 'inherit' });
+              const out = fs.readFileSync(tmpFile, 'utf8');
+
+              if (out.includes('<<<<<<< before updating')) {
+                console.log(`  block ${i + 1}: unresolved`);
+                continue;
+              }
+              const prefix = masked.slice(0, iStart);
+              const suffix = masked.slice(iEnd);
+              if (!out.startsWith(prefix) || !out.endsWith(suffix)) {
+                console.log(`  block ${i + 1}: splice mismatch, skipping`);
+                continue;
+              }
+              resolved.set(i, out.slice(prefix.length, out.length - suffix.length));
+              console.log(`  block ${i + 1}: resolved`);
+            }
+
+            let result = '';
+            let pos = 0;
+            for (let i = 0; i < blocks.length; i++) {
+              result += text.slice(pos, blocks[i].index);
+              result += resolved.has(i) ? resolved.get(i) : blocks[i][0];
+              pos = blocks[i].index + blocks[i][0].length;
+            }
+            result += text.slice(pos);
+            fs.writeFileSync(file, result);
+          }
 
       - name: Detect changes
         id: changes
