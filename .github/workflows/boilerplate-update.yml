@@ -1,0 +1,178 @@
+name: Boilerplate update
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_version:
+        description: 'generic-boilerplate tag to update to (default: latest release)'
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+
+concurrency:
+  group: boilerplate-update
+  cancel-in-progress: false
+
+jobs:
+  boilerplate-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Federate GitHub token via octo-sts
+        id: octo-sts
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        with:
+          scope: fohte
+          identity: ${{ github.event.repository.name }}-boilerplate-update
+          domain: octo-sts.fohte.net
+
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          token: ${{ steps.octo-sts.outputs.token }}
+          # mergiraf reconstructs the pre-update revision from history; a
+          # shallow clone leaves it unreachable.
+          fetch-depth: 0
+
+      - name: Resolve target version
+        id: target
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          INPUT_VERSION: ${{ inputs.target_version }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_VERSION" ]; then
+            tag="$INPUT_VERSION"
+          else
+            tag="$(gh release view -R fohte/generic-boilerplate --json tagName -q .tagName)"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "branch=copier-update/$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+
+      - name: Install copier
+        run: pipx install copier
+
+      - name: Install mergiraf
+        env:
+          # renovate: datasource=gitea-tags depName=mergiraf/mergiraf registryUrl=https://codeberg.org
+          MERGIRAF_VERSION: v0.17.0
+        run: |
+          set -euo pipefail
+          # Going through mise/aqua would re-read the repo's .mise.toml, which
+          # may itself be a copier conflict file after the update step.
+          case "$(uname -m)" in
+            x86_64) target=x86_64-unknown-linux-musl ;;
+            aarch64) target=aarch64-unknown-linux-musl ;;
+            *) echo "unsupported arch: $(uname -m)" >&2; exit 1 ;;
+          esac
+          mkdir -p "$HOME/.local/bin"
+          curl -sSfL \
+            "https://codeberg.org/mergiraf/mergiraf/releases/download/${MERGIRAF_VERSION}/mergiraf_${target}.tar.gz" \
+            | tar -xz -C "$HOME/.local/bin"
+          chmod +x "$HOME/.local/bin/mergiraf"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Configure git
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # diff3 markers let mergiraf split each conflict into smaller hunks.
+          # copier's default diff2 markers leave mergiraf unable to solve.
+          git config merge.conflictStyle diff3
+
+      - name: Prepare branch
+        env:
+          BRANCH: ${{ steps.target.outputs.branch }}
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$BRANCH" || true
+          if git rev-parse --verify "origin/$BRANCH" >/dev/null 2>&1; then
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+          else
+            git checkout -B "$BRANCH"
+          fi
+
+      - name: Run copier update
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+        run: |
+          set -euo pipefail
+          copier update --trust --defaults --vcs-ref "$TAG"
+
+      - name: Restore executable bit on scripts/bootstrap
+        run: |
+          if [ -f scripts/bootstrap ]; then
+            chmod +x scripts/bootstrap
+          fi
+
+      - name: Detect copier conflicts
+        id: detect
+        run: |
+          # copier-specific marker (not git's `<<<<<<< HEAD`).
+          # The pattern is split (`'before '` + `updating`) so this workflow
+          # does not self-match when checked into the repo.
+          if git grep --untracked -l '<<<<<<< before '"updating" > /tmp/copier-conflicts.txt && [ -s /tmp/copier-conflicts.txt ]; then
+            echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve copier conflicts with mergiraf
+        if: steps.detect.outputs.has_conflicts == 'true'
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          while IFS= read -r f; do
+            echo "mergiraf solve: $f"
+            if ! mergiraf solve --keep-backup=false "$f"; then
+              echo "  -> mergiraf left conflicts in $f"
+            fi
+          done < /tmp/copier-conflicts.txt
+
+      - name: Commit changes
+        id: commit
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore(deps): Update generic-boilerplate to $TAG"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push branch
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          BRANCH: ${{ steps.target.outputs.branch }}
+        run: |
+          git push --force-with-lease origin "HEAD:$BRANCH"
+
+      - name: Create or update PR
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          BRANCH: ${{ steps.target.outputs.branch }}
+          TAG: ${{ steps.target.outputs.tag }}
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+        run: |
+          set -euo pipefail
+          title="chore(deps): Update generic-boilerplate to $TAG"
+          body="Automated boilerplate update to \`$TAG\` via \`boilerplate-update.yml\`."
+          existing="$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number' || true)"
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$title" --body "$body"
+            pr="$existing"
+          else
+            pr="$(gh pr create --base master --head "$BRANCH" --title "$title" --body "$body")"
+          fi
+          gh pr merge "$pr" --squash --auto
