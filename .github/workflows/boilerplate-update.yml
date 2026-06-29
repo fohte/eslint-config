@@ -1,10 +1,114 @@
 name: Boilerplate update
 
 on:
+  schedule:
+    # Weekly on Monday 03:00 UTC
+    - cron: '0 3 * * 1'
   workflow_dispatch:
+    inputs:
+      target-version:
+        description: 'Specific template tag to update to (e.g. v0.8.9). Leave empty to use the latest release.'
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+
+concurrency:
+  group: boilerplate-update
+  cancel-in-progress: false
 
 jobs:
-  noop:
+  boilerplate-update:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "stub"
+      - name: Federate GitHub token via octo-sts
+        id: octo-sts
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        with:
+          scope: fohte
+          identity: ${{ github.event.repository.name }}-boilerplate-update
+          domain: octo-sts.fohte.net
+
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          token: ${{ steps.octo-sts.outputs.token }}
+
+      - name: Run copier-update-action
+        id: copier-update
+        uses: fohte/copier-update-action@f017b558b377fe0a6acaab6a24fed6354a293c4f # v0.1.0
+        with:
+          template-repo: fohte/generic-boilerplate
+          target-version: ${{ github.event.inputs.target-version }}
+          github-token: ${{ steps.octo-sts.outputs.token }}
+
+      - name: Restore executable bit on scripts/bootstrap
+        if: steps.copier-update.outputs.changed == 'true'
+        run: |
+          if [ -f scripts/bootstrap ]; then
+            chmod +x scripts/bootstrap
+          fi
+
+      - name: Create branch
+        if: steps.copier-update.outputs.changed == 'true'
+        id: branch
+        env:
+          TARGET_VERSION: ${{ steps.copier-update.outputs.target-version }}
+        run: |
+          set -euo pipefail
+          branch="copier-update/${TARGET_VERSION}"
+          echo "name=${branch}" >> "$GITHUB_OUTPUT"
+          git fetch origin "${branch}" || true
+          git checkout -B "${branch}"
+
+      - name: Commit and push changes
+        if: steps.copier-update.outputs.changed == 'true'
+        uses: suzuki-shunsuke/commit-action@06e3b49d4706498d325d29bd85adc82ecf2f5d8f # v1.0.0
+        with:
+          commit_message: 'chore: copier update to ${{ steps.copier-update.outputs.target-version }}'
+          workflow: deny
+          github_token: ${{ steps.octo-sts.outputs.token }}
+
+      - name: Create or update pull request
+        if: steps.copier-update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          TARGET_VERSION: ${{ steps.copier-update.outputs.target-version }}
+          UNRESOLVED_FILES: ${{ steps.copier-update.outputs.unresolved-files }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${UNRESOLVED_FILES}" ]; then
+            body="copier update to \`${TARGET_VERSION}\`.
+
+          Manual review required. Unresolved conflicts remain in:
+
+          \`\`\`
+          ${UNRESOLVED_FILES}
+          \`\`\`"
+            draft_flag="--draft"
+          else
+            body="copier update to \`${TARGET_VERSION}\`.
+
+          All conflicts resolved automatically."
+            draft_flag=""
+          fi
+
+          existing_pr=$(gh pr list --head "${BRANCH}" --state open --json url --jq '.[0].url // ""')
+          if [ -n "${existing_pr}" ]; then
+            pr_url="${existing_pr}"
+            echo "PR already exists: ${pr_url}"
+          else
+            pr_url=$(gh pr create \
+              --title "chore: copier update to ${TARGET_VERSION}" \
+              --body "${body}" \
+              --head "${BRANCH}" \
+              ${draft_flag})
+          fi
+
+          if [ -z "${UNRESOLVED_FILES}" ]; then
+            gh pr merge --auto --squash "${pr_url}"
+          fi
