@@ -60,7 +60,6 @@ jobs:
           set -euo pipefail
           branch="copier-update/${TARGET_VERSION}"
           echo "name=${branch}" >> "$GITHUB_OUTPUT"
-          git fetch origin "${branch}" || true
           git checkout -B "${branch}"
 
       - name: Commit and push changes
@@ -81,32 +80,37 @@ jobs:
         run: |
           set -euo pipefail
 
+          body="copier update to \`${TARGET_VERSION}\`."
           if [ -n "${UNRESOLVED_FILES}" ]; then
-            body="copier update to \`${TARGET_VERSION}\`.
+            body="${body}
 
           Manual review required. Unresolved conflicts remain in:
 
           \`\`\`
           ${UNRESOLVED_FILES}
           \`\`\`"
-            draft_flag="--draft"
           else
-            body="copier update to \`${TARGET_VERSION}\`.
+            body="${body}
 
           All conflicts resolved automatically."
-            draft_flag=""
+          fi
+
+          create_args=(--title "chore: copier update to ${TARGET_VERSION}" --body "${body}" --head "${BRANCH}")
+          if [ -n "${UNRESOLVED_FILES}" ]; then
+            create_args+=(--draft)
           fi
 
           existing_pr=$(gh pr list --head "${BRANCH}" --state open --json url --jq '.[0].url // ""')
           if [ -n "${existing_pr}" ]; then
             pr_url="${existing_pr}"
-            echo "PR already exists: ${pr_url}"
+            gh pr edit "${pr_url}" --body "${body}"
+            if [ -n "${UNRESOLVED_FILES}" ]; then
+              gh pr ready "${pr_url}" --undo
+            else
+              gh pr ready "${pr_url}"
+            fi
           else
-            pr_url=$(gh pr create \
-              --title "chore: copier update to ${TARGET_VERSION}" \
-              --body "${body}" \
-              --head "${BRANCH}" \
-              ${draft_flag})
+            pr_url=$(gh pr create "${create_args[@]}")
           fi
 
           if [ -z "${UNRESOLVED_FILES}" ]; then
