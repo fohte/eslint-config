@@ -53,7 +53,7 @@ jobs:
 
       - name: Run copier-update-action
         id: copier-update
-        uses: fohte/copier-update-action@34a7c132e7cb49c4025dcde6b71160c0625c4796 # v0.1.0
+        uses: fohte/copier-update-action@52313ccc7ba83641a9a617252f378e54800de129 # v0.1.1
         with:
           template-repo: ${{ env.TEMPLATE_REPO }}
           target-version: ${{ github.event.inputs.target-version }}
