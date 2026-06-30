@@ -43,7 +43,8 @@ jobs:
         run: |
           set -euo pipefail
           # `_commit:` is the copier-managed field recording the applied template tag.
-          from_version=$(awk '$1 == "_commit:" { print $2 }' .copier-answers.yml)
+          # Strip surrounding quotes in case copier serializes the value as a YAML string.
+          from_version=$(awk '$1 == "_commit:" { print $2 }' .copier-answers.yml | tr -d "\"'")
           if [ -z "${from_version}" ]; then
             echo "Failed to read _commit from .copier-answers.yml" >&2
             exit 1
