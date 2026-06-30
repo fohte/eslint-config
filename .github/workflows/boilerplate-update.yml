@@ -113,20 +113,16 @@ jobs:
           release_url="https://github.com/${TEMPLATE_REPO}/releases/tag/${TARGET_VERSION}"
           summary="Update \`${TEMPLATE_REPO}\` from \`${FROM_VERSION}\` to [\`${TARGET_VERSION}\`](${release_url})."
 
+          body="${summary}"
           if [ -n "${UNRESOLVED_FILES}" ]; then
             # Prefix each unresolved file with `> - ` so it stays inside the WARNING alert as a bullet.
             unresolved_list=$(printf '%s\n' "${UNRESOLVED_FILES}" | sed 's/^/> - /')
-            body="${summary}
+            body="${body}
 
           > [!WARNING]
           > Manual review required. Unresolved conflicts remain in:
           >
           ${unresolved_list}"
-          else
-            body="${summary}
-
-          > [!NOTE]
-          > All conflicts were resolved automatically."
           fi
 
           create_args=(--title "${TITLE}" --body "${body}" --head "${BRANCH}")
