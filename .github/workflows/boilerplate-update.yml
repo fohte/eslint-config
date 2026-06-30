@@ -95,15 +95,24 @@ jobs:
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
           COMMIT_MESSAGE: ${{ steps.title.outputs.value }}
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
         run: |
           set -euo pipefail
+          # Attribute the commit to the octo-sts federated identity (the token's actual owner),
+          # not github-actions[bot]. The previous suzuki-shunsuke/commit-action created commits
+          # via the GitHub API, which auto-attributes to the token's identity; replicating that
+          # for a local git commit requires resolving the identity from the API ourselves.
+          user_json=$(gh api /user)
+          user_id=$(jq -r '.id' <<<"${user_json}")
+          user_login=$(jq -r '.login' <<<"${user_json}")
+          git -c "user.name=${user_login}" \
+              -c "user.email=${user_id}+${user_login}@users.noreply.github.com" \
+              commit -m "${COMMIT_MESSAGE}"
           # Force-push so the remote branch always equals "master HEAD + 1 copier-update commit".
           # Without this, commits on an existing copier-update/<version> branch accumulate and
           # the PR drifts from master.
-          git -c user.name='github-actions[bot]' \
-              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-              commit -m "${COMMIT_MESSAGE}"
-          # Use --force (not --force-with-lease): actions/checkout does not populate
+          #
+          # --force (not --force-with-lease): actions/checkout does not populate
           # refs/remotes/origin/<branch> for non-checked-out branches, so --force-with-lease
           # would reject with "stale info" on the second run for the same target version.
           # The concurrency group above serializes runs, so there is no concurrent-pusher race
