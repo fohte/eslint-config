@@ -98,10 +98,10 @@ jobs:
           GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
         run: |
           set -euo pipefail
-          # Attribute the commit to the octo-sts federated identity (the token's actual owner),
-          # not github-actions[bot]. The previous suzuki-shunsuke/commit-action created commits
-          # via the GitHub API, which auto-attributes to the token's identity; replicating that
-          # for a local git commit requires resolving the identity from the API ourselves.
+          # Resolve the commit author from the octo-sts federated token so commits are attributed
+          # to the federated identity (the token's actual owner) instead of the generic
+          # github-actions[bot]. `gh api /user` returns the App installation's bot identity,
+          # whose noreply email follows `<id>+<login>@users.noreply.github.com`.
           user_json=$(gh api /user)
           user_id=$(jq -r '.id' <<<"${user_json}")
           user_login=$(jq -r '.login' <<<"${user_json}")
