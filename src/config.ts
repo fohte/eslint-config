@@ -1,5 +1,6 @@
 import type { Linter } from 'eslint'
 
+import { fohteConfig } from './fohte.js'
 import { mainConfig } from './main.js'
 import {
   typescriptBaseConfig,
@@ -45,6 +46,7 @@ export function config(
   }
 
   configs.push(...vitestConfig)
+  configs.push(...fohteConfig)
 
   configs.push(...userConfigs)
 
