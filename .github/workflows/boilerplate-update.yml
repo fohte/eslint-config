@@ -21,6 +21,8 @@ concurrency:
 jobs:
   boilerplate-update:
     runs-on: ubuntu-latest
+    env:
+      TEMPLATE_REPO: fohte/generic-boilerplate
     steps:
       - name: Federate GitHub token via octo-sts
         id: octo-sts
@@ -36,11 +38,23 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.octo-sts.outputs.token }}
 
+      - name: Capture current template version
+        id: current-version
+        run: |
+          set -euo pipefail
+          # `_commit:` is the copier-managed field recording the applied template tag.
+          from_version=$(awk '$1 == "_commit:" { print $2 }' .copier-answers.yml)
+          if [ -z "${from_version}" ]; then
+            echo "Failed to read _commit from .copier-answers.yml" >&2
+            exit 1
+          fi
+          echo "version=${from_version}" >> "$GITHUB_OUTPUT"
+
       - name: Run copier-update-action
         id: copier-update
         uses: fohte/copier-update-action@f017b558b377fe0a6acaab6a24fed6354a293c4f # v0.1.0
         with:
-          template-repo: fohte/generic-boilerplate
+          template-repo: ${{ env.TEMPLATE_REPO }}
           target-version: ${{ github.event.inputs.target-version }}
           github-token: ${{ steps.octo-sts.outputs.token }}
 
@@ -65,11 +79,21 @@ jobs:
           git add -A
           git checkout -B "${branch}"
 
+      - name: Compose commit and PR title
+        if: steps.copier-update.outputs.changed == 'true'
+        id: title
+        env:
+          FROM_VERSION: ${{ steps.current-version.outputs.version }}
+          TARGET_VERSION: ${{ steps.copier-update.outputs.target-version }}
+        run: |
+          set -euo pipefail
+          echo "value=chore: update ${TEMPLATE_REPO} from ${FROM_VERSION} to ${TARGET_VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Commit and push changes
         if: steps.copier-update.outputs.changed == 'true'
         uses: suzuki-shunsuke/commit-action@06e3b49d4706498d325d29bd85adc82ecf2f5d8f # v1.0.0
         with:
-          commit_message: 'chore: copier update to ${{ steps.copier-update.outputs.target-version }}'
+          commit_message: ${{ steps.title.outputs.value }}
           workflow: deny
           github_token: ${{ steps.octo-sts.outputs.token }}
 
@@ -77,28 +101,34 @@ jobs:
         if: steps.copier-update.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          TITLE: ${{ steps.title.outputs.value }}
+          FROM_VERSION: ${{ steps.current-version.outputs.version }}
           TARGET_VERSION: ${{ steps.copier-update.outputs.target-version }}
           UNRESOLVED_FILES: ${{ steps.copier-update.outputs.unresolved-files }}
           BRANCH: ${{ steps.branch.outputs.name }}
         run: |
           set -euo pipefail
 
-          body="copier update to \`${TARGET_VERSION}\`."
+          release_url="https://github.com/${TEMPLATE_REPO}/releases/tag/${TARGET_VERSION}"
+          summary="Update \`${TEMPLATE_REPO}\` from \`${FROM_VERSION}\` to [\`${TARGET_VERSION}\`](${release_url})."
+
           if [ -n "${UNRESOLVED_FILES}" ]; then
-            body="${body}
+            # Prefix each unresolved file with `> - ` so it stays inside the WARNING alert as a bullet.
+            unresolved_list=$(printf '%s\n' "${UNRESOLVED_FILES}" | sed 's/^/> - /')
+            body="${summary}
 
-          Manual review required. Unresolved conflicts remain in:
-
-          \`\`\`
-          ${UNRESOLVED_FILES}
-          \`\`\`"
+          > [!WARNING]
+          > Manual review required. Unresolved conflicts remain in:
+          >
+          ${unresolved_list}"
           else
-            body="${body}
+            body="${summary}
 
-          All conflicts resolved automatically."
+          > [!NOTE]
+          > All conflicts were resolved automatically."
           fi
 
-          create_args=(--title "chore: copier update to ${TARGET_VERSION}" --body "${body}" --head "${BRANCH}")
+          create_args=(--title "${TITLE}" --body "${body}" --head "${BRANCH}")
           if [ -n "${UNRESOLVED_FILES}" ]; then
             create_args+=(--draft)
           fi
@@ -106,7 +136,7 @@ jobs:
           existing_pr=$(gh pr list --head "${BRANCH}" --state open --json url --jq '.[0].url // ""')
           if [ -n "${existing_pr}" ]; then
             pr_url="${existing_pr}"
-            gh pr edit "${pr_url}" --body "${body}"
+            gh pr edit "${pr_url}" --title "${TITLE}" --body "${body}"
             if [ -n "${UNRESOLVED_FILES}" ]; then
               gh pr ready "${pr_url}" --undo
             else
