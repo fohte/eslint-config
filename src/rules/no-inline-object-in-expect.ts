@@ -48,13 +48,16 @@ export const noInlineObjectInExpect: Rule.RuleModule = {
           receiver = receiver.object
         }
 
-        if (
-          receiver.type !== 'CallExpression' ||
-          receiver.callee.type !== 'Identifier' ||
-          receiver.callee.name !== 'expect'
-        ) {
-          return
-        }
+        if (receiver.type !== 'CallExpression') return
+        const expectCallee = receiver.callee
+        const isExpect =
+          expectCallee.type === 'Identifier'
+            ? expectCallee.name === 'expect'
+            : expectCallee.type === 'MemberExpression' &&
+              !expectCallee.computed &&
+              expectCallee.object.type === 'Identifier' &&
+              expectCallee.object.name === 'expect'
+        if (!isExpect) return
 
         const firstArg = receiver.arguments[0]
         if (!firstArg) return

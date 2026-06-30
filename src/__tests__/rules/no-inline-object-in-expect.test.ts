@@ -21,6 +21,8 @@ ruleTester.run('no-inline-object-in-expect', noInlineObjectInExpect, {
     { code: `await expect(getValue()).resolves.toEqual({ a: 1 })` },
     { code: `expect(getValue()).rejects.toEqual([1, 2])` },
     { code: `expect(getValue()).not.toEqual({ a: 1 })` },
+    { code: `expect.soft(result).toEqual({ a: 1 })` },
+    { code: `expect.poll(() => getValue()).toEqual({ a: 1 })` },
   ],
   invalid: [
     {
@@ -152,6 +154,18 @@ ruleTester.run('no-inline-object-in-expect', noInlineObjectInExpect, {
           column: 8,
           endLine: 1,
           endColumn: 16,
+        },
+      ],
+    },
+    {
+      code: `expect.soft({ a, b }).toEqual({ a: 1, b: 2 })`,
+      errors: [
+        {
+          messageId: 'inlineObject',
+          line: 1,
+          column: 13,
+          endLine: 1,
+          endColumn: 21,
         },
       ],
     },
