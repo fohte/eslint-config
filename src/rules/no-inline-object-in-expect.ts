@@ -1,9 +1,8 @@
 import type { Rule } from 'eslint'
-import type { Node } from 'estree'
 
 interface TsWrapperNode {
   type: string
-  expression: Node
+  expression: { type: string }
 }
 
 const TARGET_MATCHERS = new Set(['toEqual', 'toStrictEqual', 'toMatchObject'])
@@ -59,15 +58,23 @@ export const noInlineObjectInExpect: Rule.RuleModule = {
 
         const firstArg = receiver.arguments[0]
         if (!firstArg) return
-        let actual: Node = firstArg
+        let actual: { type: string } = firstArg
         while (TS_WRAPPER_TYPES.has(actual.type)) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- estree's Node union lacks TS-only wrappers (TSAsExpression etc.); their .expression field is documented in @typescript-eslint AST
           actual = (actual as unknown as TsWrapperNode).expression
         }
-        if (actual.type === 'ObjectExpression') {
-          context.report({ node: actual, messageId: 'inlineObject' })
-        } else if (actual.type === 'ArrayExpression') {
-          context.report({ node: actual, messageId: 'inlineArray' })
+        if (
+          actual.type === 'ObjectExpression' ||
+          actual.type === 'ArrayExpression'
+        ) {
+          context.report({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- the unwrap loop narrows from estree Node only by string type tag; ESLint's report node accepts the runtime AST node
+            node: actual as unknown as Rule.Node,
+            messageId:
+              actual.type === 'ObjectExpression'
+                ? 'inlineObject'
+                : 'inlineArray',
+          })
         }
       },
     }
