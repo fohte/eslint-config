@@ -92,11 +92,23 @@ jobs:
 
       - name: Commit and push changes
         if: steps.copier-update.outputs.changed == 'true'
-        uses: suzuki-shunsuke/commit-action@06e3b49d4706498d325d29bd85adc82ecf2f5d8f # v1.0.0
-        with:
-          commit_message: ${{ steps.title.outputs.value }}
-          workflow: deny
-          github_token: ${{ steps.octo-sts.outputs.token }}
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+          COMMIT_MESSAGE: ${{ steps.title.outputs.value }}
+        run: |
+          set -euo pipefail
+          # Force-push so the remote branch always equals "master HEAD + 1 copier-update commit".
+          # Without this, commits on an existing copier-update/<version> branch accumulate and
+          # the PR drifts from master.
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "${COMMIT_MESSAGE}"
+          # Use --force (not --force-with-lease): actions/checkout does not populate
+          # refs/remotes/origin/<branch> for non-checked-out branches, so --force-with-lease
+          # would reject with "stale info" on the second run for the same target version.
+          # The concurrency group above serializes runs, so there is no concurrent-pusher race
+          # to guard against.
+          git push --force origin "${BRANCH}"
 
       - name: Create or update pull request
         if: steps.copier-update.outputs.changed == 'true'
