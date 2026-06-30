@@ -60,6 +60,9 @@ jobs:
           set -euo pipefail
           branch="copier-update/${TARGET_VERSION}"
           echo "name=${branch}" >> "$GITHUB_OUTPUT"
+          # copier-update-action leaves unmerged entries in the index when
+          # conflicts remain; stage everything so `git checkout -B` succeeds.
+          git add -A
           git checkout -B "${branch}"
 
       - name: Commit and push changes
