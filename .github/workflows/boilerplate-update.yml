@@ -100,15 +100,13 @@ jobs:
           git -c 'user.name=fohte-bot[bot]' \
               -c 'user.email=139195068+fohte-bot[bot]@users.noreply.github.com' \
               commit -m "${COMMIT_MESSAGE}"
-          # Force-push so the remote branch always equals "master HEAD + 1 copier-update commit".
+          # Force-push so the remote branch always equals "default branch HEAD + 1 copier-update commit".
           # Without this, commits on an existing copier-update/<version> branch accumulate and
-          # the PR drifts from master.
+          # the PR drifts from the default branch.
           #
           # --force (not --force-with-lease): actions/checkout does not populate
           # refs/remotes/origin/<branch> for non-checked-out branches, so --force-with-lease
           # would reject with "stale info" on the second run for the same target version.
-          # The concurrency group above serializes runs, so there is no concurrent-pusher race
-          # to guard against.
           git push --force origin "${BRANCH}"
 
       - name: Create or update pull request
@@ -149,7 +147,7 @@ jobs:
             create_args+=(--draft)
           fi
 
-          existing_pr=$(gh pr list --head "${BRANCH}" --state open --json url --jq '.[0].url // ""')
+          existing_pr=$(gh pr list --head "${BRANCH}" --state open --json url --jq 'map(.url)[0] // ""')
           if [ -n "${existing_pr}" ]; then
             pr_url="${existing_pr}"
             gh pr edit "${pr_url}" --title "${TITLE}" --body "${body}"
@@ -163,5 +161,16 @@ jobs:
           fi
 
           if [ -z "${UNRESOLVED_FILES}" ]; then
-            gh pr merge --auto --squash "${pr_url}"
+            if OUTPUT=$(gh pr merge --auto --squash "${pr_url}" 2>&1); then
+              echo "$OUTPUT"
+            elif echo "$OUTPUT" | grep -q "clean status"; then
+              echo "$OUTPUT"
+              gh pr merge --squash "${pr_url}" || echo "Direct merge failed. Leaving PR open."
+            elif echo "$OUTPUT" | grep -q "auto-merge is not enabled"; then
+              echo "$OUTPUT"
+              gh pr merge --squash "${pr_url}" || echo "Direct merge failed (likely due to pending checks). Leaving PR open."
+            else
+              echo "$OUTPUT"
+              exit 1
+            fi
           fi
