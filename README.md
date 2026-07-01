@@ -29,6 +29,24 @@ export default config()
 // export default config({ typescript: { typeChecked: true } })
 ```
 
+### Built-in rules
+
+In addition to the upstream presets, this config ships a local plugin (`fohte`) for test files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
+
+- `fohte/no-inline-object-in-expect`: flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Pass the value under test directly, or split the assertion into multiple `expect()` calls.
+
+  ```ts
+  // bad
+  expect({ result, calls: spy.mock.calls.length }).toEqual({
+    result: 'ok',
+    calls: 0,
+  })
+
+  // good
+  expect(result).toBe('ok')
+  expect(spy).not.toHaveBeenCalled()
+  ```
+
 ## Development
 
 ### Setup
