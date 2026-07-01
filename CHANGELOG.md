@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.5](https://github.com/fohte/eslint-config/compare/v0.3.4...v0.3.5) (2026-07-01)
+
+
+### Dependencies
+
+* update dependency jdx/mise to v2026.6.11 ([#382](https://github.com/fohte/eslint-config/issues/382)) ([baf7a5c](https://github.com/fohte/eslint-config/commit/baf7a5c65a48dede51233c052893348a24b550e2))
+
 ## [0.3.4](https://github.com/fohte/eslint-config/compare/v0.3.3...v0.3.4) (2026-06-12)
 
 
