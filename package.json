@@ -61,7 +61,7 @@
     "concurrently": "10.0.3",
     "eslint": "10.5.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-import-x": "4.16.2",
+    "eslint-plugin-import-x": "4.17.0",
     "eslint-plugin-simple-import-sort": "13.0.0",
     "prettier": "3.8.4",
     "publint": "0.3.21",
