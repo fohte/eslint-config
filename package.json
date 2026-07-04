@@ -48,7 +48,7 @@
     "validate-build": "publint"
   },
   "devDependencies": {
-    "@commitlint/cli": "21.0.2",
+    "@commitlint/cli": "21.1.0",
     "@eslint-community/eslint-plugin-eslint-comments": "4.7.2",
     "@eslint/eslintrc": "3.3.5",
     "@fohte/eslint-config": "0.3.4",
