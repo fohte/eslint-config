@@ -1,7 +1,7 @@
 {
   "name": "@fohte/eslint-config",
   "description": "ESLint config for fohte",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "packageManager": "pnpm@11.7.0",
   "type": "module",
   "main": "lib/index.js",
