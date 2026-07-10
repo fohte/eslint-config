@@ -23,7 +23,7 @@ function unwrapTsWrapper(node: { type: string }): { type: string } {
   return current
 }
 
-// Only follows bindings written exactly once, so the initializer is provably the value seen at the expect() call.
+// Only follows bindings referenced exactly twice (the initializing write and this expect() read), so no reassignment or mutating access (e.g. `x.a = 1`, `x.push(1)`) could have changed the value in between.
 function resolveAliasedLiteral(
   context: Rule.RuleContext,
   node: { type: string },
@@ -39,9 +39,7 @@ function resolveAliasedLiteral(
   const variable = reference?.resolved
   if (!variable) return undefined
 
-  if (variable.references.filter((ref) => ref.isWrite()).length !== 1) {
-    return undefined
-  }
+  if (variable.references.length !== 2) return undefined
 
   for (const def of variable.defs) {
     if (def.type !== 'Variable') continue
@@ -49,6 +47,26 @@ function resolveAliasedLiteral(
     return unwrapTsWrapper(def.node.init)
   }
   return undefined
+}
+
+const MESSAGE_IDS = {
+  ObjectExpression: { direct: 'inlineObject', alias: 'inlineObjectAlias' },
+  ArrayExpression: { direct: 'inlineArray', alias: 'inlineArrayAlias' },
+} as const
+
+function reportInlineLiteral(
+  context: Rule.RuleContext,
+  reportNode: { type: string },
+  literalType: keyof typeof MESSAGE_IDS,
+  isAlias: boolean,
+): void {
+  context.report({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint's report node accepts the runtime AST node
+    node: reportNode as unknown as Rule.Node,
+    messageId: isAlias
+      ? MESSAGE_IDS[literalType].alias
+      : MESSAGE_IDS[literalType].direct,
+  })
 }
 
 export const noInlineObjectInExpect: Rule.RuleModule = {
@@ -108,14 +126,7 @@ export const noInlineObjectInExpect: Rule.RuleModule = {
           actual.type === 'ObjectExpression' ||
           actual.type === 'ArrayExpression'
         ) {
-          context.report({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- the unwrap loop narrows from estree Node only by string type tag; ESLint's report node accepts the runtime AST node
-            node: actual as unknown as Rule.Node,
-            messageId:
-              actual.type === 'ObjectExpression'
-                ? 'inlineObject'
-                : 'inlineArray',
-          })
+          reportInlineLiteral(context, actual, actual.type, false)
           return
         }
 
@@ -124,14 +135,7 @@ export const noInlineObjectInExpect: Rule.RuleModule = {
           aliasedLiteral?.type === 'ObjectExpression' ||
           aliasedLiteral?.type === 'ArrayExpression'
         ) {
-          context.report({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- actual is confirmed to be an Identifier at this point; ESLint's report node accepts the runtime AST node
-            node: actual as unknown as Rule.Node,
-            messageId:
-              aliasedLiteral.type === 'ObjectExpression'
-                ? 'inlineObjectAlias'
-                : 'inlineArrayAlias',
-          })
+          reportInlineLiteral(context, actual, aliasedLiteral.type, true)
         }
       },
     }

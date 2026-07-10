@@ -31,7 +31,13 @@ ruleTester.run('no-inline-object-in-expect', noInlineObjectInExpect, {
       code: `function f(actual) {\n  expect(actual).toEqual({ a: 1 })\n}`,
     },
     {
-      code: `const { actual } = getValue()\nexpect(actual).toEqual({ a: 1 })`,
+      code: `const { actual } = { a: 1 }\nexpect(actual).toEqual({ a: 1 })`,
+    },
+    {
+      code: `const actual = { a: 1 }\nactual.a = 2\nexpect(actual).toEqual({ a: 2 })`,
+    },
+    {
+      code: `const actual = [1]\nactual.push(2)\nexpect(actual).toStrictEqual([1, 2])`,
     },
   ],
   invalid: [
