@@ -33,7 +33,7 @@ export default config()
 
 In addition to the upstream presets, this config ships a local plugin (`fohte`) for test files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
 
-- `fohte/no-inline-object-in-expect`: flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Pass the value under test directly, or split the assertion into multiple `expect()` calls.
+- `fohte/no-inline-object-in-expect`: flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
 
   ```ts
   // bad
@@ -41,6 +41,10 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
     result: 'ok',
     calls: 0,
   })
+
+  // bad: aliasing the literal through a variable doesn't escape the rule
+  const actual = { result, calls: spy.mock.calls.length }
+  expect(actual).toEqual({ result: 'ok', calls: 0 })
 
   // good
   expect(result).toBe('ok')
