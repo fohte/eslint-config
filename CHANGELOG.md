@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.6](https://github.com/fohte/eslint-config/compare/v0.3.5...v0.3.6) (2026-07-10)
+
+
+### Bug Fixes
+
+* **vitest:** detect object/array literals aliased through a variable ([#414](https://github.com/fohte/eslint-config/issues/414)) ([e4ad963](https://github.com/fohte/eslint-config/commit/e4ad9630c5232aa523f6fff75a4968cdcaae80e8))
+
 ## [0.3.5](https://github.com/fohte/eslint-config/compare/v0.3.4...v0.3.5) (2026-07-04)
 
 
