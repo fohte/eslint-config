@@ -1,10 +1,5 @@
 # CLAUDE.md
 
-<<<<<<< before updating
-# Bash commands
-||||||| last update
-## Test code rules
-=======
 ## Code organization rules
 
 ### Split files before they grow past ~500 lines of production code
@@ -13,8 +8,7 @@ When a change would push a file's non-test code past ~500 lines, split it along 
 
 Prefer creating a new focused file over appending to the largest existing one.
 
-## Test code rules
->>>>>>> after updating
+# Bash commands
 
 ## Build and test
 
