@@ -63,8 +63,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+<<<<<<< before updating
       - name: Build
         run: pnpm run build
+||||||| last update
+=======
+      - name: Check peer dependencies
+        run: pnpm peers check
+>>>>>>> after updating
 
       - name: Run lefthook
         id: lefthook
