@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils'
 import { ESLintUtils } from '@typescript-eslint/utils'
+import type { Rule } from 'eslint'
 import type * as ts from 'typescript'
 
 // The postgres.js `Sql` call signature is shared by the plain client, transactions,
@@ -11,6 +12,8 @@ const POSTGRES_SQL_TYPE_NAMES = new Set([
 ])
 const DRIZZLE_SQL_TAG_NAME = 'sql'
 const DRIZZLE_EXECUTE_METHOD_NAME = 'execute'
+
+type MessageId = 'postgresSqlCall' | 'drizzleSqlTag' | 'drizzleExecuteCall'
 
 function isDeclaredUnderPackage(
   declarations: readonly ts.Declaration[] | undefined,
@@ -46,46 +49,67 @@ export const noRawSqlExecutionEntrypoints = ESLintUtils.RuleCreator.withoutDocs(
       const services = ESLintUtils.getParserServices(context)
       const checker = services.program.getTypeChecker()
 
-      function getExpressionTypeSymbol(node: TSESTree.Expression) {
+      // A nullable value accessed through optional chaining (`maybeDb?.execute(...)`)
+      // resolves to a union type, whose `getSymbol()` is always undefined; the
+      // symbol lives on each union constituent instead.
+      function getExpressionTypeSymbols(
+        node: TSESTree.Expression,
+      ): ts.Symbol[] {
         const tsNode = services.esTreeNodeToTSNodeMap.get(node)
-        return checker.getTypeAtLocation(tsNode).getSymbol()
+        const type = checker.getTypeAtLocation(tsNode)
+        const constituents = type.isUnion() ? type.types : [type]
+        return constituents
+          .map((constituent) => constituent.getSymbol())
+          .filter((symbol) => symbol !== undefined)
+      }
+
+      function reportIfSymbolMatches(
+        node: TSESTree.Expression,
+        matchesName: (name: string) => boolean,
+        packageName: string,
+        messageId: MessageId,
+      ): boolean {
+        const matched = getExpressionTypeSymbols(node).some(
+          (symbol) =>
+            matchesName(symbol.getName()) &&
+            isDeclaredUnderPackage(symbol.getDeclarations(), packageName),
+        )
+        if (!matched) return false
+
+        context.report({ node, messageId })
+        return true
       }
 
       // Matches both call-signature overloads (`sql\`...\`` and `sql(helper)`),
       // since postgres.js exposes both directly on the `Sql` instance itself.
       function reportIfPostgresSqlCall(node: TSESTree.Expression): boolean {
-        const symbol = getExpressionTypeSymbol(node)
-        if (!symbol || !POSTGRES_SQL_TYPE_NAMES.has(symbol.getName()))
-          return false
-        if (!isDeclaredUnderPackage(symbol.getDeclarations(), 'postgres'))
-          return false
-
-        context.report({ node, messageId: 'postgresSqlCall' })
-        return true
+        return reportIfSymbolMatches(
+          node,
+          (name) => POSTGRES_SQL_TYPE_NAMES.has(name),
+          'postgres',
+          'postgresSqlCall',
+        )
       }
 
       function reportIfDrizzleSqlTag(node: TSESTree.Expression): boolean {
-        const symbol = getExpressionTypeSymbol(node)
-        if (!symbol || symbol.getName() !== DRIZZLE_SQL_TAG_NAME) return false
-        if (!isDeclaredUnderPackage(symbol.getDeclarations(), 'drizzle-orm'))
-          return false
-
-        context.report({ node, messageId: 'drizzleSqlTag' })
-        return true
+        return reportIfSymbolMatches(
+          node,
+          (name) => name === DRIZZLE_SQL_TAG_NAME,
+          'drizzle-orm',
+          'drizzleSqlTag',
+        )
       }
 
       // Checking the resolved method symbol (rather than the property name in the
       // source) also catches `execute` after it has been destructured off a
       // drizzle-orm db instance into a differently-named local binding.
       function reportIfDrizzleExecuteCall(node: TSESTree.Expression): boolean {
-        const symbol = getExpressionTypeSymbol(node)
-        if (!symbol || symbol.getName() !== DRIZZLE_EXECUTE_METHOD_NAME)
-          return false
-        if (!isDeclaredUnderPackage(symbol.getDeclarations(), 'drizzle-orm'))
-          return false
-
-        context.report({ node, messageId: 'drizzleExecuteCall' })
-        return true
+        return reportIfSymbolMatches(
+          node,
+          (name) => name === DRIZZLE_EXECUTE_METHOD_NAME,
+          'drizzle-orm',
+          'drizzleExecuteCall',
+        )
       }
 
       return {
@@ -101,3 +125,7 @@ export const noRawSqlExecutionEntrypoints = ESLintUtils.RuleCreator.withoutDocs(
     },
   },
 )
+
+export const noRawSqlExecutionEntrypointsRuleModule =
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- @typescript-eslint/utils's RuleModule doesn't yet type-match eslint 10's core RuleDefinition context shape, though it's the same object shape at runtime
+  noRawSqlExecutionEntrypoints as unknown as Rule.RuleModule
