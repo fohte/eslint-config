@@ -15,6 +15,7 @@ npm install --save-dev typescript
 
 # Optional: If using the errorHandling option
 npm install --save-dev @ninoseki/eslint-plugin-neverthrow
+npm install neverthrow
 ```
 
 ## Usage
@@ -48,7 +49,7 @@ When enabled, it applies two rules to all `.ts{,x}` files except test files and 
 - `no-restricted-syntax`: bans `throw` and `try`/`catch`. Return a `Result` via `err()`/`errAsync()` instead, or use `ResultAsync.fromPromise()` to interop with a throwing API without a local `throw`.
 - [`neverthrow/must-use-result`](https://www.npmjs.com/package/@ninoseki/eslint-plugin-neverthrow): bans discarding a [`neverthrow`](https://github.com/supermacro/neverthrow) `Result`/`ResultAsync` without handling it.
 
-`interopBoundaryFiles` lists the files that bridge to a throw/reject-based external API (SDK callbacks, framework handlers) or to process bootstrap that must fail fast — the only files exempt from both rules.
+`interopBoundaryFiles` lists the files that bridge to a throw/reject-based external API (SDK callbacks, framework handlers) or to process bootstrap that must fail fast — the only _additional_ files exempt from both rules, on top of test files.
 
 ### Built-in rules
 
