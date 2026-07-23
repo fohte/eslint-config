@@ -19,7 +19,7 @@ const ruleTester = new RuleTester({
     parser: tsParser,
     parserOptions: {
       tsconfigRootDir: fixturesDir,
-      project: './tsconfig.json',
+      projectService: true,
     },
   },
 })
