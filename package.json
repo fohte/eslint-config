@@ -47,6 +47,9 @@
     "postbuild": "pnpm run validate-build",
     "validate-build": "publint"
   },
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.60.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "21.2.1",
     "@eslint-community/eslint-plugin-eslint-comments": "4.7.2",
@@ -59,10 +62,12 @@
     "@typescript-eslint/parser": "8.62.1",
     "@vitest/eslint-plugin": "1.6.23",
     "concurrently": "10.0.3",
+    "drizzle-orm": "0.45.2",
     "eslint": "10.6.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import-x": "4.17.1",
     "eslint-plugin-simple-import-sort": "13.0.0",
+    "postgres": "3.4.9",
     "prettier": "3.9.5",
     "publint": "0.3.21",
     "rimraf": "6.1.3",

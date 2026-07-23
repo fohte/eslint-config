@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { config } from '../config.js'
+import { fohteTypeCheckedConfig } from '../fohte.js'
 
 describe('config', () => {
   it('returns configs without error when called with no arguments', () => {
@@ -41,5 +42,19 @@ describe('config', () => {
     expect(vitestEntry).toBeDefined()
     expect(vitestEntry?.files).toBeDefined()
     expect(vitestEntry?.rules?.['vitest/expect-expect']).toBeDefined()
+  })
+
+  it('wires the type-checked-only fohte rule config in only when typeChecked is enabled', () => {
+    const withTypeChecked = config({ typescript: { typeChecked: true } })
+    const withoutTypeChecked = config()
+
+    expect(
+      fohteTypeCheckedConfig.every((entry) => withTypeChecked.includes(entry)),
+    ).toBe(true)
+    expect(
+      fohteTypeCheckedConfig.some((entry) =>
+        withoutTypeChecked.includes(entry),
+      ),
+    ).toBe(false)
   })
 })

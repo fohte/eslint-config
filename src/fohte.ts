@@ -18,3 +18,17 @@ export const fohteConfig: Linter.Config[] = [
     },
   },
 ]
+
+// Requires type information (parserServices), so it's only wired in when the
+// consumer enables typeChecked; see config().
+export const fohteTypeCheckedConfig: Linter.Config[] = [
+  {
+    files: ['**/*.ts{,x}'],
+    plugins: {
+      fohte: fohtePlugin,
+    },
+    rules: {
+      'fohte/no-raw-sql-execution-entrypoints': 'error',
+    },
+  },
+]

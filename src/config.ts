@@ -1,6 +1,6 @@
 import type { Linter } from 'eslint'
 
-import { fohteConfig } from './fohte.js'
+import { fohteConfig, fohteTypeCheckedConfig } from './fohte.js'
 import { mainConfig } from './main.js'
 import {
   typescriptBaseConfig,
@@ -41,6 +41,7 @@ export function config(
         },
       },
     })
+    configs.push(...fohteTypeCheckedConfig)
   } else {
     configs.push(...typescriptConfig)
   }

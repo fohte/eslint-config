@@ -31,9 +31,9 @@ export default config()
 
 ### Built-in rules
 
-In addition to the upstream presets, this config ships a local plugin (`fohte`) for test files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
+In addition to the upstream presets, this config ships a local plugin (`fohte`). Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
 
-- `fohte/no-inline-object-in-expect`: flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
+- `fohte/no-inline-object-in-expect` (test files only): flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
 
   ```ts
   // bad
@@ -49,6 +49,19 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
   // good
   expect(result).toBe('ok')
   expect(spy).not.toHaveBeenCalled()
+  ```
+
+- `fohte/no-raw-sql-execution-entrypoints` (requires `config({ typescript: { typeChecked: true } })`): flags direct invocations of the postgres.js `Sql` instance (as a tagged template or a call) and drizzle-orm's raw-SQL escape hatches (the `sql` template tag and `db.execute()`). Detection is based on the resolved type, not on variable names, so renaming or destructuring the value doesn't bypass it. Express the query through drizzle's typed query builder instead; if raw SQL is truly unavoidable, disable the rule for that line with a justification comment.
+
+  ```ts
+  // bad: the postgres.js Sql instance invoked directly
+  await pg`select * from users where id = ${id}`
+
+  // bad: drizzle-orm's raw-SQL escape hatch
+  await db.execute(sql`select * from users where id = ${id}`)
+
+  // good
+  await db.select().from(users).where(eq(users.id, id))
   ```
 
 ## Development
