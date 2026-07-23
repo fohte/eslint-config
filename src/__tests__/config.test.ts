@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { config } from '../config.js'
+import { errorHandlingConfig } from '../error-handling.js'
 
 describe('config', () => {
   it('returns configs without error when called with no arguments', () => {
@@ -41,5 +42,36 @@ describe('config', () => {
     expect(vitestEntry).toBeDefined()
     expect(vitestEntry?.files).toBeDefined()
     expect(vitestEntry?.rules?.['vitest/expect-expect']).toBeDefined()
+  })
+
+  describe('errorHandling', () => {
+    it('throws when errorHandling is provided without typescript.typeChecked', () => {
+      expect(() =>
+        config({ errorHandling: { interopBoundaryFiles: [] } }),
+      ).toThrow(
+        'errorHandling requires typescript.typeChecked: true, because neverthrow/must-use-result needs type information to detect unused Result values.',
+      )
+    })
+
+    it('appends the error-handling config when typescript.typeChecked is enabled', () => {
+      const options = { interopBoundaryFiles: ['src/legacy/**/*.ts'] }
+      const result = config({
+        typescript: { typeChecked: true },
+        errorHandling: options,
+      })
+
+      expect(result.at(-1)).toEqual(errorHandlingConfig(options)[0])
+    })
+
+    it('omits the error-handling config when errorHandling is not provided', () => {
+      const result = config({ typescript: { typeChecked: true } })
+      const hasNeverthrowPlugin = result.some(
+        (c) =>
+          c.plugins !== undefined &&
+          Object.keys(c.plugins).includes('neverthrow'),
+      )
+
+      expect(hasNeverthrowPlugin).toBe(false)
+    })
   })
 })

@@ -12,6 +12,9 @@ npm install --save-dev @eslint-community/eslint-plugin-eslint-comments @typescri
 
 # Optional: If using TypeScript
 npm install --save-dev typescript
+
+# Optional: If using the errorHandling option
+npm install --save-dev @ninoseki/eslint-plugin-neverthrow
 ```
 
 ## Usage
@@ -27,7 +30,25 @@ export default config()
 // Alternatively, enable type-checked rules
 // (strict-type-checked + strict-boolean-expressions):
 // export default config({ typescript: { typeChecked: true } })
+
+// Optionally, ban throw/try-catch and enforce neverthrow Result handling
+// outside an interop boundary (requires typescript.typeChecked: true):
+// export default config({
+//   typescript: { typeChecked: true },
+//   errorHandling: { interopBoundaryFiles: ['src/external-sdk/**/*.ts'] },
+// })
 ```
+
+### `errorHandling` option
+
+Requires `typescript.typeChecked: true`, because `neverthrow/must-use-result` needs type information to detect unused `Result` values.
+
+When enabled, it applies two rules to all `.ts{,x}` files except test files and the globs listed in `interopBoundaryFiles`:
+
+- `no-restricted-syntax`: bans `throw` and `try`/`catch`. Return a `Result` via `err()`/`errAsync()` instead, or use `ResultAsync.fromPromise()` to interop with a throwing API without a local `throw`.
+- [`neverthrow/must-use-result`](https://www.npmjs.com/package/@ninoseki/eslint-plugin-neverthrow): bans discarding a [`neverthrow`](https://github.com/supermacro/neverthrow) `Result`/`ResultAsync` without handling it.
+
+`interopBoundaryFiles` lists the files that bridge to a throw/reject-based external API (SDK callbacks, framework handlers) or to process bootstrap that must fail fast — the only files exempt from both rules.
 
 ### Built-in rules
 
@@ -77,10 +98,11 @@ npm run watch
 
 ```
 src/
-├── index.ts         # Main export
-├── main.ts          # Base ESLint configuration
-├── typescript.ts    # TypeScript-specific configuration
-└── types/           # Type definitions for untyped packages
+├── index.ts           # Main export
+├── main.ts            # Base ESLint configuration
+├── typescript.ts      # TypeScript-specific configuration
+├── error-handling.ts  # errorHandling option (throw/try-catch ban, neverthrow enforcement)
+└── types/             # Type definitions for untyped packages
 ```
 
 ### Release Process
