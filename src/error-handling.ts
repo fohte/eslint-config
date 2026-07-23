@@ -1,31 +1,45 @@
-import neverthrowPlugin from '@ninoseki/eslint-plugin-neverthrow'
+import { createRequire } from 'node:module'
+
+import type neverthrowPluginType from '@ninoseki/eslint-plugin-neverthrow'
 import type { Linter } from 'eslint'
+
+import { vitestTestFiles } from './vitest.js'
+
+const require = createRequire(import.meta.url)
 
 export interface ErrorHandlingOptions {
   /**
    * Glob patterns for the interop boundary: files that bridge to a
    * throw/reject-based external API (SDK callbacks, framework handlers) or
-   * to process bootstrap that must fail fast. These are the only files
-   * exempt from the throw/try-catch ban and the neverthrow Result
-   * enforcement below.
+   * to process bootstrap that must fail fast. Test files are always exempt
+   * regardless of this option; these globs add further exemptions on top of
+   * that for the throw/try-catch ban and the neverthrow Result enforcement
+   * below.
    */
   interopBoundaryFiles: string[]
 }
-
-const testFiles = [
-  '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
-  '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
-]
 
 export function errorHandlingConfig(
   options: ErrorHandlingOptions,
 ): Linter.Config[] {
   const { interopBoundaryFiles } = options
 
+  // Lazily required (not statically imported) so importing @fohte/eslint-config
+  // doesn't force this optional peer dependency to resolve for consumers who
+  // don't opt into errorHandling. .default unwraps the CJS-interop shape
+  // (`{ __esModule, default, ...namedExports }`) Node's require(esm) produces
+  // for this ESM-only package, down to the same value a static import would give.
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- require() returns any; typed via the type-only import above
+  const {
+    default: neverthrowPlugin,
+  }: {
+    default: typeof neverthrowPluginType
+  } = require('@ninoseki/eslint-plugin-neverthrow')
+
   return [
     {
       files: ['**/*.ts{,x}'],
-      ignores: [...testFiles, ...interopBoundaryFiles],
+      ignores: [...vitestTestFiles, ...interopBoundaryFiles],
       plugins: {
         neverthrow: neverthrowPlugin,
       },
