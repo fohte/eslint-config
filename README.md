@@ -56,7 +56,14 @@ When enabled, it applies two rules to all `.ts{,x}` files except test files and 
 
 ### `opentelemetry` option
 
-When enabled, `no-restricted-syntax` bans direct calls to `tracer.startSpan()`/`tracer.startActiveSpan()` on all `.ts{,x}` files. A span created via a raw `startSpan()`/`startActiveSpan()` call never becomes the parent of child spans created during its execution unless it's put into the active context via `context.with()` — forgetting that step surfaces only as a mis-parented span in a trace backend, not as a runtime error. If `context.with()` genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an `eslint-disable-next-line` comment explaining why.
+When enabled, `no-restricted-syntax` bans direct calls to `tracer.startSpan()`/`tracer.startActiveSpan()` on all `.ts{,x}` files, since both can silently produce a span that fails to parent child spans created during its execution:
+
+- `startSpan()` never enters the active context on its own — a child span (e.g. an HTTP call fired during this span) won't be nested under it unless the caller explicitly wraps the surrounding code in `context.with(trace.setSpan(context.active(), span), ...)`.
+- `startActiveSpan()`'s callback runs inside the active context automatically, but only for the callback's own duration — storing the span to `end()` it later (e.g. start and end split across separate callbacks) drops it from the active context before that later code runs.
+
+This surfaces only as a mis-parented span in a trace backend, not as a runtime error. If neither pattern fits, add an `eslint-disable-next-line` comment explaining why.
+
+When combined with `errorHandling`, both options configure `no-restricted-syntax` — ESLint's flat config fully replaces a rule's settings (rather than merging them) when two config objects set the same rule for the same file, so the `startSpan`/`startActiveSpan` selectors are merged into `errorHandling`'s `no-restricted-syntax` entry instead of their own config. This means the `opentelemetry` ban then shares `errorHandling`'s exemptions too: it doesn't apply to test files or the globs listed in `interopBoundaryFiles`.
 
 ### Built-in rules
 

@@ -112,24 +112,79 @@ describe('config', () => {
             {
               selector: "CallExpression[callee.property.name='startSpan']",
               message:
-                "Don't call tracer.startSpan()/startActiveSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans (e.g. an HTTP call fired during this span) are parented correctly. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
+                "Don't call tracer.startSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans are parented correctly. startSpan() never enters the active context on its own. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
             },
             {
               selector:
                 "CallExpression[callee.property.name='startActiveSpan']",
               message:
-                "Don't call tracer.startSpan()/startActiveSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans (e.g. an HTTP call fired during this span) are parented correctly. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
+                "Don't call tracer.startActiveSpan() and use the span outside its own callback — it's only the active context for the duration of that callback, so ending it later (e.g. start and end split across separate callbacks) breaks propagation for anything that runs after the callback returns. Keep all child-producing work inside the callback, or use tracer.startSpan() plus context.with() instead. If neither fits, add an eslint-disable-next-line comment explaining why.",
             },
           ],
         },
       })
     })
 
-    it('omits the openTelemetry config when opentelemetry is not provided', () => {
-      const withoutOption = config()
-      const withDisabled = config({ opentelemetry: { enabled: false } })
+    it('omits the opentelemetry config when opentelemetry is not provided', () => {
+      const result = config()
+      const hasNoRestrictedSyntax = result.some(
+        (c) => c.rules?.['no-restricted-syntax'] !== undefined,
+      )
 
-      expect(withoutOption).toEqual(withDisabled)
+      expect(hasNoRestrictedSyntax).toBe(false)
+    })
+
+    it('omits the opentelemetry config when opentelemetry.enabled is false', () => {
+      const result = config({ opentelemetry: { enabled: false } })
+      const hasNoRestrictedSyntax = result.some(
+        (c) => c.rules?.['no-restricted-syntax'] !== undefined,
+      )
+
+      expect(hasNoRestrictedSyntax).toBe(false)
+    })
+
+    it('merges startSpan/startActiveSpan selectors into the same no-restricted-syntax rule as errorHandling, instead of a separate config that would silently override it', () => {
+      const result = config({
+        typescript: { typeChecked: true },
+        errorHandling: { interopBoundaryFiles: [] },
+        opentelemetry: { enabled: true },
+      })
+
+      expect(result.at(-1)).toEqual({
+        files: ['**/*.ts{,x}'],
+        ignores: [
+          '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+        ],
+        plugins: { neverthrow: neverthrowPlugin },
+        rules: {
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: 'ThrowStatement',
+              message:
+                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. Only files listed in errorHandling.interopBoundaryFiles may throw, to satisfy an external SDK's throw-based contract.",
+            },
+            {
+              selector: 'TryStatement',
+              message:
+                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. Only files listed in errorHandling.interopBoundaryFiles may use try/catch, to satisfy an external SDK's throw-based contract.",
+            },
+            {
+              selector: "CallExpression[callee.property.name='startSpan']",
+              message:
+                "Don't call tracer.startSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans are parented correctly. startSpan() never enters the active context on its own. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector:
+                "CallExpression[callee.property.name='startActiveSpan']",
+              message:
+                "Don't call tracer.startActiveSpan() and use the span outside its own callback — it's only the active context for the duration of that callback, so ending it later (e.g. start and end split across separate callbacks) breaks propagation for anything that runs after the callback returns. Keep all child-producing work inside the callback, or use tracer.startSpan() plus context.with() instead. If neither fits, add an eslint-disable-next-line comment explaining why.",
+            },
+          ],
+          'neverthrow/must-use-result': 'error',
+        },
+      })
     })
   })
 })

@@ -6,7 +6,10 @@ import {
 } from './error-handling.js'
 import { fohteConfig } from './fohte.js'
 import { mainConfig } from './main.js'
-import { openTelemetryConfig } from './opentelemetry.js'
+import {
+  openTelemetryConfig,
+  openTelemetryRestrictedSyntaxOptions,
+} from './opentelemetry.js'
 import {
   typescriptBaseConfig,
   typescriptConfig,
@@ -26,9 +29,10 @@ export type { ErrorHandlingOptions }
 
 export interface OpenTelemetryOptions {
   /**
-   * Ban raw tracer.startSpan()/startActiveSpan() calls that aren't wrapped
-   * in context.with(), since a span created this way never becomes the
-   * parent of child spans created during its execution.
+   * Ban tracer.startSpan()/startActiveSpan() calls that may not correctly
+   * parent child spans created during their execution: startSpan() never
+   * enters the active context on its own, and startActiveSpan()'s span stops
+   * being the active context once its callback returns.
    */
   enabled?: boolean
 }
@@ -78,11 +82,21 @@ export function config(
   configs.push(...vitestConfig)
   configs.push(...fohteConfig)
 
-  if (errorHandling) {
-    configs.push(...errorHandlingConfig(errorHandling))
-  }
+  const openTelemetryEnabled = opentelemetry?.enabled === true
 
-  if (opentelemetry?.enabled === true) {
+  if (errorHandling) {
+    // Both errorHandling and opentelemetry configure `no-restricted-syntax`
+    // on the same `.ts{,x}` file set. ESLint flat config fully replaces a
+    // rule's settings (not merges them) when two config objects set the same
+    // rule for the same file, so the otel selectors are merged into this
+    // same rule entry instead of being pushed as a separate config.
+    configs.push(
+      ...errorHandlingConfig(
+        errorHandling,
+        openTelemetryEnabled ? openTelemetryRestrictedSyntaxOptions : [],
+      ),
+    )
+  } else if (openTelemetryEnabled) {
     configs.push(...openTelemetryConfig)
   }
 

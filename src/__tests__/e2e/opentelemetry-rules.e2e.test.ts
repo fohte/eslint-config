@@ -59,7 +59,7 @@ export function run() {
     )
   })
 
-  it('allows tracer.startSpan()/startActiveSpan() when opentelemetry is not enabled', () => {
+  it('allows tracer.startSpan() when opentelemetry is not enabled', () => {
     withTestProject(
       {
         files: [
@@ -81,5 +81,100 @@ export function run() {
         expect(messages).toHaveLength(0)
       },
     )
+  })
+
+  it('allows tracer.startActiveSpan() when opentelemetry is not enabled', () => {
+    withTestProject(
+      {
+        files: [
+          {
+            path: 'test.ts',
+            content: `declare const tracer: {
+  startActiveSpan: <T>(name: string, fn: (span: { end: () => void }) => T) => T
+}
+
+export function run() {
+  return tracer.startActiveSpan('run', (span) => {
+    span.end()
+  })
+}
+`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const output = runESLint(projectDir)
+        const messages = getMessagesForRule(output, 'no-restricted-syntax')
+        expect(messages).toHaveLength(0)
+      },
+    )
+  })
+
+  describe('combined with errorHandling', () => {
+    it('bans throw/try-catch and startSpan/startActiveSpan together outside test files', () => {
+      withTestProject(
+        {
+          typeChecked: true,
+          errorHandling: { interopBoundaryFiles: [] },
+          opentelemetry: { enabled: true },
+          files: [
+            {
+              path: 'test.ts',
+              content: `declare const tracer: { startSpan: (name: string) => { end: () => void } }
+
+export function run() {
+  throw new Error('boom')
+}
+
+export function run2() {
+  const span = tracer.startSpan('run2')
+  span.end()
+}
+`,
+            },
+          ],
+        },
+        (projectDir) => {
+          const output = runESLint(projectDir)
+          const messages = getMessagesForRule(output, 'no-restricted-syntax')
+          expect(messages).toHaveLength(2)
+        },
+      )
+    })
+
+    it('exempts test files from both bans, following errorHandling exemption scope', () => {
+      withTestProject(
+        {
+          typeChecked: true,
+          errorHandling: { interopBoundaryFiles: [] },
+          opentelemetry: { enabled: true },
+          files: [
+            {
+              path: 'run.test.ts',
+              content: `declare const tracer: { startSpan: (name: string) => { end: () => void } }
+
+export function run() {
+  try {
+    throw new Error('boom')
+  } catch (error) {
+    return error
+  }
+}
+
+export function run2() {
+  const span = tracer.startSpan('run2')
+  span.end()
+}
+`,
+            },
+          ],
+        },
+        (projectDir) => {
+          const output = runESLint(projectDir)
+          const messages = getMessagesForRule(output, 'no-restricted-syntax')
+          expect(messages).toHaveLength(0)
+        },
+      )
+    })
   })
 })
