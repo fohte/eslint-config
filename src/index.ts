@@ -1,2 +1,6 @@
-export type { ConfigOptions, TypeScriptOptions } from './config.js'
+export type {
+  ConfigOptions,
+  ErrorHandlingOptions,
+  TypeScriptOptions,
+} from './config.js'
 export { config } from './config.js'

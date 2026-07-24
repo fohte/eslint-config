@@ -18,6 +18,7 @@ export interface E2ETestOptions {
   files: TestFile[]
   eslintArgs?: string[]
   typeChecked?: boolean
+  errorHandling?: { interopBoundaryFiles: string[] }
 }
 
 export interface ESLintMessage {
@@ -81,8 +82,19 @@ export function createTestProject(options: E2ETestOptions): string {
   })
 
   // Create eslint.config.js that uses the config() factory function
+  const configOptionEntries: string[] = []
+  if (options.typeChecked === true) {
+    configOptionEntries.push('typescript: { typeChecked: true }')
+  }
+  if (options.errorHandling) {
+    configOptionEntries.push(
+      `errorHandling: ${JSON.stringify(options.errorHandling)}`,
+    )
+  }
   const configOptions =
-    options.typeChecked === true ? '{ typescript: { typeChecked: true } }' : ''
+    configOptionEntries.length > 0
+      ? `{ ${configOptionEntries.join(', ')} }`
+      : ''
 
   const eslintConfig = `import { config } from '${libPath}/index.js'
 

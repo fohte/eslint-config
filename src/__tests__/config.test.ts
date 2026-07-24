@@ -1,3 +1,4 @@
+import neverthrowPlugin from '@ninoseki/eslint-plugin-neverthrow'
 import { describe, expect, it } from 'vitest'
 
 import { config } from '../config.js'
@@ -41,5 +42,61 @@ describe('config', () => {
     expect(vitestEntry).toBeDefined()
     expect(vitestEntry?.files).toBeDefined()
     expect(vitestEntry?.rules?.['vitest/expect-expect']).toBeDefined()
+  })
+
+  describe('errorHandling', () => {
+    it('throws when errorHandling is provided without typescript.typeChecked', () => {
+      expect(() =>
+        config({ errorHandling: { interopBoundaryFiles: [] } }),
+      ).toThrow(
+        new Error(
+          'errorHandling requires typescript.typeChecked: true, because neverthrow/must-use-result needs type information to detect unused Result values.',
+        ),
+      )
+    })
+
+    it('bans throw/try-catch and discarded neverthrow Results outside the interop boundary and test files', () => {
+      const result = config({
+        typescript: { typeChecked: true },
+        errorHandling: { interopBoundaryFiles: ['src/legacy/**/*.ts'] },
+      })
+
+      expect(result.at(-1)).toEqual({
+        files: ['**/*.ts{,x}'],
+        ignores: [
+          '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          'src/legacy/**/*.ts',
+        ],
+        plugins: { neverthrow: neverthrowPlugin },
+        rules: {
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: 'ThrowStatement',
+              message:
+                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. Only files listed in errorHandling.interopBoundaryFiles may throw, to satisfy an external SDK's throw-based contract.",
+            },
+            {
+              selector: 'TryStatement',
+              message:
+                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. Only files listed in errorHandling.interopBoundaryFiles may use try/catch, to satisfy an external SDK's throw-based contract.",
+            },
+          ],
+          'neverthrow/must-use-result': 'error',
+        },
+      })
+    })
+
+    it('omits the error-handling config when errorHandling is not provided', () => {
+      const result = config({ typescript: { typeChecked: true } })
+      const hasNeverthrowPlugin = result.some(
+        (c) =>
+          c.plugins !== undefined &&
+          Object.keys(c.plugins).includes('neverthrow'),
+      )
+
+      expect(hasNeverthrowPlugin).toBe(false)
+    })
   })
 })

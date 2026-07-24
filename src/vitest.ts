@@ -1,7 +1,7 @@
 import vitestPlugin from '@vitest/eslint-plugin'
 import type { Linter } from 'eslint'
 
-const vitestTestFiles = [
+export const vitestTestFiles = [
   '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
   '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
 ]
