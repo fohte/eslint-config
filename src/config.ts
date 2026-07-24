@@ -6,6 +6,7 @@ import {
 } from './error-handling.js'
 import { fohteConfig } from './fohte.js'
 import { mainConfig } from './main.js'
+import { openTelemetryConfig } from './opentelemetry.js'
 import {
   typescriptBaseConfig,
   typescriptConfig,
@@ -23,6 +24,15 @@ export interface TypeScriptOptions {
 
 export type { ErrorHandlingOptions }
 
+export interface OpenTelemetryOptions {
+  /**
+   * Ban raw tracer.startSpan()/startActiveSpan() calls that aren't wrapped
+   * in context.with(), since a span created this way never becomes the
+   * parent of child spans created during its execution.
+   */
+  enabled?: boolean
+}
+
 export interface ConfigOptions {
   typescript?: TypeScriptOptions
   /**
@@ -32,13 +42,14 @@ export interface ConfigOptions {
    * Result values.
    */
   errorHandling?: ErrorHandlingOptions
+  opentelemetry?: OpenTelemetryOptions
 }
 
 export function config(
   options: ConfigOptions = {},
   ...userConfigs: Linter.Config[]
 ): Linter.Config[] {
-  const { typescript, errorHandling } = options
+  const { typescript, errorHandling, opentelemetry } = options
   const typeChecked = typescript?.typeChecked ?? false
 
   if (errorHandling && !typeChecked) {
@@ -69,6 +80,10 @@ export function config(
 
   if (errorHandling) {
     configs.push(...errorHandlingConfig(errorHandling))
+  }
+
+  if (opentelemetry?.enabled === true) {
+    configs.push(...openTelemetryConfig)
   }
 
   configs.push(...userConfigs)

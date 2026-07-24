@@ -19,6 +19,7 @@ export interface E2ETestOptions {
   eslintArgs?: string[]
   typeChecked?: boolean
   errorHandling?: { interopBoundaryFiles: string[] }
+  opentelemetry?: { enabled?: boolean }
 }
 
 export interface ESLintMessage {
@@ -89,6 +90,11 @@ export function createTestProject(options: E2ETestOptions): string {
   if (options.errorHandling) {
     configOptionEntries.push(
       `errorHandling: ${JSON.stringify(options.errorHandling)}`,
+    )
+  }
+  if (options.opentelemetry) {
+    configOptionEntries.push(
+      `opentelemetry: ${JSON.stringify(options.opentelemetry)}`,
     )
   }
   const configOptions =

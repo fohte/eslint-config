@@ -99,4 +99,37 @@ describe('config', () => {
       expect(hasNeverthrowPlugin).toBe(false)
     })
   })
+
+  describe('opentelemetry', () => {
+    it('bans tracer.startSpan()/startActiveSpan() when opentelemetry.enabled is true', () => {
+      const result = config({ opentelemetry: { enabled: true } })
+
+      expect(result.at(-1)).toEqual({
+        files: ['**/*.ts{,x}'],
+        rules: {
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: "CallExpression[callee.property.name='startSpan']",
+              message:
+                "Don't call tracer.startSpan()/startActiveSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans (e.g. an HTTP call fired during this span) are parented correctly. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector:
+                "CallExpression[callee.property.name='startActiveSpan']",
+              message:
+                "Don't call tracer.startSpan()/startActiveSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans (e.g. an HTTP call fired during this span) are parented correctly. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
+            },
+          ],
+        },
+      })
+    })
+
+    it('omits the openTelemetry config when opentelemetry is not provided', () => {
+      const withoutOption = config()
+      const withDisabled = config({ opentelemetry: { enabled: false } })
+
+      expect(withoutOption).toEqual(withDisabled)
+    })
+  })
 })

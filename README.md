@@ -38,6 +38,9 @@ export default config()
 //   typescript: { typeChecked: true },
 //   errorHandling: { interopBoundaryFiles: ['src/external-sdk/**/*.ts'] },
 // })
+
+// Optionally, ban raw tracer.startSpan()/startActiveSpan() calls that skip context.with():
+// export default config({ opentelemetry: { enabled: true } })
 ```
 
 ### `errorHandling` option
@@ -50,6 +53,10 @@ When enabled, it applies two rules to all `.ts{,x}` files except test files and 
 - [`neverthrow/must-use-result`](https://www.npmjs.com/package/@ninoseki/eslint-plugin-neverthrow): bans discarding a [`neverthrow`](https://github.com/supermacro/neverthrow) `Result`/`ResultAsync` without handling it.
 
 `interopBoundaryFiles` lists the files that bridge to a throw/reject-based external API (SDK callbacks, framework handlers) or to process bootstrap that must fail fast — the only _additional_ files exempt from both rules, on top of test files.
+
+### `opentelemetry` option
+
+When enabled, `no-restricted-syntax` bans direct calls to `tracer.startSpan()`/`tracer.startActiveSpan()` on all `.ts{,x}` files. A span created via a raw `startSpan()`/`startActiveSpan()` call never becomes the parent of child spans created during its execution unless it's put into the active context via `context.with()` — forgetting that step surfaces only as a mis-parented span in a trace backend, not as a runtime error. If `context.with()` genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an `eslint-disable-next-line` comment explaining why.
 
 ### Built-in rules
 
@@ -103,6 +110,7 @@ src/
 ├── main.ts            # Base ESLint configuration
 ├── typescript.ts      # TypeScript-specific configuration
 ├── error-handling.ts  # errorHandling option (throw/try-catch ban, neverthrow enforcement)
+├── opentelemetry.ts   # opentelemetry option (startSpan/startActiveSpan ban)
 └── types/             # Type definitions for untyped packages
 ```
 
