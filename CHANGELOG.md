@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.9](https://github.com/fohte/eslint-config/compare/v0.3.8...v0.3.9) (2026-07-24)
+
+
+### Features
+
+* **error-handling:** replace interopBoundaryFiles with per-line disable comments ([#439](https://github.com/fohte/eslint-config/issues/439)) ([1d77c9f](https://github.com/fohte/eslint-config/commit/1d77c9f91993f7540e806e5199b8fc26f9b36c18))
+
 ## [0.3.8](https://github.com/fohte/eslint-config/compare/v0.3.7...v0.3.8) (2026-07-24)
 
 
