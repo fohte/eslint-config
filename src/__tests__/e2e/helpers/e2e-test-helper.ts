@@ -9,6 +9,8 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+import type { ErrorHandlingOptions } from '../../../error-handling.js'
+
 export interface TestFile {
   path: string
   content: string
@@ -18,7 +20,7 @@ export interface E2ETestOptions {
   files: TestFile[]
   eslintArgs?: string[]
   typeChecked?: boolean
-  errorHandling?: object
+  errorHandling?: ErrorHandlingOptions
   opentelemetry?: { enabled?: boolean }
 }
 

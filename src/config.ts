@@ -63,6 +63,12 @@ export function config(
     )
   }
 
+  if (errorHandling && 'interopBoundaryFiles' in errorHandling) {
+    throw new Error(
+      'errorHandling.interopBoundaryFiles was removed — add an eslint-disable-next-line comment on the throw/try-catch instead.',
+    )
+  }
+
   const configs: Linter.Config[] = [...mainConfig]
 
   if (typeChecked) {

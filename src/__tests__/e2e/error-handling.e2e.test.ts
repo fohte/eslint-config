@@ -56,7 +56,7 @@ describe('Error Handling Rules E2E', { timeout: 30000 }, () => {
     )
   })
 
-  it('allows throw/try-catch disabled via eslint-disable-next-line', () => {
+  it('allows try/catch disabled via eslint-disable-next-line', () => {
     withTestProject(
       {
         typeChecked: true,

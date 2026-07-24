@@ -11,6 +11,9 @@ const require = createRequire(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- reserved for future options; presence (vs. undefined) is what toggles errorHandlingConfig on in config.ts
 export interface ErrorHandlingOptions {}
 
+const EXEMPTION_HINT =
+  "If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why."
+
 export function errorHandlingConfig(
   // ESLint flat config fully replaces a rule's settings — rather than
   // merging them — when two config objects set the same rule for the same
@@ -45,13 +48,11 @@ export function errorHandlingConfig(
           'error',
           {
             selector: 'ThrowStatement',
-            message:
-              "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
+            message: `Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. ${EXEMPTION_HINT}`,
           },
           {
             selector: 'TryStatement',
-            message:
-              "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
+            message: `Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. ${EXEMPTION_HINT}`,
           },
           ...extraRestrictedSyntax,
         ],

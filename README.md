@@ -49,7 +49,17 @@ Requires `typescript.typeChecked: true`, because `neverthrow/must-use-result` ne
 
 When enabled, it applies two rules to all `.ts{,x}` files except test files:
 
-- `no-restricted-syntax`: bans `throw` and `try`/`catch`. Return a `Result` via `err()`/`errAsync()` instead, or use `ResultAsync.fromPromise()` to interop with a throwing API without a local `throw`. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an `eslint-disable-next-line` comment explaining why.
+- `no-restricted-syntax`: bans `throw` and `try`/`catch`. Return a `Result` via `err()`/`errAsync()` instead, or use `ResultAsync.fromPromise()` to interop with a throwing API without a local `throw`. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an `eslint-disable-next-line` comment explaining why:
+
+  ```ts
+  // eslint-disable-next-line no-restricted-syntax -- interops with an external SDK's throw-based contract
+  try {
+    return externalSdkCall()
+  } catch (error) {
+    return err(error)
+  }
+  ```
+
 - [`neverthrow/must-use-result`](https://www.npmjs.com/package/@ninoseki/eslint-plugin-neverthrow): bans discarding a [`neverthrow`](https://github.com/supermacro/neverthrow) `Result`/`ResultAsync` without handling it.
 
 ### `opentelemetry` option
