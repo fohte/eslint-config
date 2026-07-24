@@ -40,10 +40,11 @@ export interface OpenTelemetryOptions {
 export interface ConfigOptions {
   typescript?: TypeScriptOptions
   /**
-   * Ban throw/try-catch outside an interop boundary and forbid discarding
-   * neverthrow Results. Requires `typescript.typeChecked: true`, because
-   * neverthrow/must-use-result needs type information to detect unused
-   * Result values.
+   * Ban throw/try-catch and forbid discarding neverthrow Results. Exceptions
+   * (e.g. an external SDK's throw-based contract) go through an
+   * eslint-disable-next-line comment rather than a file-level exemption.
+   * Requires `typescript.typeChecked: true`, because neverthrow/must-use-result
+   * needs type information to detect unused Result values.
    */
   errorHandling?: ErrorHandlingOptions
   opentelemetry?: OpenTelemetryOptions
@@ -59,6 +60,12 @@ export function config(
   if (errorHandling && !typeChecked) {
     throw new Error(
       'errorHandling requires typescript.typeChecked: true, because neverthrow/must-use-result needs type information to detect unused Result values.',
+    )
+  }
+
+  if (errorHandling && 'interopBoundaryFiles' in errorHandling) {
+    throw new Error(
+      'errorHandling.interopBoundaryFiles was removed — add an eslint-disable-next-line comment on the throw/try-catch instead.',
     )
   }
 
@@ -92,7 +99,6 @@ export function config(
     // same rule entry instead of being pushed as a separate config.
     configs.push(
       ...errorHandlingConfig(
-        errorHandling,
         openTelemetryEnabled ? openTelemetryRestrictedSyntaxOptions : [],
       ),
     )

@@ -115,7 +115,7 @@ export function run() {
       withTestProject(
         {
           typeChecked: true,
-          errorHandling: { interopBoundaryFiles: [] },
+          errorHandling: {},
           opentelemetry: { enabled: true },
           files: [
             {
@@ -146,7 +146,7 @@ export function run2() {
       withTestProject(
         {
           typeChecked: true,
-          errorHandling: { interopBoundaryFiles: [] },
+          errorHandling: {},
           opentelemetry: { enabled: true },
           files: [
             {

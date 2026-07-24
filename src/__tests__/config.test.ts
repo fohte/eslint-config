@@ -46,19 +46,17 @@ describe('config', () => {
 
   describe('errorHandling', () => {
     it('throws when errorHandling is provided without typescript.typeChecked', () => {
-      expect(() =>
-        config({ errorHandling: { interopBoundaryFiles: [] } }),
-      ).toThrow(
+      expect(() => config({ errorHandling: {} })).toThrow(
         new Error(
           'errorHandling requires typescript.typeChecked: true, because neverthrow/must-use-result needs type information to detect unused Result values.',
         ),
       )
     })
 
-    it('bans throw/try-catch and discarded neverthrow Results outside the interop boundary and test files', () => {
+    it('bans throw/try-catch and discarded neverthrow Results outside test files', () => {
       const result = config({
         typescript: { typeChecked: true },
-        errorHandling: { interopBoundaryFiles: ['src/legacy/**/*.ts'] },
+        errorHandling: {},
       })
 
       expect(result.at(-1)).toEqual({
@@ -66,7 +64,6 @@ describe('config', () => {
         ignores: [
           '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
           '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
-          'src/legacy/**/*.ts',
         ],
         plugins: { neverthrow: neverthrowPlugin },
         rules: {
@@ -75,12 +72,12 @@ describe('config', () => {
             {
               selector: 'ThrowStatement',
               message:
-                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. Only files listed in errorHandling.interopBoundaryFiles may throw, to satisfy an external SDK's throw-based contract.",
+                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
             },
             {
               selector: 'TryStatement',
               message:
-                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. Only files listed in errorHandling.interopBoundaryFiles may use try/catch, to satisfy an external SDK's throw-based contract.",
+                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
             },
           ],
           'neverthrow/must-use-result': 'error',
@@ -146,7 +143,7 @@ describe('config', () => {
     it('merges startSpan/startActiveSpan selectors into the same no-restricted-syntax rule as errorHandling, instead of a separate config that would silently override it', () => {
       const result = config({
         typescript: { typeChecked: true },
-        errorHandling: { interopBoundaryFiles: [] },
+        errorHandling: {},
         opentelemetry: { enabled: true },
       })
 
@@ -163,12 +160,12 @@ describe('config', () => {
             {
               selector: 'ThrowStatement',
               message:
-                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. Only files listed in errorHandling.interopBoundaryFiles may throw, to satisfy an external SDK's throw-based contract.",
+                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
             },
             {
               selector: 'TryStatement',
               message:
-                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. Only files listed in errorHandling.interopBoundaryFiles may use try/catch, to satisfy an external SDK's throw-based contract.",
+                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
             },
             {
               selector: "CallExpression[callee.property.name='startSpan']",

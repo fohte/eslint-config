@@ -8,20 +8,13 @@ import { vitestTestFiles } from './vitest.js'
 
 const require = createRequire(import.meta.url)
 
-export interface ErrorHandlingOptions {
-  /**
-   * Glob patterns for the interop boundary: files that bridge to a
-   * throw/reject-based external API (SDK callbacks, framework handlers) or
-   * to process bootstrap that must fail fast. Test files are always exempt
-   * regardless of this option; these globs add further exemptions on top of
-   * that for the throw/try-catch ban and the neverthrow Result enforcement
-   * below.
-   */
-  interopBoundaryFiles: string[]
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- reserved for future options; presence (vs. undefined) is what toggles errorHandlingConfig on in config.ts
+export interface ErrorHandlingOptions {}
+
+const EXEMPTION_HINT =
+  "If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why."
 
 export function errorHandlingConfig(
-  options: ErrorHandlingOptions,
   // ESLint flat config fully replaces a rule's settings — rather than
   // merging them — when two config objects set the same rule for the same
   // file. Any other no-restricted-syntax selectors that must apply to the
@@ -31,8 +24,6 @@ export function errorHandlingConfig(
   // try-catch ban.
   extraRestrictedSyntax: RestrictedSyntaxOption[] = [],
 ): Linter.Config[] {
-  const { interopBoundaryFiles } = options
-
   // Lazily required (not statically imported) so importing @fohte/eslint-config
   // doesn't force this optional peer dependency to resolve for consumers who
   // don't opt into errorHandling. .default unwraps the CJS-interop shape
@@ -48,7 +39,7 @@ export function errorHandlingConfig(
   return [
     {
       files: ['**/*.ts{,x}'],
-      ignores: [...vitestTestFiles, ...interopBoundaryFiles],
+      ignores: vitestTestFiles,
       plugins: {
         neverthrow: neverthrowPlugin,
       },
@@ -57,13 +48,11 @@ export function errorHandlingConfig(
           'error',
           {
             selector: 'ThrowStatement',
-            message:
-              "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. Only files listed in errorHandling.interopBoundaryFiles may throw, to satisfy an external SDK's throw-based contract.",
+            message: `Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. ${EXEMPTION_HINT}`,
           },
           {
             selector: 'TryStatement',
-            message:
-              "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. Only files listed in errorHandling.interopBoundaryFiles may use try/catch, to satisfy an external SDK's throw-based contract.",
+            message: `Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. ${EXEMPTION_HINT}`,
           },
           ...extraRestrictedSyntax,
         ],
