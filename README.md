@@ -42,7 +42,7 @@ export default config()
 
 ### Import policy
 
-`config()` bans relative imports (`./foo`, `../foo`) and the `@/*` alias in all files, via `no-restricted-imports`. Both only resolve at the TypeScript/bundler level — a `tsx`/Node runtime that doesn't share that resolution step fails at runtime instead. Use a [Node subpath import](https://nodejs.org/api/packages.html#subpath-imports) (`#foo`, declared under the `imports` field in `package.json`) instead, since Node's module resolver resolves it natively at runtime.
+`config()` bans relative imports (`./foo`, `../foo`) and the `@/*` alias via `no-restricted-imports`, and steers both towards a [Node subpath import](https://nodejs.org/api/packages.html#subpath-imports) (`#foo`, declared under the `imports` field in `package.json`). The `@/*` alias only resolves at the TypeScript/bundler level, so a plain Node/`tsx` runtime that doesn't share that resolution step fails at runtime; `#` imports are resolved natively by Node's own module resolver, so this failure mode can't happen.
 
 To opt out (e.g. for a package that doesn't use a `src/` layout), override the rule in a trailing `userConfigs` argument passed to `config()`:
 

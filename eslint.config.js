@@ -7,7 +7,7 @@ export default config(
   },
   // This package ships compiled output to lib/ via tsc, so switching src/ to
   // # subpath imports would need conditions to resolve differently between
-  // src and lib. Not worth the complexity for this repo alone.
+  // src and lib.
   {
     rules: {
       'no-restricted-imports': 'off',
