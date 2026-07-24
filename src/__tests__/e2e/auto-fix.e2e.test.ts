@@ -4,7 +4,7 @@ import {
   expectFixed,
   runESLint,
   withTestProject,
-} from './helpers/e2e-test-helper.js'
+} from '#__tests__/e2e/helpers/e2e-test-helper.js'
 
 describe('Auto-fix E2E', { timeout: 30000 }, () => {
   it('fixes import ordering issues', () => {

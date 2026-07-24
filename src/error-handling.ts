@@ -3,8 +3,8 @@ import { createRequire } from 'node:module'
 import type neverthrowPluginType from '@ninoseki/eslint-plugin-neverthrow'
 import type { Linter } from 'eslint'
 
-import type { RestrictedSyntaxOption } from './opentelemetry.js'
-import { vitestTestFiles } from './vitest.js'
+import type { RestrictedSyntaxOption } from '#opentelemetry.js'
+import { vitestTestFiles } from '#vitest.js'
 
 const require = createRequire(import.meta.url)
 

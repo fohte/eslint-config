@@ -3,5 +3,5 @@ export type {
   ErrorHandlingOptions,
   OpenTelemetryOptions,
   TypeScriptOptions,
-} from './config.js'
-export { config } from './config.js'
+} from '#config.js'
+export { config } from '#config.js'

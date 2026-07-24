@@ -12,7 +12,7 @@
     "incremental": true,
     "types": ["node"],
     "paths": {
-      "@/*": ["./src/*"],
+      "#*.js": ["./src/*.ts"],
       "eslint-plugin-simple-import-sort": [
         "./src/types/eslint-plugin-simple-import-sort.d.ts"
       ],

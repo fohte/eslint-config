@@ -43,6 +43,23 @@ export default config()
 // export default config({ opentelemetry: { enabled: true } })
 ```
 
+### Import policy
+
+`config()` bans relative imports (`./foo`, `../foo`) and the `@/*` alias via `no-restricted-imports`, and steers both towards a [Node subpath import](https://nodejs.org/api/packages.html#subpath-imports) (`#foo`, declared under the `imports` field in `package.json`). The `@/*` alias only resolves at the TypeScript/bundler level, so a plain Node/`tsx` runtime that doesn't share that resolution step fails at runtime; `#` imports are resolved natively by Node's own module resolver, so this failure mode can't happen.
+
+To opt out (e.g. for a package that doesn't use a `src/` layout), override the rule in a trailing `userConfigs` argument passed to `config()`:
+
+```javascript
+export default config(
+  {},
+  {
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+)
+```
+
 ### `errorHandling` option
 
 Requires `typescript.typeChecked: true`, because `neverthrow/must-use-result` needs type information to detect unused `Result` values.
