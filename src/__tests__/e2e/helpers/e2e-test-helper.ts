@@ -18,7 +18,7 @@ export interface E2ETestOptions {
   files: TestFile[]
   eslintArgs?: string[]
   typeChecked?: boolean
-  errorHandling?: { interopBoundaryFiles: string[] }
+  errorHandling?: object
   opentelemetry?: { enabled?: boolean }
 }
 

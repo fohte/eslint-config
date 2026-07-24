@@ -8,11 +8,11 @@ import {
 } from './helpers/e2e-test-helper.js'
 
 describe('Error Handling Rules E2E', { timeout: 30000 }, () => {
-  it('detects throw statements outside the interop boundary', () => {
+  it('detects throw statements', () => {
     withTestProject(
       {
         typeChecked: true,
-        errorHandling: { interopBoundaryFiles: [] },
+        errorHandling: {},
         files: [
           {
             path: 'test.ts',
@@ -30,11 +30,11 @@ describe('Error Handling Rules E2E', { timeout: 30000 }, () => {
     )
   })
 
-  it('detects try/catch statements outside the interop boundary', () => {
+  it('detects try/catch statements', () => {
     withTestProject(
       {
         typeChecked: true,
-        errorHandling: { interopBoundaryFiles: [] },
+        errorHandling: {},
         files: [
           {
             path: 'test.ts',
@@ -56,17 +56,20 @@ describe('Error Handling Rules E2E', { timeout: 30000 }, () => {
     )
   })
 
-  it('allows throw/try-catch inside interop boundary files', () => {
+  it('allows throw/try-catch disabled via eslint-disable-next-line', () => {
     withTestProject(
       {
         typeChecked: true,
-        errorHandling: { interopBoundaryFiles: ['boundary.ts'] },
+        errorHandling: {},
         files: [
           {
             path: 'boundary.ts',
-            content: `export function run() {
+            content: `declare function externalSdkCall(): number
+
+export function run() {
+  // eslint-disable-next-line no-restricted-syntax -- interops with an external SDK's throw-based contract
   try {
-    throw new Error('boom')
+    return externalSdkCall()
   } catch (error) {
     return error
   }
@@ -83,11 +86,11 @@ describe('Error Handling Rules E2E', { timeout: 30000 }, () => {
     )
   })
 
-  it('allows throw/try-catch inside test files regardless of the interop boundary', () => {
+  it('allows throw/try-catch inside test files', () => {
     withTestProject(
       {
         typeChecked: true,
-        errorHandling: { interopBoundaryFiles: [] },
+        errorHandling: {},
         files: [
           {
             path: 'run.test.ts',
@@ -114,7 +117,7 @@ describe('Error Handling Rules E2E', { timeout: 30000 }, () => {
     withTestProject(
       {
         typeChecked: true,
-        errorHandling: { interopBoundaryFiles: [] },
+        errorHandling: {},
         files: [
           {
             path: 'test.ts',
@@ -138,7 +141,7 @@ export function run() {
     withTestProject(
       {
         typeChecked: true,
-        errorHandling: { interopBoundaryFiles: [] },
+        errorHandling: {},
         files: [
           {
             path: 'test.ts',
