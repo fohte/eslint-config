@@ -40,6 +40,23 @@ export default config()
 // })
 ```
 
+### Import policy
+
+`config()` bans relative imports (`./foo`, `../foo`) and the `@/*` alias in all files, via `no-restricted-imports`. Both only resolve at the TypeScript/bundler level — a `tsx`/Node runtime that doesn't share that resolution step fails at runtime instead. Use a [Node subpath import](https://nodejs.org/api/packages.html#subpath-imports) (`#foo`, declared under the `imports` field in `package.json`) instead, since Node's module resolver resolves it natively at runtime.
+
+To opt out (e.g. for a package that doesn't use a `src/` layout), override the rule in a trailing `userConfigs` argument passed to `config()`:
+
+```javascript
+export default config(
+  {},
+  {
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+)
+```
+
 ### `errorHandling` option
 
 Requires `typescript.typeChecked: true`, because `neverthrow/must-use-result` needs type information to detect unused `Result` values.

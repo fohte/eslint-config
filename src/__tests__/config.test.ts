@@ -44,6 +44,35 @@ describe('config', () => {
     expect(vitestEntry?.rules?.['vitest/expect-expect']).toBeDefined()
   })
 
+  describe('no-restricted-imports', () => {
+    it('bans relative imports and the @ alias, guiding towards # subpath imports', () => {
+      const result = config()
+      const mainEntry = result.find(
+        (c) =>
+          c.plugins !== undefined &&
+          Object.keys(c.plugins).includes('simple-import-sort'),
+      )
+
+      expect(mainEntry?.rules?.['no-restricted-imports']).toEqual([
+        'error',
+        {
+          patterns: [
+            {
+              group: ['./*', '../*'],
+              message:
+                'Relative imports are not allowed. Use a # subpath import (package.json "imports" field) instead — see https://nodejs.org/api/packages.html#subpath-imports.',
+            },
+            {
+              group: ['@/*'],
+              message:
+                'The @ alias is not allowed: it only exists for TypeScript/bundlers and is not resolved by Node at runtime. Use a # subpath import (package.json "imports" field) instead — see https://nodejs.org/api/packages.html#subpath-imports.',
+            },
+          ],
+        },
+      ])
+    })
+  })
+
   describe('errorHandling', () => {
     it('throws when errorHandling is provided without typescript.typeChecked', () => {
       expect(() =>

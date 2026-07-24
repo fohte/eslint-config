@@ -5,4 +5,12 @@ export default config(
   {
     ignores: ['vitest.config.ts'],
   },
+  // This package ships compiled output to lib/ via tsc, so switching src/ to
+  // # subpath imports would need conditions to resolve differently between
+  // src and lib. Not worth the complexity for this repo alone.
+  {
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
 )

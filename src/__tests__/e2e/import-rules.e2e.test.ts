@@ -121,11 +121,93 @@ import { useState } from 'react'
             content: `import React from 'react'
 import { z } from 'zod'
 
-import { helper } from './utils'
+import { helper } from '#utils'
 
 const schema = z.object({})
 const Component = () => React.createElement('div')
 console.log(helper, schema, Component)
+`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const output = runESLint(projectDir)
+        expectNoErrors(output)
+      },
+    )
+  })
+})
+
+describe('no-restricted-imports E2E', { timeout: 30000 }, () => {
+  it('flags @ alias imports', () => {
+    withTestProject(
+      {
+        files: [
+          {
+            path: 'test.js',
+            content: `import { helper } from '@/utils'
+
+console.log(helper)
+`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const output = runESLint(projectDir)
+        expectRule(output, 'no-restricted-imports')
+      },
+    )
+  })
+
+  it('flags parent-relative imports', () => {
+    withTestProject(
+      {
+        files: [
+          {
+            path: 'src/test.js',
+            content: `import { helper } from '../utils'
+
+console.log(helper)
+`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const output = runESLint(projectDir)
+        expectRule(output, 'no-restricted-imports')
+      },
+    )
+  })
+
+  it('flags same-directory relative imports', () => {
+    withTestProject(
+      {
+        files: [
+          {
+            path: 'test.js',
+            content: `import { helper } from './utils'
+
+console.log(helper)
+`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const output = runESLint(projectDir)
+        expectRule(output, 'no-restricted-imports')
+      },
+    )
+  })
+
+  it('allows # subpath imports', () => {
+    withTestProject(
+      {
+        files: [
+          {
+            path: 'test.js',
+            content: `import { helper } from '#utils'
+
+console.log(helper)
 `,
           },
         ],
