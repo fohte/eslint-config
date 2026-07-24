@@ -12,6 +12,12 @@
       "import": "./lib/index.js"
     }
   },
+  "imports": {
+    "#*.js": {
+      "development": "./src/*.ts",
+      "default": "./lib/*.js"
+    }
+  },
   "files": [
     "lib",
     "!lib/**/*.map",

@@ -1,7 +1,7 @@
 import tsParser from '@typescript-eslint/parser'
 import { RuleTester } from 'eslint'
 
-import { noInlineObjectInExpect } from '../../rules/no-inline-object-in-expect.js'
+import { noInlineObjectInExpect } from '#rules/no-inline-object-in-expect.js'
 
 const ruleTester = new RuleTester({
   languageOptions: {

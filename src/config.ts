@@ -3,15 +3,15 @@ import type { Linter } from 'eslint'
 import {
   errorHandlingConfig,
   type ErrorHandlingOptions,
-} from './error-handling.js'
-import { fohteConfig } from './fohte.js'
-import { mainConfig } from './main.js'
+} from '#error-handling.js'
+import { fohteConfig } from '#fohte.js'
+import { mainConfig } from '#main.js'
 import {
   typescriptBaseConfig,
   typescriptConfig,
   typescriptTypeCheckedConfig,
-} from './typescript.js'
-import { vitestConfig } from './vitest.js'
+} from '#typescript.js'
+import { vitestConfig } from '#vitest.js'
 
 export interface TypeScriptOptions {
   /**

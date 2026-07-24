@@ -5,7 +5,7 @@ import {
   getMessagesForRule,
   runESLint,
   withTestProject,
-} from './helpers/e2e-test-helper.js'
+} from '#__tests__/e2e/helpers/e2e-test-helper.js'
 
 describe('Error Handling Rules E2E', { timeout: 30000 }, () => {
   it('detects throw statements outside the interop boundary', () => {

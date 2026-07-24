@@ -1,7 +1,7 @@
 import neverthrowPlugin from '@ninoseki/eslint-plugin-neverthrow'
 import { describe, expect, it } from 'vitest'
 
-import { config } from '../config.js'
+import { config } from '#config.js'
 
 describe('config', () => {
   it('returns configs without error when called with no arguments', () => {
