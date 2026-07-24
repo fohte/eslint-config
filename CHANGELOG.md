@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.8](https://github.com/fohte/eslint-config/compare/v0.3.7...v0.3.8) (2026-07-24)
+
+
+### Features
+
+* **opentelemetry:** add a rule to catch missing context.with() calls ([#437](https://github.com/fohte/eslint-config/issues/437)) ([d0f3bbc](https://github.com/fohte/eslint-config/commit/d0f3bbc6d32f3cb6d901864bb6abf929ac880f3c))
+
 ## [0.3.7](https://github.com/fohte/eslint-config/compare/v0.3.6...v0.3.7) (2026-07-24)
 
 

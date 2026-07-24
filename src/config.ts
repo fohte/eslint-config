@@ -7,6 +7,10 @@ import {
 import { fohteConfig } from '#fohte.js'
 import { mainConfig } from '#main.js'
 import {
+  openTelemetryConfig,
+  openTelemetryRestrictedSyntaxOptions,
+} from '#opentelemetry.js'
+import {
   typescriptBaseConfig,
   typescriptConfig,
   typescriptTypeCheckedConfig,
@@ -23,6 +27,16 @@ export interface TypeScriptOptions {
 
 export type { ErrorHandlingOptions }
 
+export interface OpenTelemetryOptions {
+  /**
+   * Ban tracer.startSpan()/startActiveSpan() calls that may not correctly
+   * parent child spans created during their execution: startSpan() never
+   * enters the active context on its own, and startActiveSpan()'s span stops
+   * being the active context once its callback returns.
+   */
+  enabled?: boolean
+}
+
 export interface ConfigOptions {
   typescript?: TypeScriptOptions
   /**
@@ -32,13 +46,14 @@ export interface ConfigOptions {
    * Result values.
    */
   errorHandling?: ErrorHandlingOptions
+  opentelemetry?: OpenTelemetryOptions
 }
 
 export function config(
   options: ConfigOptions = {},
   ...userConfigs: Linter.Config[]
 ): Linter.Config[] {
-  const { typescript, errorHandling } = options
+  const { typescript, errorHandling, opentelemetry } = options
   const typeChecked = typescript?.typeChecked ?? false
 
   if (errorHandling && !typeChecked) {
@@ -67,8 +82,22 @@ export function config(
   configs.push(...vitestConfig)
   configs.push(...fohteConfig)
 
+  const openTelemetryEnabled = opentelemetry?.enabled === true
+
   if (errorHandling) {
-    configs.push(...errorHandlingConfig(errorHandling))
+    // Both errorHandling and opentelemetry configure `no-restricted-syntax`
+    // on the same `.ts{,x}` file set. ESLint flat config fully replaces a
+    // rule's settings (not merges them) when two config objects set the same
+    // rule for the same file, so the otel selectors are merged into this
+    // same rule entry instead of being pushed as a separate config.
+    configs.push(
+      ...errorHandlingConfig(
+        errorHandling,
+        openTelemetryEnabled ? openTelemetryRestrictedSyntaxOptions : [],
+      ),
+    )
+  } else if (openTelemetryEnabled) {
+    configs.push(...openTelemetryConfig)
   }
 
   configs.push(...userConfigs)
