@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import type neverthrowPluginType from '@ninoseki/eslint-plugin-neverthrow'
 import type { Linter } from 'eslint'
 
+import type { RestrictedSyntaxOption } from './opentelemetry.js'
 import { vitestTestFiles } from './vitest.js'
 
 const require = createRequire(import.meta.url)
@@ -21,6 +22,14 @@ export interface ErrorHandlingOptions {
 
 export function errorHandlingConfig(
   options: ErrorHandlingOptions,
+  // ESLint flat config fully replaces a rule's settings — rather than
+  // merging them — when two config objects set the same rule for the same
+  // file. Any other no-restricted-syntax selectors that must apply to the
+  // same file set (e.g. openTelemetryRestrictedSyntaxOptions) have to be
+  // merged into this same rule entry instead of their own config object, or
+  // whichever config is pushed last would silently drop this one's throw/
+  // try-catch ban.
+  extraRestrictedSyntax: RestrictedSyntaxOption[] = [],
 ): Linter.Config[] {
   const { interopBoundaryFiles } = options
 
@@ -56,6 +65,7 @@ export function errorHandlingConfig(
             message:
               "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. Only files listed in errorHandling.interopBoundaryFiles may use try/catch, to satisfy an external SDK's throw-based contract.",
           },
+          ...extraRestrictedSyntax,
         ],
         'neverthrow/must-use-result': 'error',
       },
