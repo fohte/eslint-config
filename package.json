@@ -13,10 +13,7 @@
     }
   },
   "imports": {
-    "#*.js": {
-      "development": "./src/*.ts",
-      "default": "./lib/*.js"
-    }
+    "#*.js": "./lib/*.js"
   },
   "files": [
     "lib",
