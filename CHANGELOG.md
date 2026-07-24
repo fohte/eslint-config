@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.3.7](https://github.com/fohte/eslint-config/compare/v0.3.6...v0.3.7) (2026-07-24)
+
+
+### Features
+
+* **error-handling:** add option to treat errors as values ([#433](https://github.com/fohte/eslint-config/issues/433)) ([7d23763](https://github.com/fohte/eslint-config/commit/7d23763d74ec186ca72b43eb56c3cc4cbaba7cf2))
+
 ## [0.3.6](https://github.com/fohte/eslint-config/compare/v0.3.5...v0.3.6) (2026-07-10)
 
 
