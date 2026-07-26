@@ -9,7 +9,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import type { ErrorHandlingOptions } from '../../../error-handling.js'
+import type { ErrorHandlingOptions } from '#error-handling.js'
 
 export interface TestFile {
   path: string
