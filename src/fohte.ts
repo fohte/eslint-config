@@ -1,6 +1,6 @@
 import type { Linter } from 'eslint'
 
-import { fohtePlugin } from './rules/index.js'
+import { fohtePlugin } from '#rules/index.js'
 
 const testFiles = [
   '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',

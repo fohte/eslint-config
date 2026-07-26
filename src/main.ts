@@ -22,6 +22,23 @@ export const mainConfig: Linter.Config[] = [
       'import-x/first': 'error',
       'import-x/newline-after-import': 'error',
       'import-x/no-duplicates': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['./*', '../*'],
+              message:
+                'Relative imports are not allowed. Use a # subpath import (package.json "imports" field) instead — see https://nodejs.org/api/packages.html#subpath-imports.',
+            },
+            {
+              group: ['@/*'],
+              message:
+                'The @ alias is not allowed: it only exists for TypeScript/bundlers and is not resolved by Node at runtime. Use a # subpath import (package.json "imports" field) instead — see https://nodejs.org/api/packages.html#subpath-imports.',
+            },
+          ],
+        },
+      ],
       '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
       '@eslint-community/eslint-comments/no-unused-disable': 'error',
       '@eslint-community/eslint-comments/require-description': 'error',

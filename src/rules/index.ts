@@ -1,6 +1,6 @@
 import type { ESLint } from 'eslint'
 
-import { noInlineObjectInExpect } from './no-inline-object-in-expect.js'
+import { noInlineObjectInExpect } from '#rules/no-inline-object-in-expect.js'
 
 export const fohtePlugin: ESLint.Plugin = {
   meta: {

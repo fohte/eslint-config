@@ -1,4 +1,4 @@
-import { config } from './lib/index.js'
+import { config } from '#index.js'
 
 export default config(
   { typescript: { typeChecked: true } },

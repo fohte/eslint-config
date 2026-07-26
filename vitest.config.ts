@@ -1,6 +1,16 @@
+import { join } from 'node:path'
+
 import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  resolve: {
+    alias: [
+      {
+        find: /^#(.*)\.js$/,
+        replacement: join(import.meta.dirname, 'src/$1.ts'),
+      },
+    ],
+  },
   test: {
     globals: true,
     environment: 'node',
