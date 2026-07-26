@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.4.0](https://github.com/fohte/eslint-config/compare/v0.3.9...v0.4.0) (2026-07-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **import:** ban relative imports and @ alias by default ([#436](https://github.com/fohte/eslint-config/issues/436))
+
+### Features
+
+* **import:** ban relative imports and @ alias by default ([#436](https://github.com/fohte/eslint-config/issues/436)) ([e548ce4](https://github.com/fohte/eslint-config/commit/e548ce4b417fd648a61db6febf6703a29a1ce78e))
+
 ## [0.3.9](https://github.com/fohte/eslint-config/compare/v0.3.8...v0.3.9) (2026-07-24)
 
 
