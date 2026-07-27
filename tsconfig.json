@@ -4,7 +4,6 @@
     "@tsconfig/strictest/tsconfig.json"
   ],
   "compilerOptions": {
-<<<<<<< before updating
     "outDir": "./lib",
     "rootDir": "./src",
     "declaration": true,
@@ -26,18 +25,4 @@
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "lib"]
-||||||| last update
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
-=======
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "noEmit": true
-  }
->>>>>>> after updating
 }

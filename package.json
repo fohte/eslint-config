@@ -13,18 +13,13 @@
     }
   },
   "imports": {
-<<<<<<< before updating
     "#*.js": "./lib/*.js"
-||||||| last update
-=======
-    "#*": "./src/*.ts"
->>>>>>> after updating
   },
   "files": [
-  "lib",
-  "!lib/**/*.map",
-  "!lib/**/*.test.*"
-],
+    "lib",
+    "!lib/**/*.map",
+    "!lib/**/*.test.*"
+  ],
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -98,8 +93,5 @@
     "typescript": {
       "optional": true
     }
-  },
-  "dependencies": {
-    "neverthrow": "8.2.0"
   }
 }

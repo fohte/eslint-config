@@ -58,12 +58,14 @@ export function config(
   const typeChecked = typescript?.typeChecked ?? false
 
   if (errorHandling && !typeChecked) {
+    // eslint-disable-next-line no-restricted-syntax -- fail fast on invalid eslint.config.js at load time, not a Result-returning runtime path
     throw new Error(
       'errorHandling requires typescript.typeChecked: true, because neverthrow/must-use-result needs type information to detect unused Result values.',
     )
   }
 
   if (errorHandling && 'interopBoundaryFiles' in errorHandling) {
+    // eslint-disable-next-line no-restricted-syntax -- fail fast on invalid eslint.config.js at load time, not a Result-returning runtime path
     throw new Error(
       'errorHandling.interopBoundaryFiles was removed — add an eslint-disable-next-line comment on the throw/try-catch instead.',
     )
