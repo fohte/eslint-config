@@ -2,7 +2,7 @@
   "name": "@fohte/eslint-config",
   "description": "ESLint config for fohte",
   "version": "0.4.0",
-  "packageManager": "pnpm@11.15.1",
+  "packageManager": "pnpm@11.16.0",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -53,7 +53,7 @@
   "devDependencies": {
     "@commitlint/cli": "21.2.1",
     "@eslint-community/eslint-plugin-eslint-comments": "4.7.2",
-    "@eslint/eslintrc": "3.3.5",
+    "@eslint/eslintrc": "3.3.6",
     "@fohte/eslint-config": "0.4.0",
     "@ninoseki/eslint-plugin-neverthrow": "0.2.0",
     "@tsconfig/node-lts": "24.0.0",
