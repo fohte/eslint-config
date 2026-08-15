@@ -31,14 +31,21 @@ export interface TailwindOptions {
 // eslint-plugin-tailwindcss's no-arbitrary-value rule only checks class
 // attributes/functions, so a bracket value stashed in a bare string constant
 // (then interpolated into className) would otherwise slip through
-// undetected. Exported so callers (e.g. config.ts) can merge this into
-// another no-restricted-syntax entry — see errorHandlingConfig's
-// extraRestrictedSyntax param for why merging is required.
+// undetected. Scoped to a VariableDeclarator's direct init (not any Literal/
+// TemplateElement anywhere) so it only catches that stashed-constant case —
+// a Literal/TemplateElement passed directly to a className attribute or a
+// classname function is already caught by no-arbitrary-value itself, and
+// matching it here too would double-report the same violation under two
+// different rule IDs. Exported for parity with errorHandlingRestrictedSyntaxOptions/
+// openTelemetryRestrictedSyntaxOptions, should a narrower-scoped option ever
+// need to fold this selector into its own no-restricted-syntax entry.
 export const tailwindRestrictedSyntaxOption: RestrictedSyntaxOption = {
   // TemplateElement covers backtick strings (e.g. `` `w-[600px]` ``) with no
   // interpolation — those parse as a template literal, not a plain Literal
-  // node, and would otherwise bypass this check.
-  selector: `:matches(Literal[value=/${ARBITRARY_VALUE_PATTERN}/], TemplateElement[value.raw=/${ARBITRARY_VALUE_PATTERN}/])`,
+  // node, and would otherwise bypass this check. TemplateElement's parent is
+  // always its enclosing TemplateLiteral, so that has to sit between it and
+  // the VariableDeclarator.
+  selector: `:matches(VariableDeclarator > Literal[value=/${ARBITRARY_VALUE_PATTERN}/], VariableDeclarator > TemplateLiteral > TemplateElement[value.raw=/${ARBITRARY_VALUE_PATTERN}/])`,
   message:
     'Arbitrary Tailwind values are not allowed, including inside string constants. Add a token to `@theme` in your Tailwind CSS config instead.',
 }

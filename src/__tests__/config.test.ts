@@ -12,10 +12,10 @@ import { config } from '#config.js'
 // than tailwind.ts's require(), making toEqual fail despite the same
 // content. Requiring it the same way keeps this the same singleton.
 const require = createRequire(import.meta.url)
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- require() returns any; widened to ESLint.Plugin above
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- require() returns any; see tailwind.ts's tailwindConfig() for why this is widened to ESLint.Plugin
 const tailwindcssPlugin: ESLint.Plugin = require('eslint-plugin-tailwindcss')
 
-const TAILWIND_ARBITRARY_VALUE_SELECTOR = String.raw`:matches(Literal[value=/-\[[^\]]+\]!?(?=\s|$)/], TemplateElement[value.raw=/-\[[^\]]+\]!?(?=\s|$)/])`
+const TAILWIND_ARBITRARY_VALUE_SELECTOR = String.raw`:matches(VariableDeclarator > Literal[value=/-\[[^\]]+\]!?(?=\s|$)/], VariableDeclarator > TemplateLiteral > TemplateElement[value.raw=/-\[[^\]]+\]!?(?=\s|$)/])`
 const TAILWIND_ARBITRARY_VALUE_MESSAGE =
   'Arbitrary Tailwind values are not allowed, including inside string constants. Add a token to `@theme` in your Tailwind CSS config instead.'
 
@@ -269,7 +269,29 @@ describe('config', () => {
         tailwind: { cssConfigPath: 'src/index.css' },
       })
 
-      expect(result.at(-1)?.files).toEqual(['**/*.ts{,x}'])
+      expect(result.at(-1)).toEqual({
+        files: ['**/*.ts{,x}'],
+        ignores: [
+          '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+        ],
+        plugins: { tailwindcss: tailwindcssPlugin },
+        settings: {
+          tailwindcss: {
+            cssConfigPath: 'src/index.css',
+          },
+        },
+        rules: {
+          'tailwindcss/no-arbitrary-value': 'error',
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: TAILWIND_ARBITRARY_VALUE_SELECTOR,
+              message: TAILWIND_ARBITRARY_VALUE_MESSAGE,
+            },
+          ],
+        },
+      })
     })
 
     it('omits the tailwind config when tailwind is not provided', () => {
@@ -338,11 +360,23 @@ describe('config', () => {
           ],
         },
       })
+    })
 
-      // The broad errorHandling/opentelemetry entry (scoped to all .ts{,x}
-      // files, pushed right before the tailwind entry) must still exist and
-      // be unaffected, so files outside tailwind.files (e.g. api/src) keep
-      // the throw/try-catch and startSpan/startActiveSpan bans.
+    // The broad errorHandling/opentelemetry entry (scoped to all .ts{,x}
+    // files, pushed right before the tailwind entry) must still exist and be
+    // unaffected, so files outside tailwind.files (e.g. api/src) keep the
+    // throw/try-catch and startSpan/startActiveSpan bans.
+    it('keeps the broad errorHandling/opentelemetry entry unaffected when tailwind is also configured', () => {
+      const result = config({
+        typescript: { typeChecked: true },
+        errorHandling: {},
+        opentelemetry: { enabled: true },
+        tailwind: {
+          files: ['web/**/*.ts', 'web/**/*.tsx'],
+          cssConfigPath: 'web/src/index.css',
+        },
+      })
+
       expect(result.at(-2)).toEqual({
         files: ['**/*.ts{,x}'],
         ignores: [

@@ -13,7 +13,7 @@ const CSS_FILE = {
 }
 
 describe('Tailwind Rules E2E', { timeout: 30000 }, () => {
-  it('detects an arbitrary Tailwind value passed to a clsx() call', () => {
+  it('detects an arbitrary Tailwind value passed to a clsx() call, without double-reporting it via no-restricted-syntax', () => {
     withTestProject(
       {
         tailwind: { cssConfigPath: 'styles.css' },
@@ -31,6 +31,9 @@ export const classes = clsx('w-[600px]')
       (projectDir) => {
         const output = runESLint(projectDir)
         expectRule(output, 'tailwindcss/no-arbitrary-value')
+        expect(getMessagesForRule(output, 'no-restricted-syntax')).toHaveLength(
+          0,
+        )
       },
     )
   })
