@@ -14,6 +14,21 @@ export interface ErrorHandlingOptions {}
 const EXEMPTION_HINT =
   "If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why."
 
+// Exported so other options (e.g. tailwind) that need their own no-restricted-syntax
+// entry scoped to a narrower file set can merge these selectors in too — see
+// errorHandlingConfig's extraRestrictedSyntax param for why merging (not a
+// separate config object) is required.
+export const errorHandlingRestrictedSyntaxOptions: RestrictedSyntaxOption[] = [
+  {
+    selector: 'ThrowStatement',
+    message: `Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. ${EXEMPTION_HINT}`,
+  },
+  {
+    selector: 'TryStatement',
+    message: `Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. ${EXEMPTION_HINT}`,
+  },
+]
+
 export function errorHandlingConfig(
   // ESLint flat config fully replaces a rule's settings — rather than
   // merging them — when two config objects set the same rule for the same
@@ -46,14 +61,7 @@ export function errorHandlingConfig(
       rules: {
         'no-restricted-syntax': [
           'error',
-          {
-            selector: 'ThrowStatement',
-            message: `Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. ${EXEMPTION_HINT}`,
-          },
-          {
-            selector: 'TryStatement',
-            message: `Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. ${EXEMPTION_HINT}`,
-          },
+          ...errorHandlingRestrictedSyntaxOptions,
           ...extraRestrictedSyntax,
         ],
         'neverthrow/must-use-result': 'error',

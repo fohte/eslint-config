@@ -10,6 +10,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import type { ErrorHandlingOptions } from '#error-handling.js'
+import type { TailwindOptions } from '#tailwind.js'
 
 export interface TestFile {
   path: string
@@ -22,6 +23,7 @@ export interface E2ETestOptions {
   typeChecked?: boolean
   errorHandling?: ErrorHandlingOptions
   opentelemetry?: { enabled?: boolean }
+  tailwind?: TailwindOptions
 }
 
 export interface ESLintMessage {
@@ -98,6 +100,9 @@ export function createTestProject(options: E2ETestOptions): string {
     configOptionEntries.push(
       `opentelemetry: ${JSON.stringify(options.opentelemetry)}`,
     )
+  }
+  if (options.tailwind) {
+    configOptionEntries.push(`tailwind: ${JSON.stringify(options.tailwind)}`)
   }
   const configOptions =
     configOptionEntries.length > 0

@@ -16,6 +16,10 @@ npm install --save-dev typescript
 # Optional: If using the errorHandling option
 npm install --save-dev @ninoseki/eslint-plugin-neverthrow
 npm install neverthrow
+
+# Optional: If using the tailwind option
+npm install --save-dev eslint-plugin-tailwindcss
+npm install tailwindcss
 ```
 
 ## Usage
@@ -41,6 +45,12 @@ export default config()
 
 // Optionally, ban raw tracer.startSpan()/startActiveSpan() calls that skip context.with():
 // export default config({ opentelemetry: { enabled: true } })
+
+// Optionally, ban Tailwind CSS arbitrary values (e.g. `w-[600px]`),
+// steering towards design tokens defined in `@theme` instead:
+// export default config({
+//   tailwind: { cssConfigPath: 'src/index.css' },
+// })
 ```
 
 ### Import policy
@@ -89,6 +99,38 @@ When enabled, `no-restricted-syntax` bans direct calls to `tracer.startSpan()`/`
 This surfaces only as a mis-parented span in a trace backend, not as a runtime error. If neither pattern fits, add an `eslint-disable-next-line` comment explaining why.
 
 When combined with `errorHandling`, both options configure `no-restricted-syntax` — ESLint's flat config fully replaces a rule's settings (rather than merging them) when two config objects set the same rule for the same file, so the `startSpan`/`startActiveSpan` selectors are merged into `errorHandling`'s `no-restricted-syntax` entry instead of their own config. This means the `opentelemetry` ban then shares `errorHandling`'s exemption for test files too.
+
+### `tailwind` option
+
+`cssConfigPath` (the path to the CSS file where Tailwind's `@theme` tokens are defined) is required; `files` defaults to all `.ts{,x}` files, but can be narrowed (e.g. a single package in a monorepo):
+
+```javascript
+export default config({
+  tailwind: {
+    files: ['web/**/*.ts', 'web/**/*.tsx'], // optional, defaults to all .ts{,x} files
+    cssConfigPath: 'web/src/index.css',
+  },
+})
+```
+
+When enabled, it applies two rules to the given `files` (except test files):
+
+- [`tailwindcss/no-arbitrary-value`](https://github.com/francoismassart/eslint-plugin-tailwindcss): bans arbitrary values (e.g. `w-[600px]`) in `className`/`class` attributes and classname functions (`clsx`, `cn`, etc). Add a token to `@theme` in your CSS config instead:
+
+  ```css
+  @theme {
+    --width-panel: 600px;
+  }
+  ```
+
+  ```diff
+  - <div className="w-[600px]" />
+  + <div className="w-panel" />
+  ```
+
+- `no-restricted-syntax`: `no-arbitrary-value` only checks class attributes/functions, so a bracket value stashed in a bare string constant (then interpolated into `className`) would otherwise slip through undetected. This rule catches that case too.
+
+Like `opentelemetry`, this shares its `no-restricted-syntax` entry with `errorHandling` (and `opentelemetry`) rather than silently overriding it, so all three bans keep applying together within `tailwind.files`. Since `tailwind.files` can be narrower than `errorHandling`/`opentelemetry`'s default (all `.ts{,x}` files), the merge happens at `tailwind.files`'s scope: files outside it keep only the `errorHandling`/`opentelemetry` bans, and files inside it get the full union.
 
 ### Built-in rules
 
@@ -143,6 +185,7 @@ src/
 ├── typescript.ts      # TypeScript-specific configuration
 ├── error-handling.ts  # errorHandling option (throw/try-catch ban, neverthrow enforcement)
 ├── opentelemetry.ts   # opentelemetry option (startSpan/startActiveSpan ban)
+├── tailwind.ts        # tailwind option (Tailwind arbitrary-value ban)
 └── types/             # Type definitions for untyped packages
 ```
 

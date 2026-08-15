@@ -3,6 +3,7 @@ import type { Linter } from 'eslint'
 import {
   errorHandlingConfig,
   type ErrorHandlingOptions,
+  errorHandlingRestrictedSyntaxOptions,
 } from '#error-handling.js'
 import { fohteConfig } from '#fohte.js'
 import { mainConfig } from '#main.js'
@@ -10,6 +11,7 @@ import {
   openTelemetryConfig,
   openTelemetryRestrictedSyntaxOptions,
 } from '#opentelemetry.js'
+import { tailwindConfig, type TailwindOptions } from '#tailwind.js'
 import {
   typescriptBaseConfig,
   typescriptConfig,
@@ -26,6 +28,7 @@ export interface TypeScriptOptions {
 }
 
 export type { ErrorHandlingOptions }
+export type { TailwindOptions }
 
 export interface OpenTelemetryOptions {
   /**
@@ -48,13 +51,19 @@ export interface ConfigOptions {
    */
   errorHandling?: ErrorHandlingOptions
   opentelemetry?: OpenTelemetryOptions
+  /**
+   * Ban Tailwind CSS arbitrary values (e.g. `w-[600px]`), including ones
+   * stashed in a bare string constant, steering towards design tokens
+   * defined in `@theme` instead.
+   */
+  tailwind?: TailwindOptions
 }
 
 export function config(
   options: ConfigOptions = {},
   ...userConfigs: Linter.Config[]
 ): Linter.Config[] {
-  const { typescript, errorHandling, opentelemetry } = options
+  const { typescript, errorHandling, opentelemetry, tailwind } = options
   const typeChecked = typescript?.typeChecked ?? false
 
   if (errorHandling && !typeChecked) {
@@ -106,6 +115,21 @@ export function config(
     )
   } else if (openTelemetryEnabled) {
     configs.push(...openTelemetryConfig)
+  }
+
+  if (tailwind) {
+    // Pushed after the errorHandling/opentelemetry merge above, and scoped
+    // to tailwind.files (which may be narrower, e.g. a monorepo package
+    // subdirectory): for files it matches, this config's no-restricted-syntax
+    // is the last one applied and so must carry the union of every selector
+    // that should still apply there, or it would silently drop the broader
+    // entry's bans for that subset of files.
+    configs.push(
+      ...tailwindConfig(tailwind, [
+        ...(errorHandling ? errorHandlingRestrictedSyntaxOptions : []),
+        ...(openTelemetryEnabled ? openTelemetryRestrictedSyntaxOptions : []),
+      ]),
+    )
   }
 
   configs.push(...userConfigs)
