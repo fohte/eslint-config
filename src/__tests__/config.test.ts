@@ -1,7 +1,23 @@
+import { createRequire } from 'node:module'
+
 import neverthrowPlugin from '@ninoseki/eslint-plugin-neverthrow'
+import type { ESLint } from 'eslint'
 import { describe, expect, it } from 'vitest'
 
 import { config } from '#config.js'
+
+// eslint-plugin-tailwindcss ships separate CJS and ESM builds (unlike
+// neverthrow, which is ESM-only), so a static `import` here would resolve a
+// different module instance — with different rule function references —
+// than tailwind.ts's require(), making toEqual fail despite the same
+// content. Requiring it the same way keeps this the same singleton.
+const require = createRequire(import.meta.url)
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- require() returns any; see tailwind.ts's tailwindConfig() for why this is widened to ESLint.Plugin
+const tailwindcssPlugin: ESLint.Plugin = require('eslint-plugin-tailwindcss')
+
+const TAILWIND_ARBITRARY_VALUE_SELECTOR = String.raw`:matches(VariableDeclarator > Literal[value=/-\[[^\]]+\]!?(?=\s|$)/], VariableDeclarator > TemplateLiteral > TemplateElement[value.raw=/-\[[^\]]+\]!?(?=\s|$)/])`
+const TAILWIND_ARBITRARY_VALUE_MESSAGE =
+  'Arbitrary Tailwind values are not allowed, including inside string constants. Add a token to `@theme` in your Tailwind CSS config instead.'
 
 describe('config', () => {
   it('returns configs without error when called with no arguments', () => {
@@ -177,6 +193,191 @@ describe('config', () => {
       })
 
       expect(result.at(-1)).toEqual({
+        files: ['**/*.ts{,x}'],
+        ignores: [
+          '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+        ],
+        plugins: { neverthrow: neverthrowPlugin },
+        rules: {
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: 'ThrowStatement',
+              message:
+                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector: 'TryStatement',
+              message:
+                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector: "CallExpression[callee.property.name='startSpan']",
+              message:
+                "Don't call tracer.startSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans are parented correctly. startSpan() never enters the active context on its own. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector:
+                "CallExpression[callee.property.name='startActiveSpan']",
+              message:
+                "Don't call tracer.startActiveSpan() and use the span outside its own callback — it's only the active context for the duration of that callback, so ending it later (e.g. start and end split across separate callbacks) breaks propagation for anything that runs after the callback returns. Keep all child-producing work inside the callback, or use tracer.startSpan() plus context.with() instead. If neither fits, add an eslint-disable-next-line comment explaining why.",
+            },
+          ],
+          'neverthrow/must-use-result': 'error',
+        },
+      })
+    })
+  })
+
+  describe('tailwind', () => {
+    it('bans Tailwind arbitrary values when tailwind is provided', () => {
+      const result = config({
+        tailwind: {
+          files: ['web/**/*.ts', 'web/**/*.tsx'],
+          cssConfigPath: 'web/src/index.css',
+        },
+      })
+
+      expect(result.at(-1)).toEqual({
+        files: ['web/**/*.ts', 'web/**/*.tsx'],
+        ignores: [
+          '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+        ],
+        plugins: { tailwindcss: tailwindcssPlugin },
+        settings: {
+          tailwindcss: {
+            cssConfigPath: 'web/src/index.css',
+          },
+        },
+        rules: {
+          'tailwindcss/no-arbitrary-value': 'error',
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: TAILWIND_ARBITRARY_VALUE_SELECTOR,
+              message: TAILWIND_ARBITRARY_VALUE_MESSAGE,
+            },
+          ],
+        },
+      })
+    })
+
+    it('defaults files to all .ts{,x} files when tailwind.files is not provided', () => {
+      const result = config({
+        tailwind: { cssConfigPath: 'src/index.css' },
+      })
+
+      expect(result.at(-1)).toEqual({
+        files: ['**/*.ts{,x}'],
+        ignores: [
+          '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+        ],
+        plugins: { tailwindcss: tailwindcssPlugin },
+        settings: {
+          tailwindcss: {
+            cssConfigPath: 'src/index.css',
+          },
+        },
+        rules: {
+          'tailwindcss/no-arbitrary-value': 'error',
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: TAILWIND_ARBITRARY_VALUE_SELECTOR,
+              message: TAILWIND_ARBITRARY_VALUE_MESSAGE,
+            },
+          ],
+        },
+      })
+    })
+
+    it('omits the tailwind config when tailwind is not provided', () => {
+      const result = config()
+      const hasTailwindPlugin = result.some(
+        (c) =>
+          c.plugins !== undefined &&
+          Object.keys(c.plugins).includes('tailwindcss'),
+      )
+
+      expect(hasTailwindPlugin).toBe(false)
+    })
+
+    it('merges errorHandling and opentelemetry selectors into the tailwind-scoped no-restricted-syntax rule, instead of a separate config that would silently override it', () => {
+      const result = config({
+        typescript: { typeChecked: true },
+        errorHandling: {},
+        opentelemetry: { enabled: true },
+        tailwind: {
+          files: ['web/**/*.ts', 'web/**/*.tsx'],
+          cssConfigPath: 'web/src/index.css',
+        },
+      })
+
+      expect(result.at(-1)).toEqual({
+        files: ['web/**/*.ts', 'web/**/*.tsx'],
+        ignores: [
+          '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+          '**/__tests__/**/*.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
+        ],
+        plugins: { tailwindcss: tailwindcssPlugin },
+        settings: {
+          tailwindcss: {
+            cssConfigPath: 'web/src/index.css',
+          },
+        },
+        rules: {
+          'tailwindcss/no-arbitrary-value': 'error',
+          'no-restricted-syntax': [
+            'error',
+            {
+              selector: 'ThrowStatement',
+              message:
+                "Don't throw — return a Result via err()/errAsync(), or use ResultAsync.fromPromise() to interop with a throwing API without a local throw. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector: 'TryStatement',
+              message:
+                "Don't use try/catch — use ResultAsync.fromPromise()/.andThen()/.mapErr()/.match() to turn a failure into a Result value. If an external SDK's throw-based contract genuinely can't be wrapped that way, add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector: "CallExpression[callee.property.name='startSpan']",
+              message:
+                "Don't call tracer.startSpan() directly — wrap the code that should run as its child in context.with(trace.setSpan(context.active(), span), ...) so nested spans are parented correctly. startSpan() never enters the active context on its own. If context.with() genuinely can't wrap the span (e.g. start and end happen in separate callbacks), add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector:
+                "CallExpression[callee.property.name='startActiveSpan']",
+              message:
+                "Don't call tracer.startActiveSpan() and use the span outside its own callback — it's only the active context for the duration of that callback, so ending it later (e.g. start and end split across separate callbacks) breaks propagation for anything that runs after the callback returns. Keep all child-producing work inside the callback, or use tracer.startSpan() plus context.with() instead. If neither fits, add an eslint-disable-next-line comment explaining why.",
+            },
+            {
+              selector: TAILWIND_ARBITRARY_VALUE_SELECTOR,
+              message: TAILWIND_ARBITRARY_VALUE_MESSAGE,
+            },
+          ],
+        },
+      })
+    })
+
+    // The broad errorHandling/opentelemetry entry (scoped to all .ts{,x}
+    // files, pushed right before the tailwind entry) must still exist and be
+    // unaffected, so files outside tailwind.files (e.g. api/src) keep the
+    // throw/try-catch and startSpan/startActiveSpan bans.
+    it('keeps the broad errorHandling/opentelemetry entry unaffected when tailwind is also configured', () => {
+      const result = config({
+        typescript: { typeChecked: true },
+        errorHandling: {},
+        opentelemetry: { enabled: true },
+        tailwind: {
+          files: ['web/**/*.ts', 'web/**/*.tsx'],
+          cssConfigPath: 'web/src/index.css',
+        },
+      })
+
+      expect(result.at(-2)).toEqual({
         files: ['**/*.ts{,x}'],
         ignores: [
           '**/*.{test,spec}.{ts,tsx,js,jsx,cts,mts,cjs,mjs}',
