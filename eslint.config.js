@@ -1,6 +1,5 @@
 import { config } from '#index.js'
 
-<<<<<<< before updating
 export default config(
   {
     typescript: { typeChecked: true },
@@ -10,16 +9,3 @@ export default config(
     ignores: ['vitest.config.ts'],
   },
 )
-||||||| last update
-export default config(
-  {
-    typescript: { typeChecked: true },
-    errorHandling: {},
-  },
-)
-=======
-export default config({
-  typescript: { typeChecked: true },
-  errorHandling: {},
-})
->>>>>>> after updating
