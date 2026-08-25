@@ -8,6 +8,7 @@ is_public: true
 is_web_app: false
 project_name: eslint-config
 release_type: node
+repo_id: '734939372'
 repo_language: en
 subpackages: []
 type: node
