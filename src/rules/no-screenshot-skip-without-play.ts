@@ -47,6 +47,15 @@ function hasSpread(obj: ObjectExpressionNode): boolean {
   return obj.properties.some((prop) => prop.type === 'SpreadElement')
 }
 
+function getObjectProperty(
+  obj: ObjectExpressionNode,
+  name: string,
+): ObjectExpressionNode | undefined {
+  const prop = findProperty(obj, name)
+  if (!prop) return undefined
+  return asObjectExpression(unwrapTsWrapper(prop.value))
+}
+
 function isTrueLiteral(node: { type: string }): boolean {
   if (node.type !== 'Literal') return false
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to Literal by the check above
@@ -79,17 +88,12 @@ export const noScreenshotSkipWithoutPlay: Rule.RuleModule = {
           )
           if (!storyObject || hasSpread(storyObject)) continue
 
-          const parameters = findProperty(storyObject, 'parameters')
-          if (!parameters) continue
-          const parametersObject = asObjectExpression(
-            unwrapTsWrapper(parameters.value),
-          )
+          const parametersObject = getObjectProperty(storyObject, 'parameters')
           if (!parametersObject) continue
 
-          const screenshot = findProperty(parametersObject, 'screenshot')
-          if (!screenshot) continue
-          const screenshotObject = asObjectExpression(
-            unwrapTsWrapper(screenshot.value),
+          const screenshotObject = getObjectProperty(
+            parametersObject,
+            'screenshot',
           )
           if (!screenshotObject) continue
 

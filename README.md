@@ -154,7 +154,7 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
   expect(spy).not.toHaveBeenCalled()
   ```
 
-- `fohte/no-screenshot-skip-without-play` (`**/*.stories.tsx`): flags `parameters: { screenshot: { skip: true } }` on a story that has no `play` function. A skipped story emits no screenshot, so a VRT duplicate-image detector can never see it — on a story whose only assertion is its rendered appearance, skipping it permanently hides that finding, which usually means an undetected visual bug (two states rendering identically). Add a `play` assertion instead, or fix the underlying visual duplication.
+- `fohte/no-screenshot-skip-without-play` (story files): flags `parameters: { screenshot: { skip: true } }` on a story that has no `play` function. This targets a Storybook VRT setup that flags two stories in the same file whose screenshots are byte-identical (usually an undetected visual bug, e.g. two states rendering identically): a skipped story emits no screenshot, so that check can never see it. On a story whose only assertion is its rendered appearance, skipping it permanently hides that finding. Add a `play` assertion instead, or fix the underlying visual duplication. Story objects built via a spread (e.g. `{ ...base, parameters: {...} }`) aren't checked, since a spread may already carry a `play` function this rule can't see statically.
 
   ```ts
   // bad: no play() function, so this story asserts only via its rendered appearance

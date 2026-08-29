@@ -33,6 +33,7 @@ ruleTester.run('no-screenshot-skip-without-play', noScreenshotSkipWithoutPlay, {
   ],
   invalid: [
     {
+      name: 'flags skip: true with no play',
       code: `export const Default = { parameters: { screenshot: { skip: true } } }`,
       errors: [
         {
@@ -45,6 +46,7 @@ ruleTester.run('no-screenshot-skip-without-play', noScreenshotSkipWithoutPlay, {
       ],
     },
     {
+      name: 'flags skip: true through a satisfies-wrapped story',
       code: `export const Default = { parameters: { screenshot: { skip: true } } } satisfies Story`,
       errors: [
         {
