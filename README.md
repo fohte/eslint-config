@@ -134,9 +134,9 @@ Like `opentelemetry`, this shares its `no-restricted-syntax` entry with `errorHa
 
 ### Built-in rules
 
-In addition to the upstream presets, this config ships a local plugin (`fohte`) for test files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
+In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
 
-- `fohte/no-inline-object-in-expect`: flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
+- `fohte/no-inline-object-in-expect` (test files): flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
 
   ```ts
   // bad
@@ -152,6 +152,25 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
   // good
   expect(result).toBe('ok')
   expect(spy).not.toHaveBeenCalled()
+  ```
+
+- `fohte/no-screenshot-skip-without-play` (`**/*.stories.tsx`): flags `parameters: { screenshot: { skip: true } }` on a story that has no `play` function. A skipped story emits no screenshot, so a VRT duplicate-image detector can never see it — on a story whose only assertion is its rendered appearance, skipping it permanently hides that finding, which usually means an undetected visual bug (two states rendering identically). Add a `play` assertion instead, or fix the underlying visual duplication.
+
+  ```ts
+  // bad: no play() function, so this story asserts only via its rendered appearance
+  export const Disabled: Story = {
+    args: { disabled: true },
+    parameters: { screenshot: { skip: true } },
+  }
+
+  // good: skip is fine once the story's assertion has moved into play()
+  export const Disabled: Story = {
+    args: { disabled: true },
+    parameters: { screenshot: { skip: true } },
+    play: async ({ canvasElement }) => {
+      await expect(within(canvasElement).getByRole('checkbox')).toBeDisabled()
+    },
+  }
   ```
 
 ## Development

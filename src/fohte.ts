@@ -17,4 +17,13 @@ export const fohteConfig: Linter.Config[] = [
       'fohte/no-inline-object-in-expect': 'error',
     },
   },
+  {
+    files: ['**/*.stories.tsx'],
+    plugins: {
+      fohte: fohtePlugin,
+    },
+    rules: {
+      'fohte/no-screenshot-skip-without-play': 'error',
+    },
+  },
 ]
