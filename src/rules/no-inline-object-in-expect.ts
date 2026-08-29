@@ -1,27 +1,9 @@
 import type { Rule } from 'eslint'
 
-interface TsWrapperNode {
-  type: string
-  expression: { type: string }
-}
+import { unwrapTsWrapper } from '#rules/utils.js'
 
 const TARGET_MATCHERS = new Set(['toEqual', 'toStrictEqual', 'toMatchObject'])
 const MODIFIER_NAMES = new Set(['resolves', 'rejects', 'not'])
-const TS_WRAPPER_TYPES = new Set([
-  'TSAsExpression',
-  'TSSatisfiesExpression',
-  'TSTypeAssertion',
-  'TSNonNullExpression',
-])
-
-function unwrapTsWrapper(node: { type: string }): { type: string } {
-  let current = node
-  while (TS_WRAPPER_TYPES.has(current.type)) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- estree's Node union lacks TS-only wrappers (TSAsExpression etc.); their .expression field is documented in @typescript-eslint AST
-    current = (current as unknown as TsWrapperNode).expression
-  }
-  return current
-}
 
 // Only follows bindings referenced exactly twice (the initializing write and this expect() read), so no reassignment or mutating access (e.g. `x.a = 1`, `x.push(1)`) could have changed the value in between.
 function resolveAliasedLiteral(

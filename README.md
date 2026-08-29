@@ -134,9 +134,9 @@ Like `opentelemetry`, this shares its `no-restricted-syntax` entry with `errorHa
 
 ### Built-in rules
 
-In addition to the upstream presets, this config ships a local plugin (`fohte`) for test files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
+In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
 
-- `fohte/no-inline-object-in-expect`: flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
+- `fohte/no-inline-object-in-expect` (test files): flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
 
   ```ts
   // bad
@@ -152,6 +152,25 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
   // good
   expect(result).toBe('ok')
   expect(spy).not.toHaveBeenCalled()
+  ```
+
+- `fohte/no-screenshot-skip-without-play` (story files): flags `parameters: { screenshot: { skip: true } }` on a story that has no `play` function. This targets a Storybook VRT setup that flags two stories in the same file whose screenshots are byte-identical (usually an undetected visual bug, e.g. two states rendering identically): a skipped story emits no screenshot, so that check can never see it. On a story whose only assertion is its rendered appearance, skipping it permanently hides that finding. Add a `play` assertion instead, or fix the underlying visual duplication. Story objects built via a spread (e.g. `{ ...base, parameters: {...} }`) aren't checked, since a spread may already carry a `play` function this rule can't see statically.
+
+  ```ts
+  // bad: no play() function, so this story asserts only via its rendered appearance
+  export const Disabled: Story = {
+    args: { disabled: true },
+    parameters: { screenshot: { skip: true } },
+  }
+
+  // good: skip is fine once the story's assertion has moved into play()
+  export const Disabled: Story = {
+    args: { disabled: true },
+    parameters: { screenshot: { skip: true } },
+    play: async ({ canvasElement }) => {
+      await expect(within(canvasElement).getByRole('checkbox')).toBeDisabled()
+    },
+  }
   ```
 
 ## Development
