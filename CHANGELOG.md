@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.4.2](https://github.com/fohte/eslint-config/compare/v0.4.1...v0.4.2) (2026-08-29)
+
+
+### Features
+
+* **rules:** disallow screenshot.skip on stories without a play function ([#470](https://github.com/fohte/eslint-config/issues/470)) ([93e2b1c](https://github.com/fohte/eslint-config/commit/93e2b1c6894a565ff8687d6640a411c8c4c2c82c))
+
 ## [0.4.1](https://github.com/fohte/eslint-config/compare/v0.4.0...v0.4.1) (2026-08-16)
 
 
