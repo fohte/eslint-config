@@ -51,7 +51,7 @@
     "validate-build": "publint"
   },
   "dependencies": {
-    "@eslint/eslintrc": "^3.3.6"
+    "@eslint/eslintrc": "^3.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.1",

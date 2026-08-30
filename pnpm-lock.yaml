@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@eslint/eslintrc':
-        specifier: ^3.3.6
+        specifier: ^3.0.0
         version: 3.3.6(supports-color@10.2.2)
     devDependencies:
       '@commitlint/cli':
