@@ -20,7 +20,7 @@ importers:
         version: 4.7.2(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))
       '@fohte/eslint-config':
         specifier: 0.4.1
-        version: 0.4.1(c53bb0c941a40c212e910d1dba37977b)
+        version: 0.4.1(2f1339a92d8f7982885d57b224d4bb8d)
       '@ninoseki/eslint-plugin-neverthrow':
         specifier: 0.2.0
         version: 0.2.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(typescript@6.0.3)
@@ -55,8 +55,8 @@ importers:
         specifier: 4.17.1
         version: 4.17.1(@typescript-eslint/utils@8.64.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)
       eslint-plugin-simple-import-sort:
-        specifier: 13.0.0
-        version: 13.0.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))
+        specifier: 14.0.0
+        version: 14.0.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))
       eslint-plugin-tailwindcss:
         specifier: 4.2.0
         version: 4.2.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@6.0.3)
@@ -866,8 +866,8 @@ packages:
       eslint-import-resolver-node:
         optional: true
 
-  eslint-plugin-simple-import-sort@13.0.0:
-    resolution: {integrity: sha512-McAc+/Nlvcg4byY/CABGH8kqnefWBj8s3JA2okEtz8ixbECQgU46p0HkTUKa4YS7wvgGceimlc34p1nXqbWqtA==}
+  eslint-plugin-simple-import-sort@14.0.0:
+    resolution: {integrity: sha512-NUJO0+XFCkk+o5EsAJruTgnfMEpeWrPWeJS15UVF60GgXmqz1BJ9/3hzlvG7lkL8Bubzos5cCLptThbFfPnSMQ==}
     peerDependencies:
       eslint: '>=5.0.0'
 
@@ -1801,7 +1801,7 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@fohte/eslint-config@0.4.1(c53bb0c941a40c212e910d1dba37977b)':
+  '@fohte/eslint-config@0.4.1(2f1339a92d8f7982885d57b224d4bb8d)':
     dependencies:
       '@eslint-community/eslint-plugin-eslint-comments': 4.7.2(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))
       '@typescript-eslint/eslint-plugin': 8.64.0(@typescript-eslint/parser@8.64.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
@@ -1810,7 +1810,7 @@ snapshots:
       eslint: 10.6.0(jiti@2.6.1)(supports-color@10.2.2)
       eslint-config-prettier: 10.1.8(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))
       eslint-plugin-import-x: 4.17.1(@typescript-eslint/utils@8.64.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)
-      eslint-plugin-simple-import-sort: 13.0.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))
+      eslint-plugin-simple-import-sort: 14.0.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))
     optionalDependencies:
       '@ninoseki/eslint-plugin-neverthrow': 0.2.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(typescript@6.0.3)
       eslint-plugin-tailwindcss: 4.2.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@6.0.3)
@@ -2335,7 +2335,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-simple-import-sort@13.0.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2)):
+  eslint-plugin-simple-import-sort@14.0.0(eslint@10.6.0(jiti@2.6.1)(supports-color@10.2.2)):
     dependencies:
       eslint: 10.6.0(jiti@2.6.1)(supports-color@10.2.2)
 
