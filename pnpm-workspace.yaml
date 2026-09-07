@@ -10,3 +10,9 @@ minimumReleaseAge: 10080
 # First-party scopes: publisher account is trusted, so skip the release-age delay.
 minimumReleaseAgeExclude:
   - '@fohte/*'
+
+peerDependencyRules:
+  allowedVersions:
+    # Drop once the @fohte/eslint-config devDependency is bumped to a
+    # release with the widened peer dependency range.
+    '@fohte/eslint-config>@ninoseki/eslint-plugin-neverthrow': '>=0.2.0'
