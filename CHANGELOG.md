@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.4.4](https://github.com/fohte/eslint-config/compare/v0.4.3...v0.4.4) (2026-09-07)
+
+
+### Bug Fixes
+
+* **deps:** widen peer dependency range for eslint-plugin-neverthrow ([#484](https://github.com/fohte/eslint-config/issues/484)) ([310bd45](https://github.com/fohte/eslint-config/commit/310bd45e3c7f3a032382d8146681f3b2b220f4b6))
+
 ## [0.4.3](https://github.com/fohte/eslint-config/compare/v0.4.2...v0.4.3) (2026-08-30)
 
 
