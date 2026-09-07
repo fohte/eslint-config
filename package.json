@@ -80,7 +80,7 @@
   },
   "peerDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.0.0",
-    "@ninoseki/eslint-plugin-neverthrow": "^0.2.0 || ^0.3.0",
+    "@ninoseki/eslint-plugin-neverthrow": ">=0.2.0",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
     "@vitest/eslint-plugin": "^1.0.0",
