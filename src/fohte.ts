@@ -23,7 +23,7 @@ export const fohteConfig: Linter.Config[] = [
       fohte: fohtePlugin,
     },
     rules: {
-      'fohte/no-screenshot-skip-without-play': 'error',
+      'fohte/no-play-in-stories': 'error',
     },
   },
 ]
