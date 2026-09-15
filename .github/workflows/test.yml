@@ -102,13 +102,7 @@ jobs:
         if: steps.lefthook.outcome == 'failure'
         run: exit 1
 
-<<<<<<< before updating
   unit-test-matrix:
-||||||| last update
-  unit-test:
-=======
-  unit-test-run:
->>>>>>> after updating
     runs-on: ubuntu-latest
 
     strategy:
@@ -157,30 +151,13 @@ jobs:
       - name: Run tests
         run: pnpm test
 
-<<<<<<< before updating
-  # This job is used for branch protection rule.
-  # When all matrix jobs succeed, this job is skipped (treated as success).
-  # When any matrix job fails, this job runs and fails.
-||||||| last update
-=======
-  # Fixed name for branch protection: knip has no `needs` of its own, so
-  # this gate (skip == success) folds its result into unit-test.
->>>>>>> after updating
+  # Fixed name for branch protection: matrix leg names are dynamic, and knip
+  # has no `needs`, so this gate (skip == success) stands in for both.
   unit-test:
-<<<<<<< before updating
-    runs-on: ubuntu-latest
-||||||| last update
-=======
     runs-on: ubuntu-slim
->>>>>>> after updating
-<<<<<<< before updating
-    needs: unit-test-matrix
-||||||| last update
-=======
     needs:
-      - unit-test-run
+      - unit-test-matrix
       - knip
->>>>>>> after updating
     if: failure()
     steps:
       - run: exit 1

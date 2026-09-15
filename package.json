@@ -78,7 +78,6 @@
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
-<<<<<<< before updating
   },
   "peerDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.0.0",
@@ -103,9 +102,5 @@
     "typescript": {
       "optional": true
     }
-||||||| last update
-    "vitest": "4.1.10"
-=======
->>>>>>> after updating
   }
 }

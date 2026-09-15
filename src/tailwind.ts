@@ -39,6 +39,7 @@ export interface TailwindOptions {
 // different rule IDs. Exported for parity with errorHandlingRestrictedSyntaxOptions/
 // openTelemetryRestrictedSyntaxOptions, should a narrower-scoped option ever
 // need to fold this selector into its own no-restricted-syntax entry.
+/** @public */
 export const tailwindRestrictedSyntaxOption: RestrictedSyntaxOption = {
   // TemplateElement covers backtick strings (e.g. `` `w-[600px]` ``) with no
   // interpolation — those parse as a template literal, not a plain Literal
