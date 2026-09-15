@@ -78,7 +78,7 @@ export const noPlayInStories: Rule.RuleModule = {
       const play = findProperty(storyObject, 'play')
       if (play) {
         context.report({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint's report node accepts the runtime AST node
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- play is a PropertyNode, a duck-typed subset of the real AST shape that doesn't structurally satisfy Rule.Node, so the cast must go through unknown
           node: play as unknown as Rule.Node,
           messageId: 'noPlay',
         })
@@ -92,7 +92,7 @@ export const noPlayInStories: Rule.RuleModule = {
       if (!skip || !isTrueLiteral(unwrapTsWrapper(skip.value))) return
 
       context.report({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint's report node accepts the runtime AST node
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- skip.value is typed as { type: string }, a duck-typed subset of the real AST shape that doesn't structurally satisfy Rule.Node, so the cast must go through unknown
         node: skip.value as unknown as Rule.Node,
         messageId: 'noSkip',
       })
