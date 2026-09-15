@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.5.0](https://github.com/fohte/eslint-config/compare/v0.4.4...v0.5.0) (2026-09-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **rules:** disallow play functions and screenshot.skip in Storybook ([#493](https://github.com/fohte/eslint-config/issues/493))
+
+### Features
+
+* **rules:** disallow play functions and screenshot.skip in Storybook ([#493](https://github.com/fohte/eslint-config/issues/493)) ([96b6206](https://github.com/fohte/eslint-config/commit/96b62067c29bd1f37f64e2515fe7de50dd7082ab))
+
 ## [0.4.4](https://github.com/fohte/eslint-config/compare/v0.4.3...v0.4.4) (2026-09-07)
 
 
