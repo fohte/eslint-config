@@ -1,7 +1,7 @@
 allowBuilds:
   # required by vitest's transformer
   esbuild: true
-  # required by @fohte/eslint-config -> eslint-plugin-import-x for module resolution
+  # required by eslint-plugin-import-x for module resolution
   unrs-resolver: true
 
 # Dodge short-lived supply-chain attacks (e.g. shai-hulud, tinycolor) by
@@ -10,9 +10,3 @@ minimumReleaseAge: 10080
 # First-party scopes: publisher account is trusted, so skip the release-age delay.
 minimumReleaseAgeExclude:
   - '@fohte/*'
-
-peerDependencyRules:
-  allowedVersions:
-    # Drop once the @fohte/eslint-config devDependency is bumped to a
-    # release with the widened peer dependency range.
-    '@fohte/eslint-config>@ninoseki/eslint-plugin-neverthrow': '>=0.2.0'
