@@ -36,10 +36,8 @@ export interface TailwindOptions {
 // a Literal/TemplateElement passed directly to a className attribute or a
 // classname function is already caught by no-arbitrary-value itself, and
 // matching it here too would double-report the same violation under two
-// different rule IDs. Exported for parity with errorHandlingRestrictedSyntaxOptions/
-// openTelemetryRestrictedSyntaxOptions, should a narrower-scoped option ever
-// need to fold this selector into its own no-restricted-syntax entry.
-export const tailwindRestrictedSyntaxOption: RestrictedSyntaxOption = {
+// different rule IDs.
+const tailwindRestrictedSyntaxOption: RestrictedSyntaxOption = {
   // TemplateElement covers backtick strings (e.g. `` `w-[600px]` ``) with no
   // interpolation — those parse as a template literal, not a plain Literal
   // node, and would otherwise bypass this check. TemplateElement's parent is

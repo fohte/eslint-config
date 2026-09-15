@@ -12,7 +12,7 @@ import { join } from 'node:path'
 import type { ErrorHandlingOptions } from '#error-handling.js'
 import type { TailwindOptions } from '#tailwind.js'
 
-export interface TestFile {
+interface TestFile {
   path: string
   content: string
 }
@@ -41,7 +41,7 @@ export interface ESLintMessage {
   }
 }
 
-export interface ESLintResult {
+interface ESLintResult {
   filePath: string
   messages: ESLintMessage[]
   errorCount: number
@@ -59,7 +59,7 @@ const TEST_PROJECT_PREFIX = 'eslint-config-e2e-test-'
 /**
  * Creates a temporary test project with the specified files
  */
-export function createTestProject(options: E2ETestOptions): string {
+function createTestProject(options: E2ETestOptions): string {
   const tempDir = mkdtempSync(join(tmpdir(), TEST_PROJECT_PREFIX))
 
   // Get the library directory path (built files)
@@ -183,7 +183,7 @@ export function runESLint(
 /**
  * Cleans up a test project directory
  */
-export function cleanupTestProject(projectDir: string): void {
+function cleanupTestProject(projectDir: string): void {
   rmSync(projectDir, { recursive: true, force: true })
 }
 
