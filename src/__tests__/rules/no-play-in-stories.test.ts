@@ -119,5 +119,31 @@ ruleTester.run('no-play-in-stories', noPlayInStories, {
         },
       ],
     },
+    {
+      name: 'flags screenshot.skip: true on the meta (default export)',
+      code: `export default { component: Foo, parameters: { screenshot: { skip: true } } } satisfies Meta<typeof Foo>`,
+      errors: [
+        {
+          messageId: 'noSkip',
+          line: 1,
+          column: 68,
+          endLine: 1,
+          endColumn: 72,
+        },
+      ],
+    },
+    {
+      name: 'flags screenshot.skip: true even when the story is built via a spread',
+      code: `export const Default = { ...base, parameters: { screenshot: { skip: true } } }`,
+      errors: [
+        {
+          messageId: 'noSkip',
+          line: 1,
+          column: 69,
+          endLine: 1,
+          endColumn: 73,
+        },
+      ],
+    },
   ],
 })
