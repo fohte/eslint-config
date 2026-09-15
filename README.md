@@ -154,22 +154,20 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
   expect(spy).not.toHaveBeenCalled()
   ```
 
-- `fohte/no-screenshot-skip-without-play` (story files): flags `parameters: { screenshot: { skip: true } }` on a story that has no `play` function. This targets a Storybook VRT setup that flags two stories in the same file whose screenshots are byte-identical (usually an undetected visual bug, e.g. two states rendering identically): a skipped story emits no screenshot, so that check can never see it. On a story whose only assertion is its rendered appearance, skipping it permanently hides that finding. Add a `play` assertion instead, or fix the underlying visual duplication. Story objects built via a spread (e.g. `{ ...base, parameters: {...} }`) aren't checked, since a spread may already carry a `play` function this rule can't see statically.
+- `fohte/no-play-in-stories` (story files): flags a `play` function on a story or its meta (default export), and flags `parameters: { screenshot: { skip: true } }` on any story. A story should represent a visual state through `args`/`render` only; move behavioral assertions (clicks, input, `expect` calls) to a `.test.tsx` file, and render the state a `play` function used to set up (e.g. an open menu) through a prop instead (e.g. `defaultOpen`). This also targets a Storybook VRT setup that flags two stories in the same file whose screenshots are byte-identical (usually an undetected visual bug, e.g. two states rendering identically): a skipped story emits no screenshot, so that check can never see it. Since stories can't define `play`, every story's only assertion is its rendered appearance, so `screenshot.skip` always hides that finding — fix the underlying visual duplication instead of skipping.
 
   ```ts
-  // bad: no play() function, so this story asserts only via its rendered appearance
+  // bad: play belongs in a .test.tsx file, not the story
   export const Disabled: Story = {
     args: { disabled: true },
-    parameters: { screenshot: { skip: true } },
-  }
-
-  // good: skip is fine once the story's assertion has moved into play()
-  export const Disabled: Story = {
-    args: { disabled: true },
-    parameters: { screenshot: { skip: true } },
     play: async ({ canvasElement }) => {
       await expect(within(canvasElement).getByRole('checkbox')).toBeDisabled()
     },
+  }
+
+  // good: the state play used to set up is driven by a prop instead
+  export const Disabled: Story = {
+    args: { disabled: true },
   }
   ```
 

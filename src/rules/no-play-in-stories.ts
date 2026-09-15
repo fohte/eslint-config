@@ -43,10 +43,6 @@ function findProperty(
   return undefined
 }
 
-function hasSpread(obj: ObjectExpressionNode): boolean {
-  return obj.properties.some((prop) => prop.type === 'SpreadElement')
-}
-
 function getObjectProperty(
   obj: ObjectExpressionNode,
   name: string,
@@ -62,20 +58,46 @@ function isTrueLiteral(node: { type: string }): boolean {
   return (node as unknown as { value: unknown }).value === true
 }
 
-export const noScreenshotSkipWithoutPlay: Rule.RuleModule = {
+export const noPlayInStories: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
       description:
-        'Disallow parameters.screenshot.skip on a Storybook story that has no play() function',
+        'Disallow play() functions and parameters.screenshot.skip on Storybook stories and their meta',
     },
     messages: {
-      skipWithoutPlay:
-        "Don't add `screenshot.skip` to a story that has no `play` function. This story's only assertion is its rendered appearance, so skipping it can permanently hide a duplicate-screenshot finding from the VRT diff — which usually means an undetected visual bug (e.g. two states rendering identically). Add a `play` assertion instead of skipping, or fix the underlying visual duplication.",
+      noPlay:
+        'A story (or its meta) must not define a `play` function. A story represents a visual state through `args`/`render` only; move behavioral assertions (clicks, input, `expect` calls) to a .test.tsx file, and render the state `play` used to set up (e.g. an open menu) through a prop instead (e.g. `defaultOpen`).',
+      noSkip:
+        "Don't add `screenshot.skip` to a story. Stories can't define a `play` function, so every story's only assertion is its rendered appearance — skipping it permanently hides a duplicate-screenshot finding from the VRT diff, which usually means an undetected visual bug (e.g. two states rendering identically). Fix the underlying visual duplication instead of skipping.",
     },
     schema: [],
   },
   create(context) {
+    function check(storyObject: ObjectExpressionNode) {
+      const play = findProperty(storyObject, 'play')
+      if (play) {
+        context.report({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint's report node accepts the runtime AST node
+          node: play as unknown as Rule.Node,
+          messageId: 'noPlay',
+        })
+      }
+
+      const parametersObject = getObjectProperty(storyObject, 'parameters')
+      if (!parametersObject) return
+      const screenshotObject = getObjectProperty(parametersObject, 'screenshot')
+      if (!screenshotObject) return
+      const skip = findProperty(screenshotObject, 'skip')
+      if (!skip || !isTrueLiteral(unwrapTsWrapper(skip.value))) return
+
+      context.report({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint's report node accepts the runtime AST node
+        node: skip.value as unknown as Rule.Node,
+        messageId: 'noSkip',
+      })
+    }
+
     return {
       ExportNamedDeclaration(node) {
         if (node.declaration?.type !== 'VariableDeclaration') return
@@ -86,28 +108,16 @@ export const noScreenshotSkipWithoutPlay: Rule.RuleModule = {
           const storyObject = asObjectExpression(
             unwrapTsWrapper(declarator.init),
           )
-          if (!storyObject || hasSpread(storyObject)) continue
+          if (!storyObject) continue
 
-          const parametersObject = getObjectProperty(storyObject, 'parameters')
-          if (!parametersObject) continue
-
-          const screenshotObject = getObjectProperty(
-            parametersObject,
-            'screenshot',
-          )
-          if (!screenshotObject) continue
-
-          const skip = findProperty(screenshotObject, 'skip')
-          if (!skip || !isTrueLiteral(unwrapTsWrapper(skip.value))) continue
-
-          if (findProperty(storyObject, 'play')) continue
-
-          context.report({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- ESLint's report node accepts the runtime AST node
-            node: skip.value as unknown as Rule.Node,
-            messageId: 'skipWithoutPlay',
-          })
+          check(storyObject)
         }
+      },
+      ExportDefaultDeclaration(node) {
+        const metaObject = asObjectExpression(unwrapTsWrapper(node.declaration))
+        if (!metaObject) return
+
+        check(metaObject)
       },
     }
   },
