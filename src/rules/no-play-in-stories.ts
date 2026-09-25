@@ -1,4 +1,5 @@
 import type { Rule } from 'eslint'
+import type { Node as ESTreeNode } from 'estree'
 
 import {
   asObjectExpression,
@@ -16,10 +17,9 @@ function getObjectProperty(
   return asObjectExpression(unwrapTsWrapper(prop.value))
 }
 
-function isTrueLiteral(node: { type: string }): boolean {
+function isTrueLiteral(node: ESTreeNode): boolean {
   if (node.type !== 'Literal') return false
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to Literal by the check above
-  return (node as unknown as { value: unknown }).value === true
+  return node.value === true
 }
 
 export const noPlayInStories: Rule.RuleModule = {

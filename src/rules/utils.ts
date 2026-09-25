@@ -1,45 +1,48 @@
-interface PropertyNode {
+import type { Node as ESTreeNode } from 'estree'
+
+export type ObjectExpressionNode = Extract<
+  ESTreeNode,
+  { type: 'ObjectExpression' }
+>
+
+type PropertyNode = Extract<
+  ObjectExpressionNode['properties'][number],
+  { type: 'Property' }
+>
+
+interface TsWrapperNode<T extends { type: string }> {
   type: string
-  computed: boolean
-  key: { type: string; name?: string; value?: unknown }
-  value: { type: string }
+  expression: T
 }
 
-export interface ObjectExpressionNode {
+function isObjectExpressionNode(node: {
   type: string
-  properties: { type: string }[]
-}
-
-interface TsWrapperNode {
-  type: string
-  expression: { type: string }
+}): node is ObjectExpressionNode {
+  return node.type === 'ObjectExpression'
 }
 
 export function asObjectExpression(node: {
   type: string
 }): ObjectExpressionNode | undefined {
-  if (node.type !== 'ObjectExpression') return undefined
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to ObjectExpression by the check above
-  return node as unknown as ObjectExpressionNode
+  if (!isObjectExpressionNode(node)) return undefined
+  return node
 }
 
 export function findProperty(
   obj: ObjectExpressionNode,
   name: string,
 ): PropertyNode | undefined {
-  for (const raw of obj.properties) {
-    if (raw.type !== 'Property') continue
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to Property by the check above
-    const prop = raw as unknown as PropertyNode
-    if (prop.computed) continue
-    const { key } = prop
+  for (const property of obj.properties) {
+    if (property.type !== 'Property') continue
+    if (property.computed) continue
+    const { key } = property
     const keyName =
       key.type === 'Identifier'
         ? key.name
         : key.type === 'Literal' && typeof key.value === 'string'
           ? key.value
           : undefined
-    if (keyName === name) return prop
+    if (keyName === name) return property
   }
   return undefined
 }
@@ -51,11 +54,11 @@ const TS_WRAPPER_TYPES = new Set([
   'TSNonNullExpression',
 ])
 
-export function unwrapTsWrapper(node: { type: string }): { type: string } {
+export function unwrapTsWrapper<T extends { type: string }>(node: T): T {
   let current = node
   while (TS_WRAPPER_TYPES.has(current.type)) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- estree's Node union lacks TS-only wrappers (TSAsExpression etc.); their .expression field is documented in @typescript-eslint AST
-    current = (current as unknown as TsWrapperNode).expression
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- TypeScript wrapper nodes are parser extensions; their expression is still an ESTree node.
+    current = (current as unknown as TsWrapperNode<T>).expression
   }
   return current
 }

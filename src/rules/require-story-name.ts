@@ -1,4 +1,5 @@
 import type { Rule } from 'eslint'
+import type { Node as ESTreeNode } from 'estree'
 
 import {
   asObjectExpression,
@@ -7,22 +8,104 @@ import {
   unwrapTsWrapper,
 } from '#rules/utils.js'
 
+type StoryMatcher =
+  { type: 'name'; value: string } | { type: 'pattern'; value: RegExp }
+
+interface StoryFilters {
+  include?: StoryMatcher[]
+  exclude?: StoryMatcher[]
+}
+
+interface StoryExport {
+  name: string
+  node: ESTreeNode
+  storyObject: ObjectExpressionNode
+}
+
 function hasNameProperty(obj: ObjectExpressionNode): boolean {
   if (findProperty(obj, 'name')) return true
 
-  return obj.properties.some((raw) => {
-    if (raw.type !== 'Property') return false
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- PropertyNode is a duck-typed subset of the real AST shape
-    const property = raw as unknown as {
-      computed: boolean
-      key: { type: string; value?: unknown }
-    }
-    return (
+  return obj.properties.some(
+    (property) =>
+      property.type === 'Property' &&
       property.computed &&
       property.key.type === 'Literal' &&
-      property.key.value === 'name'
-    )
-  })
+      property.key.value === 'name',
+  )
+}
+
+function readStoryMatcher(node: ESTreeNode): StoryMatcher | undefined {
+  if (node.type !== 'Literal') return undefined
+  if (typeof node.value === 'string') {
+    return { type: 'name', value: node.value }
+  }
+  if (node.value instanceof RegExp) {
+    return { type: 'pattern', value: node.value }
+  }
+  return undefined
+}
+
+function readStoryMatchers(node: ESTreeNode): StoryMatcher[] | undefined {
+  const unwrapped = unwrapTsWrapper(node)
+  if (unwrapped.type === 'ArrayExpression') {
+    const matchers: StoryMatcher[] = []
+    for (const element of unwrapped.elements) {
+      if (!element) return undefined
+      const matcher = readStoryMatcher(unwrapTsWrapper(element))
+      if (!matcher) return undefined
+      matchers.push(matcher)
+    }
+    return matchers
+  }
+
+  const matcher = readStoryMatcher(unwrapped)
+  return matcher !== undefined && matcher.type === 'pattern'
+    ? [matcher]
+    : undefined
+}
+
+function readStoryFilters(
+  metaObject: ObjectExpressionNode | undefined,
+): StoryFilters | undefined {
+  if (!metaObject) return {}
+
+  const includeProperty = findProperty(metaObject, 'includeStories')
+  const excludeProperty = findProperty(metaObject, 'excludeStories')
+  const include = includeProperty
+    ? readStoryMatchers(includeProperty.value)
+    : undefined
+  const exclude = excludeProperty
+    ? readStoryMatchers(excludeProperty.value)
+    : undefined
+
+  if ((includeProperty && !include) || (excludeProperty && !exclude)) {
+    return undefined
+  }
+
+  return {
+    ...(include ? { include } : {}),
+    ...(exclude ? { exclude } : {}),
+  }
+}
+
+function matchesStoryMatcher(matcher: StoryMatcher, name: string): boolean {
+  if (matcher.type === 'name') return matcher.value === name
+  matcher.value.lastIndex = 0
+  return matcher.value.test(name)
+}
+
+function isStoryExport(name: string, filters: StoryFilters): boolean {
+  if (
+    filters.include !== undefined &&
+    !filters.include.some((matcher) => matchesStoryMatcher(matcher, name))
+  ) {
+    return false
+  }
+
+  return (
+    filters.exclude === undefined ||
+    !filters.exclude.some((matcher) => matchesStoryMatcher(matcher, name))
+  )
 }
 
 export const requireStoryName: Rule.RuleModule = {
@@ -38,20 +121,76 @@ export const requireStoryName: Rule.RuleModule = {
     schema: [],
   },
   create(context) {
+    const storyExports: StoryExport[] = []
+    let metaObject: ObjectExpressionNode | undefined
+    let metaBindingName: string | undefined
+
     return {
       ExportNamedDeclaration(node) {
         if (node.declaration?.type !== 'VariableDeclaration') return
 
         for (const declarator of node.declaration.declarations) {
-          if (!declarator.init) continue
+          if (declarator.id.type !== 'Identifier' || !declarator.init) continue
 
           const storyObject = asObjectExpression(
             unwrapTsWrapper(declarator.init),
           )
-          if (!storyObject || hasNameProperty(storyObject)) continue
+          if (!storyObject) continue
+
+          storyExports.push({
+            name: declarator.id.name,
+            node: declarator.id,
+            storyObject,
+          })
+        }
+      },
+      ExportDefaultDeclaration(node) {
+        const declaration = unwrapTsWrapper(node.declaration)
+        const object = asObjectExpression(declaration)
+        if (object) {
+          metaObject = object
+          return
+        }
+        if (declaration.type === 'Identifier') {
+          metaBindingName = declaration.name
+        }
+      },
+      'Program:exit'(program) {
+        const objectBindings = new Map<string, ObjectExpressionNode>()
+        for (const statement of program.body) {
+          const declaration =
+            statement.type === 'VariableDeclaration'
+              ? statement
+              : statement.type === 'ExportNamedDeclaration' &&
+                  statement.declaration?.type === 'VariableDeclaration'
+                ? statement.declaration
+                : undefined
+          if (!declaration || declaration.kind !== 'const') continue
+
+          for (const declarator of declaration.declarations) {
+            if (declarator.id.type !== 'Identifier' || !declarator.init) {
+              continue
+            }
+            const object = asObjectExpression(unwrapTsWrapper(declarator.init))
+            if (object) objectBindings.set(declarator.id.name, object)
+          }
+        }
+
+        const resolvedMetaObject =
+          metaObject ??
+          (metaBindingName !== undefined
+            ? objectBindings.get(metaBindingName)
+            : undefined)
+        if (metaBindingName !== undefined && !resolvedMetaObject) return
+        const filters = readStoryFilters(resolvedMetaObject)
+        if (!filters) return
+
+        for (const story of storyExports) {
+          if (!isStoryExport(story.name, filters)) continue
+          if (hasNameProperty(story.storyObject)) continue
 
           context.report({
-            node: declarator.id,
+            node: story.node,
             messageId: 'requireName',
           })
         }
