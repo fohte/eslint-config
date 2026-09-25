@@ -4,7 +4,9 @@ import {
   asObjectExpression,
   type AstNode,
   findProperty,
-  isAstNode,
+  getArrayElements,
+  getIdentifierName,
+  isLiteralNode,
   isPropertyNode,
   type ObjectExpressionNode,
   unwrapTsWrapper,
@@ -37,7 +39,7 @@ function hasNameProperty(obj: ObjectExpressionNode): boolean {
 }
 
 function readStoryMatcher(node: AstNode): StoryMatcher | undefined {
-  if (node.type !== 'Literal' || !('value' in node)) return undefined
+  if (!isLiteralNode(node)) return undefined
   if (typeof node.value === 'string') {
     return { type: 'name', value: node.value }
   }
@@ -49,14 +51,11 @@ function readStoryMatcher(node: AstNode): StoryMatcher | undefined {
 
 function readStoryMatchers(node: AstNode): StoryMatcher[] | undefined {
   const unwrapped = unwrapTsWrapper(node)
-  if (
-    unwrapped.type === 'ArrayExpression' &&
-    'elements' in unwrapped &&
-    Array.isArray(unwrapped.elements)
-  ) {
+  const elements = getArrayElements(unwrapped)
+  if (elements) {
     const matchers: StoryMatcher[] = []
-    for (const element of unwrapped.elements) {
-      if (!isAstNode(element)) return undefined
+    for (const element of elements) {
+      if (!element) return undefined
       const matcher = readStoryMatcher(unwrapTsWrapper(element))
       if (!matcher) return undefined
       matchers.push(matcher)
@@ -157,13 +156,7 @@ export const requireStoryName: Rule.RuleModule = {
           metaObject = object
           return
         }
-        if (
-          declaration.type === 'Identifier' &&
-          'name' in declaration &&
-          typeof declaration.name === 'string'
-        ) {
-          metaBindingName = declaration.name
-        }
+        metaBindingName = getIdentifierName(declaration)
       },
       'Program:exit'(program) {
         const objectBindings = new Map<string, ObjectExpressionNode>()

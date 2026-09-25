@@ -4,6 +4,7 @@ import {
   asObjectExpression,
   type AstNode,
   findProperty,
+  isLiteralNode,
   type ObjectExpressionNode,
   unwrapTsWrapper,
 } from '#rules/utils.js'
@@ -18,7 +19,7 @@ function getObjectProperty(
 }
 
 function isTrueLiteral(node: AstNode): boolean {
-  return node.type === 'Literal' && 'value' in node && node.value === true
+  return isLiteralNode(node) && node.value === true
 }
 
 export const noPlayInStories: Rule.RuleModule = {

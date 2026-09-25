@@ -2,12 +2,17 @@ export interface AstNode {
   type: string
 }
 
+export interface LiteralNode extends AstNode {
+  type: 'Literal'
+  value: unknown
+}
+
 interface PropertyKeyNode extends AstNode {
   name?: unknown
   value?: unknown
 }
 
-export interface PropertyNode extends AstNode {
+interface PropertyNode extends AstNode {
   type: 'Property'
   computed: boolean
   key: PropertyKeyNode
@@ -23,13 +28,49 @@ interface TsWrapperNode extends AstNode {
   expression: AstNode
 }
 
-export function isAstNode(value: unknown): value is AstNode {
+function isAstNode(value: unknown): value is AstNode {
   return (
     typeof value === 'object' &&
     value !== null &&
     'type' in value &&
     typeof value.type === 'string'
   )
+}
+
+export function isLiteralNode(node: AstNode): node is LiteralNode {
+  return node.type === 'Literal' && 'value' in node
+}
+
+export function getIdentifierName(node: AstNode): string | undefined {
+  return node.type === 'Identifier' &&
+    'name' in node &&
+    typeof node.name === 'string'
+    ? node.name
+    : undefined
+}
+
+export function getArrayElements(
+  node: AstNode,
+): (AstNode | null)[] | undefined {
+  if (
+    node.type !== 'ArrayExpression' ||
+    !('elements' in node) ||
+    !Array.isArray(node.elements)
+  ) {
+    return undefined
+  }
+
+  const elements: (AstNode | null)[] = []
+  for (const element of node.elements) {
+    if (element === null) {
+      elements.push(null)
+    } else if (isAstNode(element)) {
+      elements.push(element)
+    } else {
+      return undefined
+    }
+  }
+  return elements
 }
 
 export function isPropertyNode(node: AstNode): node is PropertyNode {
