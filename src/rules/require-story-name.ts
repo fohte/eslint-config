@@ -1,43 +1,27 @@
 import type { Rule } from 'eslint'
 
-import { unwrapTsWrapper } from '#rules/utils.js'
-
-interface PropertyNode {
-  type: string
-  computed: boolean
-  key: { type: string; name?: string; value?: unknown }
-}
-
-interface ObjectExpressionNode {
-  type: string
-  properties: { type: string }[]
-}
-
-function asObjectExpression(node: {
-  type: string
-}): ObjectExpressionNode | undefined {
-  if (node.type !== 'ObjectExpression') return undefined
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to ObjectExpression by the check above
-  return node as unknown as ObjectExpressionNode
-}
+import {
+  asObjectExpression,
+  findProperty,
+  type ObjectExpressionNode,
+  unwrapTsWrapper,
+} from '#rules/utils.js'
 
 function hasNameProperty(obj: ObjectExpressionNode): boolean {
+  if (findProperty(obj, 'name')) return true
+
   return obj.properties.some((raw) => {
     if (raw.type !== 'Property') return false
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to Property by the check above
-    const prop = raw as unknown as PropertyNode
-    const { key } = prop
-
-    if (prop.computed) return key.type === 'Literal' && key.value === 'name'
-
-    const keyName =
-      key.type === 'Identifier'
-        ? key.name
-        : key.type === 'Literal' && typeof key.value === 'string'
-          ? key.value
-          : undefined
-
-    return keyName === 'name'
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- PropertyNode is a duck-typed subset of the real AST shape
+    const property = raw as unknown as {
+      computed: boolean
+      key: { type: string; value?: unknown }
+    }
+    return (
+      property.computed &&
+      property.key.type === 'Literal' &&
+      property.key.value === 'name'
+    )
   })
 }
 
