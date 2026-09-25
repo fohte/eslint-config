@@ -51,6 +51,14 @@ export default config()
 // export default config({
 //   tailwind: { cssConfigPath: 'src/index.css' },
 // })
+
+// Optionally, ban raw form and button elements in selected files:
+// export default config({
+//   noRawFormElements: {
+//     files: ['app/src/**/*.tsx'],
+//     ignores: ['app/src/components/ui/**'],
+//   },
+// })
 ```
 
 ### Import policy
@@ -132,9 +140,24 @@ When enabled, it applies two rules to the given `files` (except test files):
 
 Like `opentelemetry`, this shares its `no-restricted-syntax` entry with `errorHandling` (and `opentelemetry`) rather than silently overriding it, so all three bans keep applying together within `tailwind.files`. Since `tailwind.files` can be narrower than `errorHandling`/`opentelemetry`'s default (all `.ts{,x}` files), the merge happens at `tailwind.files`'s scope: files outside it keep only the `errorHandling`/`opentelemetry` bans, and files inside it get the full union.
 
+### `noRawFormElements` option
+
+Set `files` to the files where raw JSX form and button elements should be banned. Test files are excluded automatically; use `ignores` for additional exclusions such as shared UI components:
+
+```javascript
+export default config({
+  noRawFormElements: {
+    files: ['app/src/**/*.tsx'],
+    ignores: ['app/src/components/ui/**'],
+  },
+})
+```
+
+This enables `fohte/no-raw-form-elements`, which flags lowercase `<button>`, `<input>`, `<select>`, and `<textarea>` elements and asks you to use a shared UI component instead. `<a>` elements and capitalized components are unaffected.
+
 ### Built-in rules
 
-In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
+In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files, and optionally to the files selected by `noRawFormElements`. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
 
 - `fohte/no-inline-object-in-expect` (test files): flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
 
@@ -153,6 +176,8 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
   expect(result).toBe('ok')
   expect(spy).not.toHaveBeenCalled()
   ```
+
+- `fohte/no-raw-form-elements` (when `noRawFormElements` is configured): flags lowercase JSX `<button>`, `<input>`, `<select>`, and `<textarea>` elements. Use the shared UI component instead.
 
 - `fohte/no-play-in-stories` (story files): flags a `play` function and `parameters: { screenshot: { skip: true } }` on a story or its meta (default export). A story should represent a visual state through `args`/`render` only; move behavioral assertions (clicks, input, `expect` calls) to a `.test.tsx` file, and render the state a `play` function used to set up (e.g. an open menu) through a prop instead (e.g. `defaultOpen`). This also targets a Storybook VRT setup that flags two stories in the same file whose screenshots are byte-identical (usually an undetected visual bug, e.g. two states rendering identically): a skipped story emits no screenshot, so that check can never see it. Since stories can't define `play`, every story's only assertion is its rendered appearance, so `screenshot.skip` always hides that finding — fix the underlying visual duplication instead of skipping.
 
@@ -202,6 +227,7 @@ src/
 ├── typescript.ts      # TypeScript-specific configuration
 ├── error-handling.ts  # errorHandling option (throw/try-catch ban, neverthrow enforcement)
 ├── opentelemetry.ts   # opentelemetry option (startSpan/startActiveSpan ban)
+├── no-raw-form-elements.ts # noRawFormElements option (raw JSX element ban)
 ├── tailwind.ts        # tailwind option (Tailwind arbitrary-value ban)
 └── types/             # Type definitions for untyped packages
 ```
