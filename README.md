@@ -55,8 +55,8 @@ export default config()
 // Optionally, ban raw form and button elements in selected files:
 // export default config({
 //   noRawFormElements: {
-//     files: ['web/src/**/*.tsx'],
-//     ignores: ['web/src/components/ui/**'],
+//     files: ['app/src/**/*.tsx'],
+//     ignores: ['app/src/components/ui/**'],
 //   },
 // })
 ```
@@ -147,8 +147,8 @@ Set `files` to the files where raw JSX form and button elements should be banned
 ```javascript
 export default config({
   noRawFormElements: {
-    files: ['web/src/**/*.tsx'],
-    ignores: ['web/src/components/ui/**'],
+    files: ['app/src/**/*.tsx'],
+    ignores: ['app/src/components/ui/**'],
   },
 })
 ```
