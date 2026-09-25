@@ -1,8 +1,8 @@
 import type { Rule } from 'eslint'
-import type { Node as ESTreeNode } from 'estree'
 
 import {
   asObjectExpression,
+  type AstNode,
   findProperty,
   type ObjectExpressionNode,
   unwrapTsWrapper,
@@ -17,9 +17,8 @@ function getObjectProperty(
   return asObjectExpression(unwrapTsWrapper(prop.value))
 }
 
-function isTrueLiteral(node: ESTreeNode): boolean {
-  if (node.type !== 'Literal') return false
-  return node.value === true
+function isTrueLiteral(node: AstNode): boolean {
+  return node.type === 'Literal' && 'value' in node && node.value === true
 }
 
 export const noPlayInStories: Rule.RuleModule = {

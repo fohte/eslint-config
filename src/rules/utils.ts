@@ -1,29 +1,61 @@
-import type { Node as ESTreeNode } from 'estree'
-
-export type ObjectExpressionNode = Extract<
-  ESTreeNode,
-  { type: 'ObjectExpression' }
->
-
-type PropertyNode = Extract<
-  ObjectExpressionNode['properties'][number],
-  { type: 'Property' }
->
-
-interface TsWrapperNode<T extends { type: string }> {
+export interface AstNode {
   type: string
-  expression: T
 }
 
-function isObjectExpressionNode(node: {
-  type: string
-}): node is ObjectExpressionNode {
-  return node.type === 'ObjectExpression'
+interface PropertyKeyNode extends AstNode {
+  name?: unknown
+  value?: unknown
 }
 
-export function asObjectExpression(node: {
-  type: string
-}): ObjectExpressionNode | undefined {
+export interface PropertyNode extends AstNode {
+  type: 'Property'
+  computed: boolean
+  key: PropertyKeyNode
+  value: AstNode
+}
+
+export interface ObjectExpressionNode extends AstNode {
+  type: 'ObjectExpression'
+  properties: AstNode[]
+}
+
+interface TsWrapperNode extends AstNode {
+  expression: AstNode
+}
+
+export function isAstNode(value: unknown): value is AstNode {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    typeof value.type === 'string'
+  )
+}
+
+export function isPropertyNode(node: AstNode): node is PropertyNode {
+  return (
+    node.type === 'Property' &&
+    'computed' in node &&
+    typeof node.computed === 'boolean' &&
+    'key' in node &&
+    isAstNode(node.key) &&
+    'value' in node &&
+    isAstNode(node.value)
+  )
+}
+
+function isObjectExpressionNode(node: AstNode): node is ObjectExpressionNode {
+  return (
+    node.type === 'ObjectExpression' &&
+    'properties' in node &&
+    Array.isArray(node.properties) &&
+    node.properties.every(isAstNode)
+  )
+}
+
+export function asObjectExpression(
+  node: AstNode,
+): ObjectExpressionNode | undefined {
   if (!isObjectExpressionNode(node)) return undefined
   return node
 }
@@ -33,11 +65,11 @@ export function findProperty(
   name: string,
 ): PropertyNode | undefined {
   for (const property of obj.properties) {
-    if (property.type !== 'Property') continue
+    if (!isPropertyNode(property)) continue
     if (property.computed) continue
     const { key } = property
     const keyName =
-      key.type === 'Identifier'
+      key.type === 'Identifier' && typeof key.name === 'string'
         ? key.name
         : key.type === 'Literal' && typeof key.value === 'string'
           ? key.value
@@ -54,11 +86,18 @@ const TS_WRAPPER_TYPES = new Set([
   'TSNonNullExpression',
 ])
 
-export function unwrapTsWrapper<T extends { type: string }>(node: T): T {
+function isTsWrapperNode(node: AstNode): node is TsWrapperNode {
+  return (
+    TS_WRAPPER_TYPES.has(node.type) &&
+    'expression' in node &&
+    isAstNode(node.expression)
+  )
+}
+
+export function unwrapTsWrapper(node: AstNode): AstNode {
   let current = node
-  while (TS_WRAPPER_TYPES.has(current.type)) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- TypeScript wrapper nodes are parser extensions; their expression is still an ESTree node.
-    current = (current as unknown as TsWrapperNode<T>).expression
+  while (isTsWrapperNode(current)) {
+    current = current.expression
   }
   return current
 }

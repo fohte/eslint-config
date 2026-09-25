@@ -1,9 +1,11 @@
 import type { Rule } from 'eslint'
-import type { Node as ESTreeNode } from 'estree'
 
 import {
   asObjectExpression,
+  type AstNode,
   findProperty,
+  isAstNode,
+  isPropertyNode,
   type ObjectExpressionNode,
   unwrapTsWrapper,
 } from '#rules/utils.js'
@@ -18,7 +20,7 @@ interface StoryFilters {
 
 interface StoryExport {
   name: string
-  node: ESTreeNode
+  node: AstNode
   storyObject: ObjectExpressionNode
 }
 
@@ -27,15 +29,15 @@ function hasNameProperty(obj: ObjectExpressionNode): boolean {
 
   return obj.properties.some(
     (property) =>
-      property.type === 'Property' &&
+      isPropertyNode(property) &&
       property.computed &&
       property.key.type === 'Literal' &&
       property.key.value === 'name',
   )
 }
 
-function readStoryMatcher(node: ESTreeNode): StoryMatcher | undefined {
-  if (node.type !== 'Literal') return undefined
+function readStoryMatcher(node: AstNode): StoryMatcher | undefined {
+  if (node.type !== 'Literal' || !('value' in node)) return undefined
   if (typeof node.value === 'string') {
     return { type: 'name', value: node.value }
   }
@@ -45,12 +47,16 @@ function readStoryMatcher(node: ESTreeNode): StoryMatcher | undefined {
   return undefined
 }
 
-function readStoryMatchers(node: ESTreeNode): StoryMatcher[] | undefined {
+function readStoryMatchers(node: AstNode): StoryMatcher[] | undefined {
   const unwrapped = unwrapTsWrapper(node)
-  if (unwrapped.type === 'ArrayExpression') {
+  if (
+    unwrapped.type === 'ArrayExpression' &&
+    'elements' in unwrapped &&
+    Array.isArray(unwrapped.elements)
+  ) {
     const matchers: StoryMatcher[] = []
     for (const element of unwrapped.elements) {
-      if (!element) return undefined
+      if (!isAstNode(element)) return undefined
       const matcher = readStoryMatcher(unwrapTsWrapper(element))
       if (!matcher) return undefined
       matchers.push(matcher)
@@ -151,7 +157,11 @@ export const requireStoryName: Rule.RuleModule = {
           metaObject = object
           return
         }
-        if (declaration.type === 'Identifier') {
+        if (
+          declaration.type === 'Identifier' &&
+          'name' in declaration &&
+          typeof declaration.name === 'string'
+        ) {
           metaBindingName = declaration.name
         }
       },
