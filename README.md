@@ -157,7 +157,19 @@ This enables `fohte/no-raw-form-elements`, which flags lowercase `<button>`, `<i
 
 ### Built-in rules
 
-In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files, and optionally to the files selected by `noRawFormElements`. Rules are enabled as `error` by default; override them in `eslint.config.js` if needed (e.g. `'fohte/no-inline-object-in-expect': 'off'`).
+In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files, and optionally to the files selected by `noRawFormElements`. Rules enabled by the built-in presets are set to `error`; rules that require an explicit option or user config are documented below.
+
+`fohte/require-story-name` is registered for Storybook story files but is off by default. Enable it with a trailing `userConfigs` entry:
+
+```javascript
+export default config(
+  {},
+  {
+    files: ['**/*.stories.tsx'],
+    rules: { 'fohte/require-story-name': 'error' },
+  },
+)
+```
 
 - `fohte/no-inline-object-in-expect` (test files): flags `expect(<object/array literal>).toEqual(...)` (and `toStrictEqual` / `toMatchObject`, including `await … .resolves` / `.rejects` / `.not` chains, and `as const` / `satisfies` / `!` wrapped literals). Also flags the same literal aliased through a variable declared right before the `expect()` call. Pass the value under test directly, or split the assertion into multiple `expect()` calls.
 
@@ -195,6 +207,8 @@ In addition to the upstream presets, this config ships a local plugin (`fohte`) 
     args: { disabled: true },
   }
   ```
+
+- `fohte/require-story-name` (story files, off by default): requires each exported object story to define its own `name` property. It honors literal string and regular expression filters in `includeStories` and `excludeStories`. If either filter is dynamic, the rule skips that file because it cannot determine which exports Storybook treats as stories.
 
 ## Development
 

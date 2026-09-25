@@ -1,47 +1,13 @@
 import type { Rule } from 'eslint'
 
-import { unwrapTsWrapper } from '#rules/utils.js'
-
-interface PropertyNode {
-  type: string
-  computed: boolean
-  key: { type: string; name?: string; value?: unknown }
-  value: { type: string }
-}
-
-interface ObjectExpressionNode {
-  type: string
-  properties: { type: string }[]
-}
-
-function asObjectExpression(node: {
-  type: string
-}): ObjectExpressionNode | undefined {
-  if (node.type !== 'ObjectExpression') return undefined
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to ObjectExpression by the check above
-  return node as unknown as ObjectExpressionNode
-}
-
-function findProperty(
-  obj: ObjectExpressionNode,
-  name: string,
-): PropertyNode | undefined {
-  for (const raw of obj.properties) {
-    if (raw.type !== 'Property') continue
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to Property by the check above
-    const prop = raw as unknown as PropertyNode
-    if (prop.computed) continue
-    const { key } = prop
-    const keyName =
-      key.type === 'Identifier'
-        ? key.name
-        : key.type === 'Literal' && typeof key.value === 'string'
-          ? key.value
-          : undefined
-    if (keyName === name) return prop
-  }
-  return undefined
-}
+import {
+  asObjectExpression,
+  type AstNode,
+  findProperty,
+  isLiteralNode,
+  type ObjectExpressionNode,
+  unwrapTsWrapper,
+} from '#rules/utils.js'
 
 function getObjectProperty(
   obj: ObjectExpressionNode,
@@ -52,10 +18,8 @@ function getObjectProperty(
   return asObjectExpression(unwrapTsWrapper(prop.value))
 }
 
-function isTrueLiteral(node: { type: string }): boolean {
-  if (node.type !== 'Literal') return false
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- narrowed to Literal by the check above
-  return (node as unknown as { value: unknown }).value === true
+function isTrueLiteral(node: AstNode): boolean {
+  return isLiteralNode(node) && node.value === true
 }
 
 export const noPlayInStories: Rule.RuleModule = {

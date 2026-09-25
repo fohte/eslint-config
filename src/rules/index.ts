@@ -3,6 +3,7 @@ import type { ESLint } from 'eslint'
 import { noInlineObjectInExpect } from '#rules/no-inline-object-in-expect.js'
 import { noPlayInStories } from '#rules/no-play-in-stories.js'
 import { noRawFormElements } from '#rules/no-raw-form-elements.js'
+import { requireStoryName } from '#rules/require-story-name.js'
 
 export const fohtePlugin: ESLint.Plugin = {
   meta: {
@@ -12,5 +13,6 @@ export const fohtePlugin: ESLint.Plugin = {
     'no-inline-object-in-expect': noInlineObjectInExpect,
     'no-raw-form-elements': noRawFormElements,
     'no-play-in-stories': noPlayInStories,
+    'require-story-name': requireStoryName,
   },
 }
