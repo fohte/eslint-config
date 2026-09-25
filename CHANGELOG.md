@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.5.1](https://github.com/fohte/eslint-config/compare/v0.5.0...v0.5.1) (2026-09-25)
+
+
+### Features
+
+* add an option to disallow raw form and interactive JSX elements ([#506](https://github.com/fohte/eslint-config/issues/506)) ([4cdaf2f](https://github.com/fohte/eslint-config/commit/4cdaf2f17966490e39ce470e12ef172915b5d82b))
+* **storybook:** add require-story-name rule ([#508](https://github.com/fohte/eslint-config/issues/508)) ([608c72e](https://github.com/fohte/eslint-config/commit/608c72e803c9bbda8560167b9d1ed11548fd5005))
+
 ## [0.5.0](https://github.com/fohte/eslint-config/compare/v0.4.4...v0.5.0) (2026-09-15)
 
 
