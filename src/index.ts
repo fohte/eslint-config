@@ -1,6 +1,7 @@
 export type {
   ConfigOptions,
   ErrorHandlingOptions,
+  NoRawFormElementsOptions,
   OpenTelemetryOptions,
   TailwindOptions,
   TypeScriptOptions,

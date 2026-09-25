@@ -8,6 +8,10 @@ import {
 import { fohteConfig } from '#fohte.js'
 import { mainConfig } from '#main.js'
 import {
+  noRawFormElementsConfig,
+  type NoRawFormElementsOptions,
+} from '#no-raw-form-elements.js'
+import {
   openTelemetryConfig,
   openTelemetryRestrictedSyntaxOptions,
 } from '#opentelemetry.js'
@@ -28,6 +32,7 @@ export interface TypeScriptOptions {
 }
 
 export type { ErrorHandlingOptions }
+export type { NoRawFormElementsOptions }
 export type { TailwindOptions }
 
 export interface OpenTelemetryOptions {
@@ -52,6 +57,11 @@ export interface ConfigOptions {
   errorHandling?: ErrorHandlingOptions
   opentelemetry?: OpenTelemetryOptions
   /**
+   * Disallow raw button, input, select, and textarea JSX elements in the
+   * selected files, steering towards shared UI components.
+   */
+  noRawFormElements?: NoRawFormElementsOptions
+  /**
    * Ban Tailwind CSS arbitrary values (e.g. `w-[600px]`), including ones
    * stashed in a bare string constant, steering towards design tokens
    * defined in `@theme` instead.
@@ -63,7 +73,13 @@ export function config(
   options: ConfigOptions = {},
   ...userConfigs: Linter.Config[]
 ): Linter.Config[] {
-  const { typescript, errorHandling, opentelemetry, tailwind } = options
+  const {
+    typescript,
+    errorHandling,
+    opentelemetry,
+    noRawFormElements,
+    tailwind,
+  } = options
   const typeChecked = typescript?.typeChecked ?? false
 
   if (errorHandling && !typeChecked) {
@@ -99,6 +115,10 @@ export function config(
 
   configs.push(...vitestConfig)
   configs.push(...fohteConfig)
+
+  if (noRawFormElements) {
+    configs.push(...noRawFormElementsConfig(noRawFormElements))
+  }
 
   const openTelemetryEnabled = opentelemetry?.enabled === true
 
