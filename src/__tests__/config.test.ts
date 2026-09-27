@@ -431,10 +431,11 @@ describe('config', () => {
 
     it('enables the shared rules for selected files and recognizes @fohte/ui imports', () => {
       const files = ['app/src/**/*.{jsx,tsx}']
+      const ignores = ['app/src/legacy/**']
 
-      expect(config({ shadcn: { files } }).at(-1)).toEqual({
+      expect(config({ shadcn: { files, ignores } }).at(-1)).toEqual({
         files,
-        ignores: vitestTestFiles,
+        ignores: [...vitestTestFiles, ...ignores],
         plugins: { shadcn: shadcnPlugin },
         settings: {
           shadcn: {

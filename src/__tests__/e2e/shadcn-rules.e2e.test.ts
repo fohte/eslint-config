@@ -10,6 +10,16 @@ const COMPONENT_SOURCE = `import { Button } from '@fohte/ui/button'
 export const Example = () => <Button className="font-bold" />
 `
 
+// Diagnostic wording belongs to the peer plugin and can vary across supported versions.
+function normalizeMessages(
+  messages: ReturnType<typeof runESLint>[number]['messages'],
+) {
+  return messages.map((diagnostic) => ({
+    ...diagnostic,
+    message: '<plugin diagnostic>',
+  }))
+}
+
 describe('shadcn rules E2E', { timeout: 30000 }, () => {
   it('recognizes components imported from @fohte/ui subpaths', () => {
     withTestProject(
@@ -18,16 +28,15 @@ describe('shadcn rules E2E', { timeout: 30000 }, () => {
         files: [{ path: 'example.tsx', content: COMPONENT_SOURCE }],
       },
       (projectDir) => {
-        const messages = runESLint(projectDir).flatMap(
-          (result) => result.messages,
+        const messages = normalizeMessages(
+          runESLint(projectDir).flatMap((result) => result.messages),
         )
 
         expect(messages).toEqual([
           {
             ruleId: 'shadcn/no-restyle',
             severity: 2,
-            message:
-              '"font-bold" is not allowed on <Button>: <Button> owns its typography. Use one of its variants. Add a new variant only if the design explicitly calls for a treatment none of them provides.',
+            message: '<plugin diagnostic>',
             line: 3,
             column: 48,
             messageId: 'appearanceClass',
@@ -35,6 +44,30 @@ describe('shadcn rules E2E', { timeout: 30000 }, () => {
             endColumn: 59,
           },
         ])
+      },
+    )
+  })
+
+  it('allows layout classes on shared components', () => {
+    withTestProject(
+      {
+        shadcn: { files: ['**/*.tsx'] },
+        files: [
+          {
+            path: 'example.tsx',
+            content: `import { Button } from '@fohte/ui/button'
+
+export const Example = () => <Button className="flex" />
+`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const messages = normalizeMessages(
+          runESLint(projectDir).flatMap((result) => result.messages),
+        )
+
+        expect(messages).toEqual([])
       },
     )
   })
@@ -52,8 +85,8 @@ describe('shadcn rules E2E', { timeout: 30000 }, () => {
         files: [{ path: 'example.tsx', content: COMPONENT_SOURCE }],
       },
       (projectDir) => {
-        const messages = runESLint(projectDir).flatMap(
-          (result) => result.messages,
+        const messages = normalizeMessages(
+          runESLint(projectDir).flatMap((result) => result.messages),
         )
 
         expect(messages).toEqual([])

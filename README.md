@@ -185,8 +185,6 @@ export default config(
 )
 ```
 
-The upstream plugin does not support `.astro` files. Use `ignores` to exclude extra files from all five rules.
-
 ### Built-in rules
 
 In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files, and optionally to the files selected by `noRawFormElements`. Rules enabled by the built-in presets are set to `error`; rules that require an explicit option or user config are documented below.
@@ -275,6 +273,7 @@ src/
 ├── opentelemetry.ts   # opentelemetry option (startSpan/startActiveSpan ban)
 ├── no-raw-form-elements.ts # noRawFormElements option (raw JSX element ban)
 ├── tailwind.ts        # tailwind option (Tailwind arbitrary-value ban)
+├── shadcn.ts          # shadcn option (shared component style rules)
 └── types/             # Type definitions for untyped packages
 ```
 
