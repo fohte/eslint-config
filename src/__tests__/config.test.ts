@@ -1,10 +1,11 @@
 import { createRequire } from 'node:module'
 
 import neverthrowPlugin from '@ninoseki/eslint-plugin-neverthrow'
-import type { ESLint } from 'eslint'
+import type { ESLint, Linter } from 'eslint'
 import { describe, expect, it } from 'vitest'
 
 import { config } from '#config.js'
+import { vitestTestFiles } from '#vitest.js'
 
 // eslint-plugin-tailwindcss ships separate CJS and ESM builds (unlike
 // neverthrow, which is ESM-only), so a static `import` here would resolve a
@@ -14,6 +15,10 @@ import { config } from '#config.js'
 const require = createRequire(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- require() returns any; see tailwind.ts's tailwindConfig() for why this is widened to ESLint.Plugin
 const tailwindcssPlugin: ESLint.Plugin = require('eslint-plugin-tailwindcss')
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- require() returns any; widened to ESLint.Plugin
+const {
+  plugin: shadcnPlugin,
+}: { plugin: ESLint.Plugin } = require('@shadcn/lint')
 
 const TAILWIND_ARBITRARY_VALUE_SELECTOR = String.raw`:matches(VariableDeclarator > Literal[value=/-\[[^\]]+\]!?(?=\s|$)/], VariableDeclarator > TemplateLiteral > TemplateElement[value.raw=/-\[[^\]]+\]!?(?=\s|$)/])`
 const TAILWIND_ARBITRARY_VALUE_MESSAGE =
@@ -412,6 +417,50 @@ describe('config', () => {
           'neverthrow/must-use-result': 'error',
         },
       })
+    })
+  })
+
+  describe('shadcn', () => {
+    it('omits the shadcn plugin unless opted in', () => {
+      const result = config().some(
+        (entry) => entry.plugins?.['shadcn'] !== undefined,
+      )
+
+      expect(result).toEqual(false)
+    })
+
+    it('enables the shared rules for selected files and recognizes @fohte/ui imports', () => {
+      const files = ['app/src/**/*.{jsx,tsx}']
+
+      expect(config({ shadcn: { files } }).at(-1)).toEqual({
+        files,
+        ignores: vitestTestFiles,
+        plugins: { shadcn: shadcnPlugin },
+        settings: {
+          shadcn: {
+            componentImports: ['^@fohte/ui(/|$)'],
+          },
+        },
+        rules: {
+          'shadcn/no-restyle': ['error', { allow: ['layout'] }],
+          'shadcn/no-inline-styles': 'error',
+          'shadcn/require-static-classes': 'error',
+          'shadcn/no-unknown-classes': 'error',
+          'shadcn/no-raw-colors': 'error',
+        },
+      })
+    })
+
+    it('keeps user overrides after the shared rules', () => {
+      const files = ['app/src/**/*.tsx']
+      const options: Linter.Config = {
+        files,
+        rules: { 'shadcn/no-inline-styles': 'off' },
+      }
+
+      expect(config({ shadcn: { files } }, options).slice(-1)).toEqual([
+        options,
+      ])
     })
   })
 })

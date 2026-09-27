@@ -9,7 +9,10 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+import type { Linter } from 'eslint'
+
 import type { ErrorHandlingOptions } from '#error-handling.js'
+import type { ShadcnOptions } from '#shadcn.js'
 import type { TailwindOptions } from '#tailwind.js'
 
 interface TestFile {
@@ -23,7 +26,9 @@ export interface E2ETestOptions {
   typeChecked?: boolean
   errorHandling?: ErrorHandlingOptions
   opentelemetry?: { enabled?: boolean }
+  shadcn?: ShadcnOptions
   tailwind?: TailwindOptions
+  userConfigs?: Linter.Config[]
 }
 
 export interface ESLintMessage {
@@ -101,17 +106,21 @@ function createTestProject(options: E2ETestOptions): string {
       `opentelemetry: ${JSON.stringify(options.opentelemetry)}`,
     )
   }
+  if (options.shadcn) {
+    configOptionEntries.push(`shadcn: ${JSON.stringify(options.shadcn)}`)
+  }
   if (options.tailwind) {
     configOptionEntries.push(`tailwind: ${JSON.stringify(options.tailwind)}`)
   }
   const configOptions =
     configOptionEntries.length > 0
       ? `{ ${configOptionEntries.join(', ')} }`
-      : ''
+      : '{}'
+  const userConfigs = JSON.stringify(options.userConfigs ?? [])
 
   const eslintConfig = `import { config } from '${libPath}/index.js'
 
-export default config(${configOptions})`
+export default config(${configOptions}, ...${userConfigs})`
 
   writeFileSync(join(tempDir, 'eslint.config.js'), eslintConfig + '\n')
 
