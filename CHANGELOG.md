@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.5.2](https://github.com/fohte/eslint-config/compare/v0.5.1...v0.5.2) (2026-10-04)
+
+
+### Features
+
+* **config:** add shadcn preset ([#510](https://github.com/fohte/eslint-config/issues/510)) ([08b01db](https://github.com/fohte/eslint-config/commit/08b01db99cf8071c746072b3467469752124fc3c))
+
 ## [0.5.1](https://github.com/fohte/eslint-config/compare/v0.5.0...v0.5.1) (2026-09-25)
 
 
