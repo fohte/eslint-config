@@ -15,6 +15,7 @@ import {
   openTelemetryConfig,
   openTelemetryRestrictedSyntaxOptions,
 } from '#opentelemetry.js'
+import { shadcnConfig, type ShadcnOptions } from '#shadcn.js'
 import { tailwindConfig, type TailwindOptions } from '#tailwind.js'
 import {
   typescriptBaseConfig,
@@ -33,6 +34,7 @@ export interface TypeScriptOptions {
 
 export type { ErrorHandlingOptions }
 export type { NoRawFormElementsOptions }
+export type { ShadcnOptions }
 export type { TailwindOptions }
 
 export interface OpenTelemetryOptions {
@@ -62,6 +64,10 @@ export interface ConfigOptions {
    */
   noRawFormElements?: NoRawFormElementsOptions
   /**
+   * Enable shared component styling rules for selected files.
+   */
+  shadcn?: ShadcnOptions
+  /**
    * Ban Tailwind CSS arbitrary values (e.g. `w-[600px]`), including ones
    * stashed in a bare string constant, steering towards design tokens
    * defined in `@theme` instead.
@@ -78,6 +84,7 @@ export function config(
     errorHandling,
     opentelemetry,
     noRawFormElements,
+    shadcn,
     tailwind,
   } = options
   const typeChecked = typescript?.typeChecked ?? false
@@ -118,6 +125,10 @@ export function config(
 
   if (noRawFormElements) {
     configs.push(...noRawFormElementsConfig(noRawFormElements))
+  }
+
+  if (shadcn) {
+    configs.push(...shadcnConfig(shadcn))
   }
 
   const openTelemetryEnabled = opentelemetry?.enabled === true

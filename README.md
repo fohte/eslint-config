@@ -20,6 +20,9 @@ npm install neverthrow
 # Optional: If using the tailwind option
 npm install --save-dev eslint-plugin-tailwindcss
 npm install tailwindcss
+
+# Optional: If using the shadcn option
+npm install --save-dev @shadcn/lint
 ```
 
 ## Usage
@@ -50,6 +53,11 @@ export default config()
 // steering towards design tokens defined in `@theme` instead:
 // export default config({
 //   tailwind: { cssConfigPath: 'src/index.css' },
+// })
+
+// Optionally, enforce shared component styling rules in selected files:
+// export default config({
+//   shadcn: { files: ['src/**/*.{jsx,tsx}'] },
 // })
 
 // Optionally, ban raw form and button elements in selected files:
@@ -155,6 +163,28 @@ export default config({
 
 This enables `fohte/no-raw-form-elements`, which flags lowercase `<button>`, `<input>`, `<select>`, and `<textarea>` elements and asks you to use a shared UI component instead. `<a>` elements and capitalized components are unaffected.
 
+### `shadcn` option
+
+Install `@shadcn/lint` 0.1.2 or later to opt in. Select supported source files with `files`; test files are excluded automatically, and `ignores` can add more exclusions:
+
+```javascript
+export default config({
+  shadcn: { files: ['src/**/*.{jsx,tsx}'] },
+})
+```
+
+This enables `shadcn/no-restyle`, `shadcn/no-inline-styles`, `shadcn/require-static-classes`, `shadcn/no-unknown-classes`, and `shadcn/no-raw-colors` as errors. `no-restyle` recognizes components imported from `@fohte/ui` and its subpaths, while allowing layout classes. Add a trailing `userConfigs` entry to override or disable an individual rule. For example, disable `no-restyle` in a repository's shared component definitions while keeping the other rules enabled:
+
+```javascript
+export default config(
+  { shadcn: { files: ['src/**/*.{jsx,tsx}'] } },
+  {
+    files: ['src/components/ui/**'],
+    rules: { 'shadcn/no-restyle': 'off' },
+  },
+)
+```
+
 ### Built-in rules
 
 In addition to the upstream presets, this config ships a local plugin (`fohte`) applied to test files and Storybook story files, and optionally to the files selected by `noRawFormElements`. Rules enabled by the built-in presets are set to `error`; rules that require an explicit option or user config are documented below.
@@ -243,6 +273,7 @@ src/
 ├── opentelemetry.ts   # opentelemetry option (startSpan/startActiveSpan ban)
 ├── no-raw-form-elements.ts # noRawFormElements option (raw JSX element ban)
 ├── tailwind.ts        # tailwind option (Tailwind arbitrary-value ban)
+├── shadcn.ts          # shadcn option (shared component style rules)
 └── types/             # Type definitions for untyped packages
 ```
 

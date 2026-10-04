@@ -3,6 +3,7 @@ export type {
   ErrorHandlingOptions,
   NoRawFormElementsOptions,
   OpenTelemetryOptions,
+  ShadcnOptions,
   TailwindOptions,
   TypeScriptOptions,
 } from '#config.js'
