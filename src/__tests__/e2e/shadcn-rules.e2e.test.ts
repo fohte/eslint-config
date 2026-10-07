@@ -72,6 +72,78 @@ export const Example = () => <Button className="flex" />
     )
   })
 
+  it('allows @fohte/ui theme colors with opacity while reporting raw palette colors', () => {
+    withTestProject(
+      {
+        shadcn: { files: ['**/*.tsx'] },
+        userConfigs: [
+          {
+            files: ['**/*.tsx'],
+            rules: {
+              'shadcn/no-inline-styles': 'off',
+              'shadcn/no-restyle': 'off',
+              'shadcn/no-unknown-classes': 'off',
+              'shadcn/require-static-classes': 'off',
+            },
+          },
+        ],
+        files: [
+          {
+            path: 'node_modules/@fohte/ui/package.json',
+            content: JSON.stringify({
+              name: '@fohte/ui',
+              type: 'module',
+              exports: { './tokens.css': './tokens.css' },
+            }),
+          },
+          {
+            path: 'node_modules/@fohte/ui/tokens.css',
+            content: `@theme static {
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+}
+`,
+          },
+          {
+            path: 'src/index.css',
+            content: `@import 'tailwindcss';
+@import '@fohte/ui/tokens.css';
+
+@theme {
+  --color-local-test: #fff;
+}
+`,
+          },
+          {
+            path: 'example.tsx',
+            content: `export const Example = () => (
+  <div className="text-muted-foreground bg-accent/50 bg-red-500" />
+)
+`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const messages = normalizeMessages(
+          runESLint(projectDir).flatMap((result) => result.messages),
+        )
+
+        expect(messages).toEqual([
+          {
+            ruleId: 'shadcn/no-raw-colors',
+            severity: 2,
+            message: '<plugin diagnostic>',
+            line: 2,
+            column: 18,
+            messageId: 'paletteClassFar',
+            endLine: 2,
+            endColumn: 65,
+          },
+        ])
+      },
+    )
+  })
+
   it('allows a trailing config to disable an individual rule', () => {
     withTestProject(
       {
