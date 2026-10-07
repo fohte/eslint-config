@@ -1,35 +1,62 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 
 import type { ESLint, Linter } from 'eslint'
+import { Result } from 'neverthrow'
 
 import { vitestTestFiles } from '#vitest.js'
 
 const require = createRequire(import.meta.url)
 const FOHTE_UI_TOKENS_FILE = '@fohte/ui/tokens.css'
 
-function fohteUiThemeColorAllowList(): string[] {
-  const projectRequire = createRequire(join(process.cwd(), 'package.json'))
-  const lookupPaths = projectRequire.resolve.paths(FOHTE_UI_TOKENS_FILE) ?? []
-  const packageIsInstalled = lookupPaths.some((lookupPath) =>
-    existsSync(join(lookupPath, '@fohte/ui', 'package.json')),
-  )
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
 
-  if (!packageIsInstalled) return []
+function packageDeclaresFohteUi(packageJson: unknown): boolean {
+  if (!isRecord(packageJson)) return false
 
-  const tokensCssPath = projectRequire.resolve(FOHTE_UI_TOKENS_FILE)
-  const tokensCss = readFileSync(tokensCssPath, 'utf-8')
-  const allowedColors = new Set<string>()
+  return [
+    'dependencies',
+    'devDependencies',
+    'optionalDependencies',
+    'peerDependencies',
+  ].some((section) => {
+    const dependencies = packageJson[section]
 
-  for (const [, color] of tokensCss.matchAll(/--color-([\w-]+)\s*:/g)) {
-    if (color !== undefined) allowedColors.add(`*-${color}`)
-  }
+    return isRecord(dependencies) && Object.hasOwn(dependencies, '@fohte/ui')
+  })
+}
 
-  return [...allowedColors]
+function fohteUiThemeColorAllowList(rootDir: string): string[] {
+  const projectRoot = resolve(rootDir)
+  const projectRequire = createRequire(join(projectRoot, 'package.json'))
+
+  return Result.fromThrowable(() => {
+    const packageJson: unknown = JSON.parse(
+      readFileSync(join(projectRoot, 'package.json'), 'utf-8'),
+    )
+    if (!packageDeclaresFohteUi(packageJson)) return []
+
+    const tokensCssPath = projectRequire.resolve(FOHTE_UI_TOKENS_FILE)
+    const tokensCss = readFileSync(tokensCssPath, 'utf-8')
+    const allowedColors = new Set<string>()
+
+    for (const [, color] of tokensCss.matchAll(/--color-([\w-]+)\s*:/g)) {
+      if (color !== undefined) allowedColors.add(`*-${color}`)
+    }
+
+    return [...allowedColors]
+  })().unwrapOr([])
 }
 
 export interface ShadcnOptions {
+  /**
+   * Project root that declares @fohte/ui, used to resolve its theme tokens.
+   * Defaults to the current working directory.
+   */
+  rootDir?: string
   /**
    * Glob patterns for the supported source files to check.
    */
@@ -46,7 +73,9 @@ export function shadcnConfig(options: ShadcnOptions): Linter.Config[] {
   const {
     plugin: shadcnPlugin,
   }: { plugin: ESLint.Plugin } = require('@shadcn/lint')
-  const themeColorAllowList = fohteUiThemeColorAllowList()
+  const themeColorAllowList = fohteUiThemeColorAllowList(
+    options.rootDir ?? process.cwd(),
+  )
 
   return [
     {

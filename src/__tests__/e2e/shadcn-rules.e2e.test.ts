@@ -75,10 +75,10 @@ export const Example = () => <Button className="flex" />
   it('allows @fohte/ui theme colors with opacity while reporting raw palette colors', () => {
     withTestProject(
       {
-        shadcn: { files: ['**/*.tsx'] },
+        shadcn: { files: ['apps/web/**/*.tsx'], rootDir: 'apps/web' },
         userConfigs: [
           {
-            files: ['**/*.tsx'],
+            files: ['apps/web/**/*.tsx'],
             rules: {
               'shadcn/no-inline-styles': 'off',
               'shadcn/no-restyle': 'off',
@@ -89,7 +89,15 @@ export const Example = () => <Button className="flex" />
         ],
         files: [
           {
-            path: 'node_modules/@fohte/ui/package.json',
+            path: 'apps/web/package.json',
+            content: JSON.stringify({
+              name: 'web-app',
+              type: 'module',
+              dependencies: { '@fohte/ui': '*' },
+            }),
+          },
+          {
+            path: 'apps/web/node_modules/@fohte/ui/package.json',
             content: JSON.stringify({
               name: '@fohte/ui',
               type: 'module',
@@ -97,7 +105,7 @@ export const Example = () => <Button className="flex" />
             }),
           },
           {
-            path: 'node_modules/@fohte/ui/tokens.css',
+            path: 'apps/web/node_modules/@fohte/ui/tokens.css',
             content: `@theme static {
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -105,7 +113,7 @@ export const Example = () => <Button className="flex" />
 `,
           },
           {
-            path: 'src/index.css',
+            path: 'apps/web/src/index.css',
             content: `@import 'tailwindcss';
 @import '@fohte/ui/tokens.css';
 
@@ -115,7 +123,7 @@ export const Example = () => <Button className="flex" />
 `,
           },
           {
-            path: 'example.tsx',
+            path: 'apps/web/example.tsx',
             content: `export const Example = () => (
   <div className="text-muted-foreground bg-accent/50 bg-red-500" />
 )
@@ -138,6 +146,126 @@ export const Example = () => <Button className="flex" />
             messageId: 'paletteClassFar',
             endLine: 2,
             endColumn: 65,
+          },
+        ])
+      },
+    )
+  })
+
+  it('continues loading when @fohte/ui does not export tokens.css', () => {
+    withTestProject(
+      {
+        shadcn: { files: ['apps/web/**/*.tsx'], rootDir: 'apps/web' },
+        userConfigs: [
+          {
+            files: ['apps/web/**/*.tsx'],
+            rules: {
+              'shadcn/no-inline-styles': 'off',
+              'shadcn/no-restyle': 'off',
+              'shadcn/no-unknown-classes': 'off',
+              'shadcn/require-static-classes': 'off',
+            },
+          },
+        ],
+        files: [
+          {
+            path: 'apps/web/package.json',
+            content: JSON.stringify({
+              name: 'web-app',
+              type: 'module',
+              dependencies: { '@fohte/ui': '*' },
+            }),
+          },
+          {
+            path: 'apps/web/node_modules/@fohte/ui/package.json',
+            content: JSON.stringify({
+              name: '@fohte/ui',
+              type: 'module',
+              exports: { '.': './index.js' },
+            }),
+          },
+          {
+            path: 'apps/web/example.tsx',
+            content: `export const Example = () => <div />\n`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const messages = normalizeMessages(
+          runESLint(projectDir).flatMap((result) => result.messages),
+        )
+
+        expect(messages).toEqual([])
+      },
+    )
+  })
+
+  it('does not allow theme colors when @fohte/ui is not a project dependency', () => {
+    withTestProject(
+      {
+        shadcn: { files: ['apps/web/**/*.tsx'], rootDir: 'apps/web' },
+        userConfigs: [
+          {
+            files: ['apps/web/**/*.tsx'],
+            rules: {
+              'shadcn/no-inline-styles': 'off',
+              'shadcn/no-restyle': 'off',
+              'shadcn/no-unknown-classes': 'off',
+              'shadcn/require-static-classes': 'off',
+            },
+          },
+        ],
+        files: [
+          {
+            path: 'apps/web/package.json',
+            content: JSON.stringify({ name: 'web-app', type: 'module' }),
+          },
+          {
+            path: 'node_modules/@fohte/ui/package.json',
+            content: JSON.stringify({
+              name: '@fohte/ui',
+              type: 'module',
+              exports: { './tokens.css': './tokens.css' },
+            }),
+          },
+          {
+            path: 'node_modules/@fohte/ui/tokens.css',
+            content: `@theme static {
+  --color-accent: var(--accent);
+}
+`,
+          },
+          {
+            path: 'apps/web/src/index.css',
+            content: `@import 'tailwindcss';
+@import '@fohte/ui/tokens.css';
+
+@theme {
+  --color-local-test: #fff;
+}
+`,
+          },
+          {
+            path: 'apps/web/example.tsx',
+            content: `export const Example = () => <div className="bg-accent" />\n`,
+          },
+        ],
+      },
+      (projectDir) => {
+        const messages = normalizeMessages(
+          runESLint(projectDir).flatMap((result) => result.messages),
+        )
+
+        expect(messages).toEqual([
+          {
+            ruleId: 'shadcn/no-raw-colors',
+            severity: 2,
+            message: '<plugin diagnostic>',
+            line: 1,
+            column: 45,
+            messageId: 'undeclaredToken',
+            endLine: 1,
+            endColumn: 56,
           },
         ])
       },

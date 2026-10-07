@@ -169,6 +169,9 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3.0.0
         version: 3.3.6(supports-color@10.2.2)
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
     devDependencies:
       '@commitlint/cli':
         specifier: 21.2.2
@@ -218,9 +221,6 @@ importers:
       knip:
         specifier: 6.35.1
         version: 6.35.1
-      neverthrow:
-        specifier: 8.2.0
-        version: 8.2.0
       prettier:
         specifier: 3.9.6
         version: 3.9.6
