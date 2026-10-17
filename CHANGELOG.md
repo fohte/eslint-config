@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note**: Starting from the next release, this changelog will be automatically maintained by [release-please](https://github.com/googleapis/release-please).
 
+## [0.5.3](https://github.com/fohte/eslint-config/compare/v0.5.2...v0.5.3) (2026-10-17)
+
+
+### Bug Fixes
+
+* **shadcn:** prevent false positive reports on @fohte/ui theme colors ([#512](https://github.com/fohte/eslint-config/issues/512)) ([a1c6857](https://github.com/fohte/eslint-config/commit/a1c6857df4baaaad28f7b3d78370d371c0d7e4d1))
+
 ## [0.5.2](https://github.com/fohte/eslint-config/compare/v0.5.1...v0.5.2) (2026-10-04)
 
 
